@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { authRouter } from './routes/auth';
 import { employeeRouter } from './routes/employee';
+import { employeeProfileRouter } from './routes/employee-profile';
+import { peopleRouter } from './routes/people';
 import { adminRouter } from './routes/admin';
 import { errorHandler } from './middleware/error-handler';
 
@@ -28,6 +30,9 @@ app.get('/api/health', (_req, res) => {
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/employees', employeeRouter);
+app.use('/api/employees', employeeProfileRouter);
+app.use('/api/people', peopleRouter);
+app.use('/api', peopleRouter);
 app.use('/api/admin', adminRouter);
 
 // Error handler

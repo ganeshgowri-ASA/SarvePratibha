@@ -96,3 +96,154 @@ export interface NotificationItem {
   isRead: boolean;
   createdAt: string;
 }
+
+// ─── Employee Profile ──────────────────────────────────────────────
+
+export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
+export type MaritalStatus = 'SINGLE' | 'MARRIED' | 'DIVORCED' | 'WIDOWED';
+export type DocumentType = 'AADHAAR' | 'PAN' | 'PASSPORT' | 'DRIVING_LICENSE' | 'VOTER_ID';
+export type NominationType = 'PF' | 'GRATUITY' | 'INSURANCE';
+export type Relationship = 'FATHER' | 'MOTHER' | 'SPOUSE' | 'SON' | 'DAUGHTER' | 'BROTHER' | 'SISTER' | 'OTHER';
+
+export interface EmployeeProfile {
+  id: string;
+  employeeId: string;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  title?: string;
+  dateOfBirth?: string;
+  gender?: Gender;
+  maritalStatus?: MaritalStatus;
+  maritalSinceDate?: string;
+  nationality?: string;
+  bloodGroup?: string;
+  placeOfBirth?: string;
+  stateOfBirth?: string;
+  religion?: string;
+  identificationMark?: string;
+  heightCm?: number;
+  weightKg?: number;
+  motherTongue?: string;
+  caste?: string;
+  phone?: string;
+  personalEmail?: string;
+  corporatePhone?: string;
+  personalPhone?: string;
+  residentialPhone?: string;
+  officePhone?: string;
+  officialEmail?: string;
+  workLocation?: string;
+  permanentAddress?: string;
+  permanentCity?: string;
+  permanentState?: string;
+  permanentCountry?: string;
+  permanentPincode?: string;
+  panNumber?: string;
+  aadharNumber?: string;
+  passportNumber?: string;
+  drivingLicense?: string;
+  voterIdNumber?: string;
+  bankAccountNo?: string;
+  ifscCode?: string;
+  bankName?: string;
+  bankBranch?: string;
+  dateOfJoining: string;
+  confirmationDate?: string;
+  lastPromotionDate?: string;
+  lastCertifiedDate?: string;
+  profilePhoto?: string;
+  employmentStatus: string;
+  employmentType: string;
+  department: { id: string; name: string };
+  designation: { id: string; name: string };
+  manager?: { id: string; firstName: string; lastName: string; employeeId: string };
+  dottedLineManager?: { id: string; firstName: string; lastName: string; employeeId: string };
+  orgUnitChief?: { id: string; firstName: string; lastName: string; employeeId: string };
+  user: { email: string; role: UserRole; image?: string };
+  familyMembers?: FamilyMemberItem[];
+  nominations?: NominationItem[];
+  personalDocuments?: PersonalDocumentItem[];
+  educationRecords?: EducationItem[];
+  experienceRecords?: ExperienceItem[];
+}
+
+export interface FamilyMemberItem {
+  id: string;
+  name: string;
+  relationship: Relationship;
+  dateOfBirth?: string;
+  gender?: Gender;
+  occupation?: string;
+  phone?: string;
+  isDependent: boolean;
+}
+
+export interface NominationItem {
+  id: string;
+  type: NominationType;
+  nomineeName: string;
+  relationship: Relationship;
+  dateOfBirth?: string;
+  percentage: number;
+  address?: string;
+}
+
+export interface PersonalDocumentItem {
+  id: string;
+  documentType: DocumentType;
+  documentNumber: string;
+  fileUrl?: string;
+  fileName?: string;
+  isVerified: boolean;
+  expiryDate?: string;
+}
+
+export interface EducationItem {
+  id: string;
+  degree: string;
+  institution: string;
+  university?: string;
+  yearOfPassing?: number;
+  percentage?: number;
+  grade?: string;
+  specialization?: string;
+}
+
+export interface ExperienceItem {
+  id: string;
+  companyName: string;
+  designation: string;
+  fromDate: string;
+  toDate?: string;
+  isCurrent: boolean;
+  reasonForLeaving?: string;
+  lastDrawnSalary?: number;
+  location?: string;
+}
+
+export interface OrgHierarchyNode {
+  id: string;
+  employeeId: string;
+  firstName: string;
+  lastName: string;
+  designation: string;
+  department: string;
+  profilePhoto?: string;
+  role: string;
+  children?: OrgHierarchyNode[];
+}
+
+export interface PeopleSearchResult {
+  id: string;
+  employeeId: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  personalEmail?: string;
+  officialEmail?: string;
+  profilePhoto?: string;
+  department: string;
+  designation: string;
+  workLocation?: string;
+}
