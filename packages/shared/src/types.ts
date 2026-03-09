@@ -69,20 +69,129 @@ export interface BirthdayAnniversary {
 
 // ─── Attendance ─────────────────────────────────────────────────────
 
+export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'HALF_DAY' | 'ON_LEAVE' | 'HOLIDAY' | 'WEEKEND' | 'WORK_FROM_HOME';
+
 export interface PunchStatus {
   isPunchedIn: boolean;
   lastPunchTime?: string;
   todayHours?: number;
+  punchInTime?: string;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  date: string;
+  status: AttendanceStatus;
+  firstPunchIn?: string;
+  lastPunchOut?: string;
+  totalHours?: number;
+  overtime?: number;
+  remarks?: string;
+}
+
+export interface TeamAttendance {
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  date: string;
+  status: AttendanceStatus;
+  punchIn?: string;
+  punchOut?: string;
+  totalHours?: number;
+}
+
+export interface RegularizationRequest {
+  id: string;
+  date: string;
+  reason: string;
+  requestedStatus: AttendanceStatus;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  remarks?: string;
+  createdAt: string;
 }
 
 // ─── Leave ──────────────────────────────────────────────────────────
 
+export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+export type LeaveDay = 'FULL' | 'FIRST_HALF' | 'SECOND_HALF' | 'QUARTER';
+
 export interface LeaveBalanceSummary {
+  id: string;
   leaveType: string;
   code: string;
   allocated: number;
   used: number;
+  carried: number;
   balance: number;
+  color?: string;
+}
+
+export interface LeaveRequestSummary {
+  id: string;
+  leaveType: string;
+  leaveTypeCode: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  startDayType: LeaveDay;
+  endDayType: LeaveDay;
+  reason?: string;
+  status: LeaveStatus;
+  appliedOn: string;
+  approvedBy?: string;
+  remarks?: string;
+}
+
+export interface LeaveTypeInfo {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  defaultDays: number;
+  carryForwardLimit: number;
+  isEncashable: boolean;
+  isPaidLeave: boolean;
+  isActive: boolean;
+}
+
+export interface HolidayInfo {
+  id: string;
+  name: string;
+  date: string;
+  type: 'NATIONAL' | 'OPTIONAL' | 'RESTRICTED';
+  location?: string;
+  isOptional: boolean;
+}
+
+export interface CompOffRequest {
+  id: string;
+  workedDate: string;
+  compOffDate?: string;
+  reason: string;
+  hours: number;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  createdAt: string;
+}
+
+export interface WfhRequest {
+  id: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  createdAt: string;
+}
+
+export interface OnDutyRequest {
+  id: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  location?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  createdAt: string;
 }
 
 // ─── Notification ───────────────────────────────────────────────────

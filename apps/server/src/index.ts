@@ -6,6 +6,9 @@ import dotenv from 'dotenv';
 import { authRouter } from './routes/auth';
 import { employeeRouter } from './routes/employee';
 import { adminRouter } from './routes/admin';
+import { leaveRouter } from './routes/leave';
+import { attendanceRouter } from './routes/attendance';
+import { holidayRouter } from './routes/holiday';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -29,6 +32,9 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api/employees', employeeRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/leave', leaveRouter);
+app.use('/api/attendance', attendanceRouter);
+app.use('/api', holidayRouter);
 
 // Error handler
 app.use(errorHandler);

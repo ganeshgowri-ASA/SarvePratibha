@@ -53,6 +53,26 @@ enum LeaveStatus {
   CANCELLED
 }
 
+enum LeaveDay {
+  FULL
+  FIRST_HALF
+  SECOND_HALF
+  QUARTER
+}
+
+enum RegularizationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 enum AttendanceStatus {
   PRESENT
   ABSENT
@@ -402,11 +422,17 @@ model Employee {
   leaveBalances LeaveBalance[]
 
   // Attendance
-  attendances  Attendance[]
-  punchRecords PunchRecord[]
+  attendances       Attendance[]
+  punchRecords      PunchRecord[]
+  regularizations   AttendanceRegularization[]
 
   // Shift
   shiftSchedules ShiftSchedule[]
+
+  // Special requests
+  compOffRequests      CompOff[]
+  wfhRequests          WorkFromHome[]
+  onDutyRequests       OnDuty[]
 
   // Payroll
   payrollStructure PayrollStructure?
@@ -461,19 +487,22 @@ model LeaveType {
 }
 
 model LeaveRequest {
-  id          String      @id @default(cuid())
-  employeeId  String
-  leaveTypeId String
-  startDate   DateTime
-  endDate     DateTime
-  days        Float
-  reason      String?
-  status      LeaveStatus @default(PENDING)
-  approvedBy  String?
-  approvedAt  DateTime?
-  remarks     String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id            String      @id @default(cuid())
+  employeeId    String
+  leaveTypeId   String
+  startDate     DateTime
+  endDate       DateTime
+  days          Float
+  startDayType  LeaveDay    @default(FULL)
+  endDayType    LeaveDay    @default(FULL)
+  reason        String?
+  attachmentUrl String?
+  status        LeaveStatus @default(PENDING)
+  approvedBy    String?
+  approvedAt    DateTime?
+  remarks       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
   employee  Employee  @relation(fields: [employeeId], references: [id])
   leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
@@ -559,6 +588,107 @@ model ShiftSchedule {
 
   @@index([employeeId])
   @@map("shift_schedules")
+}
+
+model HolidayCalendar {
+  id          String   @id @default(cuid())
+  name        String
+  date        DateTime @db.Date
+  type        String   @default("NATIONAL") // NATIONAL, OPTIONAL, RESTRICTED
+  location    String?
+  isOptional  Boolean  @default(false)
+  year        Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([date, location])
+  @@index([year])
+  @@index([type])
+  @@map("holiday_calendars")
+}
+
+model AttendanceRegularization {
+  id           String               @id @default(cuid())
+  employeeId   String
+  date         DateTime             @db.Date
+  reason       String
+  requestedStatus AttendanceStatus  @default(PRESENT)
+  status       RegularizationStatus @default(PENDING)
+  approvedBy   String?
+  approvedAt   DateTime?
+  remarks      String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("attendance_regularizations")
+}
+
+model CompOff {
+  id           String        @id @default(cuid())
+  employeeId   String
+  workedDate   DateTime      @db.Date
+  compOffDate  DateTime?     @db.Date
+  reason       String
+  hours        Float         @default(8)
+  status       RequestStatus @default(PENDING)
+  approvedBy   String?
+  approvedAt   DateTime?
+  remarks      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("comp_offs")
+}
+
+model WorkFromHome {
+  id          String        @id @default(cuid())
+  employeeId  String
+  startDate   DateTime
+  endDate     DateTime
+  days        Float
+  reason      String
+  status      RequestStatus @default(PENDING)
+  approvedBy  String?
+  approvedAt  DateTime?
+  remarks     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("work_from_home")
+}
+
+model OnDuty {
+  id          String        @id @default(cuid())
+  employeeId  String
+  startDate   DateTime
+  endDate     DateTime
+  days        Float
+  reason      String
+  location    String?
+  status      RequestStatus @default(PENDING)
+  approvedBy  String?
+  approvedAt  DateTime?
+  remarks     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("on_duty")
 }
 
 // ─── PAYROLL ────────────────────────────────────────────────────────
