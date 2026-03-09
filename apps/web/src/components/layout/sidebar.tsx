@@ -28,6 +28,7 @@ import {
   DoorOpen,
   Car,
   Bell,
+  ShieldCheck,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -62,6 +63,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   DoorOpen,
   Car,
   Bell,
+  ShieldCheck,
 };
 
 interface SidebarItem {
@@ -97,6 +99,7 @@ const MENU_ITEMS: SidebarItem[] = [
   { id: 'ai-screening', label: 'AI Screening', icon: 'Bot', href: '/ai-screening', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
   { id: 'notifications', label: 'Notifications', icon: 'Bell', href: '/notifications' },
+  { id: 'admin', label: 'Admin Panel', icon: 'ShieldCheck', href: '/admin', roles: ['IT_ADMIN'] },
 ];
 
 export function Sidebar() {

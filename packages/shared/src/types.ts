@@ -1261,3 +1261,213 @@ export interface CabRequestItem {
   vehicleNumber?: string;
   createdAt: string;
 }
+
+// ─── Admin Module Types ────────────────────────────────────────────
+
+export type ConfigCategory = 'GENERAL' | 'EMAIL' | 'SECURITY' | 'NOTIFICATIONS' | 'PAYROLL' | 'LEAVE' | 'ATTENDANCE' | 'INTEGRATION';
+
+export interface SystemConfigItem {
+  id: string;
+  key: string;
+  value: string;
+  label: string;
+  description?: string;
+  category: ConfigCategory;
+  isEditable: boolean;
+}
+
+export interface SystemHealthData {
+  stats: {
+    totalUsers: number;
+    activeEmployees: number;
+    departments: number;
+    pendingLeaves: number;
+  };
+  system: {
+    uptime: number;
+    cpuLoad: number[];
+    memoryUsage: {
+      used: number;
+      total: number;
+      percentage: string;
+      heapUsed: number;
+      heapTotal: number;
+    };
+    nodeVersion: string;
+    platform: string;
+  };
+  services: {
+    database: string;
+    api: string;
+    activeSessions: number;
+  };
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  isActive: boolean;
+  lastLoginAt?: string;
+  createdAt: string;
+  image?: string;
+  employee?: {
+    employeeId: string;
+    departmentId: string;
+    department?: { name: string };
+  };
+}
+
+export interface SecurityPolicyData {
+  id: string;
+  minPasswordLength: number;
+  requireUppercase: boolean;
+  requireLowercase: boolean;
+  requireNumbers: boolean;
+  requireSpecialChars: boolean;
+  passwordExpiryDays: number;
+  maxLoginAttempts: number;
+  lockoutDurationMins: number;
+  sessionTimeoutMins: number;
+  enable2FA: boolean;
+  ipWhitelist?: string;
+  enforceIPWhitelist: boolean;
+}
+
+export interface AuditLogItem {
+  id: string;
+  userId: string;
+  action: string;
+  entity: string;
+  entityId?: string;
+  oldData?: any;
+  newData?: any;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+  user: { name: string; email: string; role: UserRole };
+}
+
+export interface BackupLogItem {
+  id: string;
+  type: string;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+  fileName?: string;
+  fileSize?: string;
+  startedAt: string;
+  completedAt?: string;
+  triggeredBy?: string;
+  error?: string;
+}
+
+export interface IntegrationItem {
+  id: string;
+  name: string;
+  provider: string;
+  description?: string;
+  config?: any;
+  isEnabled: boolean;
+  lastSyncAt?: string;
+}
+
+export interface DepartmentItem {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  parentId?: string;
+  isActive: boolean;
+  organization?: { name: string };
+  parent?: { name: string };
+  _count?: { employees: number };
+}
+
+export interface LocationItem {
+  id: string;
+  name: string;
+  code: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  isActive: boolean;
+}
+
+export interface DesignationItem {
+  id: string;
+  name: string;
+  code: string;
+  level: number;
+  band?: string;
+  isActive: boolean;
+  _count?: { employees: number };
+}
+
+export interface GradeItem {
+  id: string;
+  name: string;
+  code: string;
+  level: number;
+  minSalary?: number;
+  maxSalary?: number;
+  isActive: boolean;
+}
+
+export interface CustomFieldItem {
+  id: string;
+  module: string;
+  fieldName: string;
+  fieldLabel: string;
+  fieldType: string;
+  options?: any;
+  isRequired: boolean;
+  isActive: boolean;
+  displayOrder: number;
+}
+
+export interface WorkflowItem {
+  id: string;
+  name: string;
+  module: string;
+  description?: string;
+  triggerEvent?: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'DRAFT';
+  steps: WorkflowStepItem[];
+}
+
+export interface WorkflowStepItem {
+  id: string;
+  stepOrder: number;
+  name: string;
+  approverRole?: UserRole;
+  approverId?: string;
+  isRequired: boolean;
+  autoApprove: boolean;
+  timeoutHours?: number;
+}
+
+export interface AnnouncementItem {
+  id: string;
+  title: string;
+  content: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  targetRole?: UserRole;
+  isPinned: boolean;
+  isActive: boolean;
+  publishAt: string;
+  expiresAt?: string;
+  createdBy?: string;
+  createdAt: string;
+}
+
+export interface CompanyPolicyItem {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  version: string;
+  isActive: boolean;
+  effectiveFrom: string;
+  effectiveTo?: string;
+}
