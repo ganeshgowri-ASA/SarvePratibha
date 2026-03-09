@@ -910,3 +910,152 @@ export type AnnouncementInput = z.infer<typeof announcementSchema>;
 export type CompanyPolicyInput = z.infer<typeof companyPolicySchema>;
 export type CustomFieldInput = z.infer<typeof customFieldSchema>;
 export type WorkflowInput = z.infer<typeof workflowSchema>;
+
+// ─── Engagement Validations ────────────────────────────────────────
+
+export const surveyCreateSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  isAnonymous: z.boolean().default(true),
+  startDate: z.string().or(z.date()).optional(),
+  endDate: z.string().or(z.date()).optional(),
+  status: z.enum(['DRAFT', 'ACTIVE', 'CLOSED']).default('DRAFT'),
+  questions: z.array(z.object({
+    text: z.string().min(1, 'Question text is required'),
+    type: z.enum(['RATING', 'TEXT', 'MULTIPLE_CHOICE', 'SINGLE_CHOICE', 'NPS']).default('RATING'),
+    options: z.any().optional(),
+    isRequired: z.boolean().default(true),
+  })).min(1, 'At least one question is required'),
+});
+
+export const surveyResponseSchema = z.object({
+  answers: z.array(z.object({
+    questionId: z.string().min(1),
+    answer: z.string(),
+    rating: z.number().int().min(0).max(10).optional(),
+  })).min(1),
+});
+
+export const pollCreateSchema = z.object({
+  question: z.string().min(1, 'Question is required'),
+  description: z.string().optional(),
+  isAnonymous: z.boolean().default(false),
+  expiresAt: z.string().or(z.date()).optional(),
+  options: z.array(z.string().min(1)).min(2, 'At least 2 options required'),
+});
+
+export const pollVoteSchema = z.object({
+  optionId: z.string().min(1, 'Option is required'),
+});
+
+// ─── D&I Validations ───────────────────────────────────────────────
+
+export const diGoalCreateSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  category: z.string().min(1, 'Category is required'),
+  targetValue: z.number().min(0),
+  unit: z.string().optional(),
+  startDate: z.string().or(z.date()),
+  endDate: z.string().or(z.date()),
+  department: z.string().optional(),
+});
+
+// ─── Compliance Validations ────────────────────────────────────────
+
+export const compliancePolicyCreateSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  content: z.string().optional(),
+  category: z.string().min(1, 'Category is required'),
+  version: z.string().default('1.0'),
+  status: z.enum(['DRAFT', 'ACTIVE', 'ARCHIVED']).default('DRAFT'),
+  effectiveFrom: z.string().or(z.date()),
+  effectiveTo: z.string().or(z.date()).optional(),
+  isRequired: z.boolean().default(true),
+});
+
+export const complianceTrainingEnrollSchema = z.object({
+  trainingId: z.string().min(1, 'Training ID is required'),
+});
+
+// ─── Document Validations ──────────────────────────────────────────
+
+export const documentUploadSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  categoryId: z.string().optional(),
+  fileUrl: z.string().min(1, 'File URL is required'),
+  fileName: z.string().min(1, 'File name is required'),
+  fileSize: z.number().optional(),
+  mimeType: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+});
+
+export const documentSignSchema = z.object({
+  action: z.enum(['sign', 'request']),
+  signatureData: z.string().optional(),
+  signerIds: z.array(z.string()).optional(),
+  reason: z.string().optional(),
+});
+
+// ─── Talent Validations ────────────────────────────────────────────
+
+export const successionPlanCreateSchema = z.object({
+  positionTitle: z.string().min(1, 'Position title is required'),
+  department: z.string().min(1, 'Department is required'),
+  currentHolderId: z.string().optional(),
+  successorId: z.string().min(1, 'Successor is required'),
+  readiness: z.string().min(1, 'Readiness level is required'),
+  priority: z.number().int().min(1).default(1),
+  notes: z.string().optional(),
+  developmentPlan: z.string().optional(),
+  targetDate: z.string().or(z.date()).optional(),
+});
+
+// ─── Learning Validations ──────────────────────────────────────────
+
+export const learningEnrollSchema = z.object({
+  courseId: z.string().min(1, 'Course ID is required'),
+});
+
+// ─── Onboarding Validations ────────────────────────────────────────
+
+export const onboardingChecklistCreateSchema = z.object({
+  employeeId: z.string().min(1, 'Employee ID is required'),
+  tasks: z.array(z.object({
+    title: z.string().min(1),
+    description: z.string().optional(),
+    category: z.string().min(1),
+    dueDate: z.string().or(z.date()).optional(),
+  })).min(1, 'At least one task is required'),
+});
+
+// ─── Offboarding Validations ───────────────────────────────────────
+
+export const offboardingInitiateSchema = z.object({
+  employeeId: z.string().min(1, 'Employee ID is required'),
+  reason: z.string().optional(),
+  lastWorkingDate: z.string().or(z.date()).optional(),
+  tasks: z.array(z.object({
+    title: z.string().min(1),
+    description: z.string().optional(),
+    category: z.string().min(1),
+  })).optional(),
+});
+
+// ─── New Module Type Inferences ────────────────────────────────────
+
+export type SurveyCreateInput = z.infer<typeof surveyCreateSchema>;
+export type SurveyResponseInput = z.infer<typeof surveyResponseSchema>;
+export type PollCreateInput = z.infer<typeof pollCreateSchema>;
+export type PollVoteInput = z.infer<typeof pollVoteSchema>;
+export type DIGoalCreateInput = z.infer<typeof diGoalCreateSchema>;
+export type CompliancePolicyCreateInput = z.infer<typeof compliancePolicyCreateSchema>;
+export type ComplianceTrainingEnrollInput = z.infer<typeof complianceTrainingEnrollSchema>;
+export type DocumentUploadInput = z.infer<typeof documentUploadSchema>;
+export type DocumentSignInput = z.infer<typeof documentSignSchema>;
+export type SuccessionPlanCreateInput = z.infer<typeof successionPlanCreateSchema>;
+export type LearningEnrollInput = z.infer<typeof learningEnrollSchema>;
+export type OnboardingChecklistCreateInput = z.infer<typeof onboardingChecklistCreateSchema>;
+export type OffboardingInitiateInput = z.infer<typeof offboardingInitiateSchema>;

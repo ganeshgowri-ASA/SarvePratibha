@@ -27,6 +27,14 @@ import { helpdeskRouter } from './routes/helpdesk';
 import { meetingRoomRouter } from './routes/meeting-room';
 import { cabRouter } from './routes/cab';
 import { notificationRouter } from './routes/notifications';
+import { engagementRouter } from './routes/engagement';
+import { diRouter } from './routes/di';
+import { complianceRouter as complianceModuleRouter } from './routes/compliance';
+import { documentsRouter } from './routes/documents';
+import { talentRouter } from './routes/talent';
+import { learningRouter } from './routes/learning';
+import { onboardingRouter } from './routes/onboarding';
+import { offboardingRouter } from './routes/offboarding';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -72,6 +80,14 @@ app.use('/api/helpdesk', helpdeskRouter);
 app.use('/api/meeting-room', meetingRoomRouter);
 app.use('/api/cab', cabRouter);
 app.use('/api/notifications', notificationRouter);
+app.use('/api/engagement', engagementRouter);
+app.use('/api/di', diRouter);
+app.use('/api/compliance', complianceModuleRouter);
+app.use('/api/documents', documentsRouter);
+app.use('/api/talent', talentRouter);
+app.use('/api/learning', learningRouter);
+app.use('/api/onboarding', onboardingRouter);
+app.use('/api/offboarding', offboardingRouter);
 
 // Error handler
 app.use(errorHandler);

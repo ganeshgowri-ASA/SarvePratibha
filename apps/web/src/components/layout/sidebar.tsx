@@ -32,6 +32,10 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  BookOpen,
+  FileText,
+  UserCheck,
+  UserMinus,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -64,6 +68,10 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Car,
   Bell,
   ShieldCheck,
+  BookOpen,
+  FileText,
+  UserCheck,
+  UserMinus,
 };
 
 interface SidebarItem {
@@ -98,6 +106,10 @@ const MENU_ITEMS: SidebarItem[] = [
   { id: 'recruitment', label: 'Recruitment', icon: 'UserPlus', href: '/recruitment', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'ai-screening', label: 'AI Screening', icon: 'Bot', href: '/ai-screening', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
+  { id: 'documents', label: 'Documents', icon: 'FileText', href: '/documents' },
+  { id: 'learning', label: 'Learning', icon: 'BookOpen', href: '/learning' },
+  { id: 'onboarding', label: 'Onboarding', icon: 'UserCheck', href: '/onboarding', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
+  { id: 'offboarding', label: 'Offboarding', icon: 'UserMinus', href: '/offboarding', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'notifications', label: 'Notifications', icon: 'Bell', href: '/notifications' },
   { id: 'admin', label: 'Admin Panel', icon: 'ShieldCheck', href: '/admin', roles: ['IT_ADMIN'] },
 ];
