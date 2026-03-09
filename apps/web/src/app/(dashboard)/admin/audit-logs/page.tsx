@@ -41,7 +41,7 @@ export default function AuditLogsPage() {
     },
   });
 
-  const logs: AuditLogItem[] = data?.data || [];
+  const logs: AuditLogItem[] = (data?.data as AuditLogItem[]) || [];
   const pagination = data?.pagination;
 
   const exportCSV = () => {

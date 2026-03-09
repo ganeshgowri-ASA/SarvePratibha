@@ -47,7 +47,7 @@ export default function CustomFieldsPage() {
     },
   });
 
-  const fields: CustomFieldItem[] = data?.data || [];
+  const fields: CustomFieldItem[] = (data?.data as CustomFieldItem[]) || [];
 
   return (
     <div className="space-y-6">

@@ -35,7 +35,7 @@ export default function LocationsPage() {
     },
   });
 
-  const locations: LocationItem[] = data?.data || [];
+  const locations: LocationItem[] = (data?.data as LocationItem[]) || [];
 
   return (
     <div className="space-y-6">

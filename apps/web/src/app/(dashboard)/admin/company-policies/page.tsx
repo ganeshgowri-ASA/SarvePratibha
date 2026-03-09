@@ -41,7 +41,7 @@ export default function CompanyPoliciesPage() {
     },
   });
 
-  const policies: CompanyPolicyItem[] = data?.data || [];
+  const policies: CompanyPolicyItem[] = (data?.data as CompanyPolicyItem[]) || [];
 
   return (
     <div className="space-y-6">

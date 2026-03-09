@@ -25,7 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { NotificationItem, NotificationCategory, ApiResponse } from '@sarve-pratibha/shared';
 
 const CATEGORY_ICONS: Record<NotificationCategory, LucideIcon> = {
@@ -119,7 +119,7 @@ export default function NotificationsPage() {
       const params = new URLSearchParams({ page: String(page), limit: '20' });
       if (category !== 'all') params.set('category', category);
 
-      const data = await apiClient<NotificationsResponse>(
+      const data = await apiFetch<NotificationsResponse>(
         `/api/notifications/${userId}?${params}`,
         { token },
       );
@@ -140,7 +140,7 @@ export default function NotificationsPage() {
   const handleMarkAsRead = async (id: string) => {
     if (!token) return;
     try {
-      await apiClient(`/api/notifications/${id}/read`, { method: 'PUT', token });
+      await apiFetch(`/api/notifications/${id}/read`, { method: 'PUT', token });
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
       );
@@ -153,7 +153,7 @@ export default function NotificationsPage() {
   const handleMarkAllRead = async () => {
     if (!token) return;
     try {
-      await apiClient('/api/notifications/read-all', { method: 'PUT', token });
+      await apiFetch('/api/notifications/read-all', { method: 'PUT', token });
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (error) {
@@ -164,7 +164,7 @@ export default function NotificationsPage() {
   const handleDelete = async (id: string) => {
     if (!token) return;
     try {
-      await apiClient(`/api/notifications/${id}`, { method: 'DELETE', token });
+      await apiFetch(`/api/notifications/${id}`, { method: 'DELETE', token });
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (error) {
       console.error('Failed to delete notification:', error);

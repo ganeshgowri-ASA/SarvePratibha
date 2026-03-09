@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { apiClient } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { NOTIFICATION_CATEGORIES, NOTIFICATION_CATEGORY_LABELS } from '@sarve-pratibha/shared';
 import type { NotificationCategory, NotificationFrequency, QuietHoursSettings, ApiResponse } from '@sarve-pratibha/shared';
 
@@ -55,7 +55,7 @@ export default function NotificationPreferencesPage() {
     if (!token || !userId) return;
     try {
       setLoading(true);
-      const data = await apiClient<ApiResponse<PreferencesData>>(
+      const data = await apiFetch<ApiResponse<PreferencesData>>(
         `/api/notifications/preferences/${userId}`,
         { token },
       );
@@ -110,7 +110,7 @@ export default function NotificationPreferencesPage() {
     if (!token) return;
     try {
       setSaving(true);
-      await apiClient('/api/notifications/preferences', {
+      await apiFetch('/api/notifications/preferences', {
         method: 'PUT',
         token,
         body: JSON.stringify({

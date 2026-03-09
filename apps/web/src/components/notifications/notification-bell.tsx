@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { NotificationItem, NotificationCategory, ApiResponse } from '@sarve-pratibha/shared';
 
 const CATEGORY_ICONS: Record<NotificationCategory, LucideIcon> = {
@@ -83,7 +83,7 @@ export function NotificationBell() {
     if (!token || !userId) return;
     try {
       setLoading(true);
-      const data = await apiClient<NotificationsResponse>(
+      const data = await apiFetch<NotificationsResponse>(
         `/api/notifications/${userId}?limit=5`,
         { token },
       );
@@ -106,7 +106,7 @@ export function NotificationBell() {
   const handleMarkAsRead = async (id: string) => {
     if (!token) return;
     try {
-      await apiClient(`/api/notifications/${id}/read`, { method: 'PUT', token });
+      await apiFetch(`/api/notifications/${id}/read`, { method: 'PUT', token });
       setNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
       );
@@ -119,7 +119,7 @@ export function NotificationBell() {
   const handleMarkAllRead = async () => {
     if (!token) return;
     try {
-      await apiClient('/api/notifications/read-all', { method: 'PUT', token });
+      await apiFetch('/api/notifications/read-all', { method: 'PUT', token });
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (error) {

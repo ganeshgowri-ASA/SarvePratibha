@@ -28,7 +28,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { apiClient } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { NOTIFICATION_TEMPLATE_VARIABLES } from '@sarve-pratibha/shared';
 import type { NotificationTemplateItem, ApiResponse } from '@sarve-pratibha/shared';
 
@@ -92,7 +92,7 @@ export default function NotificationTemplatesPage() {
     if (!token) return;
     try {
       setLoading(true);
-      const data = await apiClient<ApiResponse<NotificationTemplateItem[]>>(
+      const data = await apiFetch<ApiResponse<NotificationTemplateItem[]>>(
         '/api/notifications/templates',
         { token },
       );
@@ -132,13 +132,13 @@ export default function NotificationTemplatesPage() {
     try {
       setSaving(true);
       if (editingId) {
-        await apiClient(`/api/notifications/templates/${editingId}`, {
+        await apiFetch(`/api/notifications/templates/${editingId}`, {
           method: 'PUT',
           token,
           body: JSON.stringify(form),
         });
       } else {
-        await apiClient('/api/notifications/templates', {
+        await apiFetch('/api/notifications/templates', {
           method: 'POST',
           token,
           body: JSON.stringify(form),

@@ -47,7 +47,7 @@ export default function AnnouncementsPage() {
     },
   });
 
-  const announcements: AnnouncementItem[] = data?.data || [];
+  const announcements: AnnouncementItem[] = (data?.data as AnnouncementItem[]) || [];
 
   return (
     <div className="space-y-6">

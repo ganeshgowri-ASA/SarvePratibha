@@ -1,7 +1,9 @@
 import { prisma } from '../lib/prisma';
 import { emailService } from './email.service';
 import { smsService } from './sms.service';
-import type { NotificationType, NotificationCategory, NotificationChannel } from '@prisma/client';
+type NotificationType = 'INFO' | 'WARNING' | 'ACTION_REQUIRED' | 'APPROVAL' | 'SYSTEM';
+type NotificationCategory = 'LEAVE' | 'ATTENDANCE' | 'PAYROLL' | 'PERFORMANCE' | 'RECRUITMENT' | 'SYSTEM' | 'GENERAL';
+type NotificationChannel = 'EMAIL' | 'SMS' | 'PUSH' | 'IN_APP';
 
 interface CreateNotificationOptions {
   userId: string;

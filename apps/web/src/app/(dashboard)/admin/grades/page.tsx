@@ -38,7 +38,7 @@ export default function GradesPage() {
     },
   });
 
-  const grades: GradeItem[] = data?.data || [];
+  const grades: GradeItem[] = (data?.data as GradeItem[]) || [];
 
   return (
     <div className="space-y-6">

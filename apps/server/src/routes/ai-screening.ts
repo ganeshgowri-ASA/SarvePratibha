@@ -145,7 +145,7 @@ aiScreeningRouter.post('/screening/evaluate', async (req: AuthenticatedRequest, 
         maxScore: q.maxScore,
         questionType: q.questionType,
       })),
-      data.responses,
+      data.responses as { questionId: string; responseText?: string; audioUrl?: string }[],
     );
 
     // Save responses

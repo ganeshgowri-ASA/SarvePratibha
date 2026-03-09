@@ -59,7 +59,7 @@ export default function UsersPage() {
     defaultValues: { role: 'EMPLOYEE' },
   });
 
-  const users: AdminUser[] = data?.data || [];
+  const users: AdminUser[] = (data?.data as AdminUser[]) || [];
   const pagination = data?.pagination;
 
   return (

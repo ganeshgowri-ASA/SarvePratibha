@@ -88,7 +88,7 @@ export class SMSService {
     });
 
     if (!response.ok) {
-      const data = await response.json();
+      const data: any = await response.json();
       throw new Error(`Twilio error: ${data.message || response.statusText}`);
     }
   }

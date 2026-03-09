@@ -11,7 +11,7 @@ import {
   updateTemplateSchema,
   pushSubscriptionSchema,
 } from '@sarve-pratibha/shared';
-import type { NotificationCategory } from '@prisma/client';
+type NotificationCategory = 'LEAVE' | 'ATTENDANCE' | 'PAYROLL' | 'PERFORMANCE' | 'RECRUITMENT' | 'SYSTEM' | 'GENERAL';
 
 export const notificationRouter = Router();
 

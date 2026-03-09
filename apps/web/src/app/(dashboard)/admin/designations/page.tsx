@@ -38,7 +38,7 @@ export default function DesignationsPage() {
     },
   });
 
-  const designations: DesignationItem[] = data?.data || [];
+  const designations: DesignationItem[] = (data?.data as DesignationItem[]) || [];
 
   return (
     <div className="space-y-6">

@@ -489,10 +489,10 @@ model User {
   employee Employee?
 
   // Notifications
-  notifications            Notification[]
-  notificationPreferences  NotificationPreference[]
-  pushSubscriptions        PushSubscription[]
-  quietHours               QuietHours?
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
+  pushSubscriptions       PushSubscription[]
+  quietHours              QuietHours?
 
   // Audit trail
   auditLogs AuditLog[]
@@ -577,22 +577,22 @@ model RolePermission {
 // ─── ORGANIZATION STRUCTURE ─────────────────────────────────────────
 
 model Organization {
-  id          String   @id @default(cuid())
-  name        String
-  code        String   @unique
-  logo        String?
-  website     String?
-  address     String?
-  city        String?
-  state       String?
-  country     String?
-  pincode     String?
-  phone       String?
-  email       String?
-  taxId       String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  logo      String?
+  website   String?
+  address   String?
+  city      String?
+  state     String?
+  country   String?
+  pincode   String?
+  phone     String?
+  email     String?
+  taxId     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   departments Department[]
   employees   Employee[]
@@ -612,11 +612,11 @@ model Department {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization  @relation(fields: [organizationId], references: [id])
-  parent       Department?   @relation("DepartmentHierarchy", fields: [parentId], references: [id])
-  children     Department[]  @relation("DepartmentHierarchy")
-  employees    Employee[]
-  jobPostings  JobPosting[]
+  organization    Organization     @relation(fields: [organizationId], references: [id])
+  parent          Department?      @relation("DepartmentHierarchy", fields: [parentId], references: [id])
+  children        Department[]     @relation("DepartmentHierarchy")
+  employees       Employee[]
+  jobPostings     JobPosting[]
   jobRequisitions JobRequisition[]
 
   @@index([organizationId])
@@ -643,83 +643,83 @@ model Designation {
 // ─── EMPLOYEE ───────────────────────────────────────────────────────
 
 model Employee {
-  id               String           @id @default(cuid())
-  employeeId       String           @unique
-  userId           String           @unique
-  organizationId   String
-  departmentId     String
-  designationId    String
-  managerId        String?
-  firstName        String
-  lastName         String
-  middleName       String?
-  dateOfBirth      DateTime?
-  gender           Gender?
-  maritalStatus    MaritalStatus?
-  phone            String?
-  personalEmail    String?
-  address          String?
-  city             String?
-  state            String?
-  country          String?
-  pincode          String?
-  dateOfJoining    DateTime
-  dateOfLeaving    DateTime?
-  probationEndDate DateTime?
-  employmentStatus EmploymentStatus @default(ACTIVE)
-  employmentType   EmploymentType   @default(FULL_TIME)
-  panNumber        String?
-  aadharNumber     String?
-  bankAccountNo    String?
-  bankName         String?
-  ifscCode         String?
-  pfNumber         String?
-  uanNumber        String?
-  esiNumber        String?
-  emergencyContact String?
-  emergencyPhone   String?
-  bloodGroup       String?
-  profilePhoto     String?
+  id                  String           @id @default(cuid())
+  employeeId          String           @unique
+  userId              String           @unique
+  organizationId      String
+  departmentId        String
+  designationId       String
+  managerId           String?
+  firstName           String
+  lastName            String
+  middleName          String?
+  dateOfBirth         DateTime?
+  gender              Gender?
+  maritalStatus       MaritalStatus?
+  phone               String?
+  personalEmail       String?
+  address             String?
+  city                String?
+  state               String?
+  country             String?
+  pincode             String?
+  dateOfJoining       DateTime
+  dateOfLeaving       DateTime?
+  probationEndDate    DateTime?
+  employmentStatus    EmploymentStatus @default(ACTIVE)
+  employmentType      EmploymentType   @default(FULL_TIME)
+  panNumber           String?
+  aadharNumber        String?
+  bankAccountNo       String?
+  bankName            String?
+  ifscCode            String?
+  pfNumber            String?
+  uanNumber           String?
+  esiNumber           String?
+  emergencyContact    String?
+  emergencyPhone      String?
+  bloodGroup          String?
+  profilePhoto        String?
   // Extended personal details
-  title            String?
-  maritalSinceDate DateTime?
-  nationality      String?
-  placeOfBirth     String?
-  stateOfBirth     String?
-  religion         String?
-  identificationMark String?
-  heightCm         Float?
-  weightKg         Float?
-  motherTongue     String?
-  caste            String?
+  title               String?
+  maritalSinceDate    DateTime?
+  nationality         String?
+  placeOfBirth        String?
+  stateOfBirth        String?
+  religion            String?
+  identificationMark  String?
+  heightCm            Float?
+  weightKg            Float?
+  motherTongue        String?
+  caste               String?
   // Contact details
-  corporatePhone   String?
-  personalPhone    String?
-  residentialPhone String?
-  officePhone      String?
-  officialEmail    String?
+  corporatePhone      String?
+  personalPhone       String?
+  residentialPhone    String?
+  officePhone         String?
+  officialEmail       String?
   // Address
-  workLocation     String?
-  permanentAddress String?
-  permanentCity    String?
-  permanentState   String?
-  permanentCountry String?
-  permanentPincode String?
+  workLocation        String?
+  permanentAddress    String?
+  permanentCity       String?
+  permanentState      String?
+  permanentCountry    String?
+  permanentPincode    String?
   // Bank details
-  bankBranch       String?
+  bankBranch          String?
   // Additional dates
-  confirmationDate DateTime?
-  lastPromotionDate DateTime?
-  lastCertifiedDate DateTime?
+  confirmationDate    DateTime?
+  lastPromotionDate   DateTime?
+  lastCertifiedDate   DateTime?
   // Dotted line manager
   dottedLineManagerId String?
   orgUnitChiefId      String?
   // Passport / DL
-  passportNumber   String?
-  drivingLicense   String?
-  voterIdNumber    String?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  passportNumber      String?
+  drivingLicense      String?
+  voterIdNumber       String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id])
@@ -731,16 +731,16 @@ model Employee {
   directReports Employee[] @relation("ManagerReports")
 
   // Dotted line and org unit chief
-  dottedLineManager Employee? @relation("DottedLineReports", fields: [dottedLineManagerId], references: [id])
-  dottedLineReports Employee[] @relation("DottedLineReports")
-  orgUnitChief      Employee? @relation("OrgUnitChiefReports", fields: [orgUnitChiefId], references: [id])
+  dottedLineManager   Employee?  @relation("DottedLineReports", fields: [dottedLineManagerId], references: [id])
+  dottedLineReports   Employee[] @relation("DottedLineReports")
+  orgUnitChief        Employee?  @relation("OrgUnitChiefReports", fields: [orgUnitChiefId], references: [id])
   orgUnitChiefReports Employee[] @relation("OrgUnitChiefReports")
 
   // Related detail records
-  familyMembers   FamilyMember[]
-  nominations     Nomination[]
+  familyMembers     FamilyMember[]
+  nominations       Nomination[]
   personalDocuments PersonalDocument[]
-  educationRecords EducationRecord[]
+  educationRecords  EducationRecord[]
   experienceRecords ExperienceRecord[]
 
   // Leave
@@ -748,17 +748,17 @@ model Employee {
   leaveBalances LeaveBalance[]
 
   // Attendance
-  attendances       Attendance[]
-  punchRecords      PunchRecord[]
-  regularizations   AttendanceRegularization[]
+  attendances     Attendance[]
+  punchRecords    PunchRecord[]
+  regularizations AttendanceRegularization[]
 
   // Shift
   shiftSchedules ShiftSchedule[]
 
   // Special requests
-  compOffRequests      CompOff[]
-  wfhRequests          WorkFromHome[]
-  onDutyRequests       OnDuty[]
+  compOffRequests CompOff[]
+  wfhRequests     WorkFromHome[]
+  onDutyRequests  OnDuty[]
 
   // Payroll
   payrollStructure PayrollStructure?
@@ -775,20 +775,20 @@ model Employee {
   reimbursements Reimbursement[]
 
   // Performance
-  performanceGoals PerformanceGoal[]
-  reviewsAsReviewee Review[]          @relation("ReviewReviewee")
-  reviewsAsReviewer Review[]          @relation("ReviewReviewer")
-  goalProgress     GoalProgress[]
-  competencyRatings CompetencyRating[]
-  pipsAsEmployee   PIP[]              @relation("PIPEmployee")
-  pipsAsCreator    PIP[]              @relation("PIPCreator")
-  feedback360Requested Feedback360[]  @relation("Feedback360Requester")
-  feedback360Target    Feedback360[]  @relation("Feedback360Target")
+  performanceGoals     PerformanceGoal[]
+  reviewsAsReviewee    Review[]           @relation("ReviewReviewee")
+  reviewsAsReviewer    Review[]           @relation("ReviewReviewer")
+  goalProgress         GoalProgress[]
+  competencyRatings    CompetencyRating[]
+  pipsAsEmployee       PIP[]              @relation("PIPEmployee")
+  pipsAsCreator        PIP[]              @relation("PIPCreator")
+  feedback360Requested Feedback360[]      @relation("Feedback360Requester")
+  feedback360Target    Feedback360[]      @relation("Feedback360Target")
   feedbackResponses    FeedbackResponse[]
-  kras             KRA[]
+  kras                 KRA[]
 
   // Talent / Recruitment
-  applications     Application[]
+  applications            Application[]
   interviewsAsInterviewer InterviewSchedule[] @relation("Interviewer")
   interviewFeedbacks      InterviewFeedback[]
   requisitionsCreated     JobRequisition[]    @relation("RequisitionCreator")
@@ -802,15 +802,15 @@ model Employee {
   assetRequests  ITAssetRequest[]
 
   // Travel & Benefits
-  travelRequests      TravelRequest[]
-  benefitEnrollments  BenefitEnrollment[]
-  serviceRequests     ServiceRequest[]
-  assetAssignments    AssetAssignment[]
-  helpdeskTickets     HelpdeskTicket[]
-  meetingBookings     MeetingBooking[]
-  cabRequests         CabRequest[]
-  foodCoupons         FoodCoupon[]
-  giftVouchers        GiftVoucher[]
+  travelRequests     TravelRequest[]
+  benefitEnrollments BenefitEnrollment[]
+  serviceRequests    ServiceRequest[]
+  assetAssignments   AssetAssignment[]
+  helpdeskTickets    HelpdeskTicket[]
+  meetingBookings    MeetingBooking[]
+  cabRequests        CabRequest[]
+  foodCoupons        FoodCoupon[]
+  giftVouchers       GiftVoucher[]
 
   @@index([employeeId])
   @@index([organizationId])
@@ -842,16 +842,16 @@ model FamilyMember {
 }
 
 model Nomination {
-  id             String         @id @default(cuid())
-  employeeId     String
-  type           NominationType
-  nomineeName    String
-  relationship   Relationship
-  dateOfBirth    DateTime?
-  percentage     Float
-  address        String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id           String         @id @default(cuid())
+  employeeId   String
+  type         NominationType
+  nomineeName  String
+  relationship Relationship
+  dateOfBirth  DateTime?
+  percentage   Float
+  address      String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
@@ -860,16 +860,16 @@ model Nomination {
 }
 
 model PersonalDocument {
-  id           String       @id @default(cuid())
-  employeeId   String
-  documentType DocumentType
+  id             String       @id @default(cuid())
+  employeeId     String
+  documentType   DocumentType
   documentNumber String
-  fileUrl      String?
-  fileName     String?
-  isVerified   Boolean      @default(false)
-  expiryDate   DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  fileUrl        String?
+  fileName       String?
+  isVerified     Boolean      @default(false)
+  expiryDate     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
@@ -879,17 +879,17 @@ model PersonalDocument {
 }
 
 model EducationRecord {
-  id           String   @id @default(cuid())
-  employeeId   String
-  degree       String
-  institution  String
-  university   String?
-  yearOfPassing Int?
-  percentage   Float?
-  grade        String?
+  id             String   @id @default(cuid())
+  employeeId     String
+  degree         String
+  institution    String
+  university     String?
+  yearOfPassing  Int?
+  percentage     Float?
+  grade          String?
   specialization String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
@@ -898,18 +898,18 @@ model EducationRecord {
 }
 
 model ExperienceRecord {
-  id              String   @id @default(cuid())
-  employeeId      String
-  companyName     String
-  designation     String
-  fromDate        DateTime
-  toDate          DateTime?
-  isCurrent       Boolean  @default(false)
+  id               String    @id @default(cuid())
+  employeeId       String
+  companyName      String
+  designation      String
+  fromDate         DateTime
+  toDate           DateTime?
+  isCurrent        Boolean   @default(false)
   reasonForLeaving String?
-  lastDrawnSalary Float?
-  location        String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  lastDrawnSalary  Float?
+  location         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
@@ -966,16 +966,16 @@ model LeaveRequest {
 }
 
 model LeaveBalance {
-  id           String   @id @default(cuid())
-  employeeId   String
-  leaveTypeId  String
-  year         Int
-  allocated    Float    @default(0)
-  used         Float    @default(0)
-  carried      Float    @default(0)
-  balance      Float    @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  employeeId  String
+  leaveTypeId String
+  year        Int
+  allocated   Float    @default(0)
+  used        Float    @default(0)
+  carried     Float    @default(0)
+  balance     Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   employee  Employee  @relation(fields: [employeeId], references: [id])
   leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
@@ -1024,17 +1024,17 @@ model PunchRecord {
 }
 
 model ShiftSchedule {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   employeeId String
   name       String
   startTime  String
   endTime    String
-  breakMins  Int      @default(60)
+  breakMins  Int       @default(60)
   effectFrom DateTime
   effectTo   DateTime?
-  isDefault  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  isDefault  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1043,15 +1043,15 @@ model ShiftSchedule {
 }
 
 model HolidayCalendar {
-  id          String   @id @default(cuid())
-  name        String
-  date        DateTime @db.Date
-  type        String   @default("NATIONAL") // NATIONAL, OPTIONAL, RESTRICTED
-  location    String?
-  isOptional  Boolean  @default(false)
-  year        Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  name       String
+  date       DateTime @db.Date
+  type       String   @default("NATIONAL") // NATIONAL, OPTIONAL, RESTRICTED
+  location   String?
+  isOptional Boolean  @default(false)
+  year       Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([date, location])
   @@index([year])
@@ -1060,17 +1060,17 @@ model HolidayCalendar {
 }
 
 model AttendanceRegularization {
-  id           String               @id @default(cuid())
-  employeeId   String
-  date         DateTime             @db.Date
-  reason       String
-  requestedStatus AttendanceStatus  @default(PRESENT)
-  status       RegularizationStatus @default(PENDING)
-  approvedBy   String?
-  approvedAt   DateTime?
-  remarks      String?
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  id              String               @id @default(cuid())
+  employeeId      String
+  date            DateTime             @db.Date
+  reason          String
+  requestedStatus AttendanceStatus     @default(PRESENT)
+  status          RegularizationStatus @default(PENDING)
+  approvedBy      String?
+  approvedAt      DateTime?
+  remarks         String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1080,18 +1080,18 @@ model AttendanceRegularization {
 }
 
 model CompOff {
-  id           String        @id @default(cuid())
-  employeeId   String
-  workedDate   DateTime      @db.Date
-  compOffDate  DateTime?     @db.Date
-  reason       String
-  hours        Float         @default(8)
-  status       RequestStatus @default(PENDING)
-  approvedBy   String?
-  approvedAt   DateTime?
-  remarks      String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id          String        @id @default(cuid())
+  employeeId  String
+  workedDate  DateTime      @db.Date
+  compOffDate DateTime?     @db.Date
+  reason      String
+  hours       Float         @default(8)
+  status      RequestStatus @default(PENDING)
+  approvedBy  String?
+  approvedAt  DateTime?
+  remarks     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1101,18 +1101,18 @@ model CompOff {
 }
 
 model WorkFromHome {
-  id          String        @id @default(cuid())
-  employeeId  String
-  startDate   DateTime
-  endDate     DateTime
-  days        Float
-  reason      String
-  status      RequestStatus @default(PENDING)
-  approvedBy  String?
-  approvedAt  DateTime?
-  remarks     String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         String        @id @default(cuid())
+  employeeId String
+  startDate  DateTime
+  endDate    DateTime
+  days       Float
+  reason     String
+  status     RequestStatus @default(PENDING)
+  approvedBy String?
+  approvedAt DateTime?
+  remarks    String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1122,19 +1122,19 @@ model WorkFromHome {
 }
 
 model OnDuty {
-  id          String        @id @default(cuid())
-  employeeId  String
-  startDate   DateTime
-  endDate     DateTime
-  days        Float
-  reason      String
-  location    String?
-  status      RequestStatus @default(PENDING)
-  approvedBy  String?
-  approvedAt  DateTime?
-  remarks     String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         String        @id @default(cuid())
+  employeeId String
+  startDate  DateTime
+  endDate    DateTime
+  days       Float
+  reason     String
+  location   String?
+  status     RequestStatus @default(PENDING)
+  approvedBy String?
+  approvedAt DateTime?
+  remarks    String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1146,25 +1146,25 @@ model OnDuty {
 // ─── PAYROLL ────────────────────────────────────────────────────────
 
 model PayrollStructure {
-  id             String       @id @default(cuid())
-  employeeId     String       @unique
-  basicSalary    Float
-  hra            Float        @default(0)
-  conveyance     Float        @default(0)
-  medicalAllow   Float        @default(0)
-  specialAllow   Float        @default(0)
-  otherAllow     Float        @default(0)
-  pfContribution Float        @default(0)
-  esiContribution Float       @default(0)
-  professionalTax Float       @default(0)
-  tds            Float        @default(0)
-  grossSalary    Float
-  netSalary      Float
-  payFrequency   PayFrequency @default(MONTHLY)
-  effectiveFrom  DateTime
-  effectiveTo    DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id              String       @id @default(cuid())
+  employeeId      String       @unique
+  basicSalary     Float
+  hra             Float        @default(0)
+  conveyance      Float        @default(0)
+  medicalAllow    Float        @default(0)
+  specialAllow    Float        @default(0)
+  otherAllow      Float        @default(0)
+  pfContribution  Float        @default(0)
+  esiContribution Float        @default(0)
+  professionalTax Float        @default(0)
+  tds             Float        @default(0)
+  grossSalary     Float
+  netSalary       Float
+  payFrequency    PayFrequency @default(MONTHLY)
+  effectiveFrom   DateTime
+  effectiveTo     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1172,32 +1172,32 @@ model PayrollStructure {
 }
 
 model Payslip {
-  id             String        @id @default(cuid())
-  employeeId     String
-  month          Int
-  year           Int
-  basicSalary    Float
-  hra            Float         @default(0)
-  conveyance     Float         @default(0)
-  medicalAllow   Float         @default(0)
-  specialAllow   Float         @default(0)
-  otherAllow     Float         @default(0)
-  otherEarnings  Float         @default(0)
-  pfDeduction    Float         @default(0)
-  esiDeduction   Float         @default(0)
-  profTax        Float         @default(0)
-  tds            Float         @default(0)
-  otherDeductions Float        @default(0)
-  lop            Float         @default(0)
-  lopDays        Int           @default(0)
-  grossEarnings  Float
+  id              String        @id @default(cuid())
+  employeeId      String
+  month           Int
+  year            Int
+  basicSalary     Float
+  hra             Float         @default(0)
+  conveyance      Float         @default(0)
+  medicalAllow    Float         @default(0)
+  specialAllow    Float         @default(0)
+  otherAllow      Float         @default(0)
+  otherEarnings   Float         @default(0)
+  pfDeduction     Float         @default(0)
+  esiDeduction    Float         @default(0)
+  profTax         Float         @default(0)
+  tds             Float         @default(0)
+  otherDeductions Float         @default(0)
+  lop             Float         @default(0)
+  lopDays         Int           @default(0)
+  grossEarnings   Float
   totalDeductions Float
-  netPay         Float
-  status         PayslipStatus @default(DRAFT)
-  generatedAt    DateTime?
-  publishedAt    DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  netPay          Float
+  status          PayslipStatus @default(DRAFT)
+  generatedAt     DateTime?
+  publishedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1207,22 +1207,22 @@ model Payslip {
 }
 
 model TaxDeclaration {
-  id              String   @id @default(cuid())
-  employeeId      String
-  financialYear   String
-  regime          String   @default("NEW")
-  section80C      Float    @default(0)
-  section80D      Float    @default(0)
-  section80G      Float    @default(0)
-  section24       Float    @default(0)
-  hra             Float    @default(0)
-  lta             Float    @default(0)
-  otherDeductions Float    @default(0)
-  totalDeclared   Float    @default(0)
-  isProofSubmitted Boolean @default(false)
-  isVerified       Boolean @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String   @id @default(cuid())
+  employeeId       String
+  financialYear    String
+  regime           String   @default("NEW")
+  section80C       Float    @default(0)
+  section80D       Float    @default(0)
+  section80G       Float    @default(0)
+  section24        Float    @default(0)
+  hra              Float    @default(0)
+  lta              Float    @default(0)
+  otherDeductions  Float    @default(0)
+  totalDeclared    Float    @default(0)
+  isProofSubmitted Boolean  @default(false)
+  isVerified       Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1233,23 +1233,23 @@ model TaxDeclaration {
 // ─── PAYROLL CONFIG & COMPONENTS ───────────────────────────────────
 
 model PayrollConfig {
-  id                String   @id @default(cuid())
-  financialYear     String   @unique
-  pfEmployeePercent Float    @default(12)
-  pfEmployerPercent Float    @default(12)
-  pfCeiling         Float    @default(15000)
-  esiEmployeePercent Float   @default(0.75)
-  esiEmployerPercent Float   @default(3.25)
-  esiCeiling        Float    @default(21000)
-  professionalTax   Float    @default(200)
-  standardDeduction Float    @default(50000)
-  section80CLimit   Float    @default(150000)
-  section80DLimit   Float    @default(75000)
-  section80ELimit   Float    @default(0)
-  hraExemptPercent  Float    @default(50)
-  isActive          Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  financialYear      String   @unique
+  pfEmployeePercent  Float    @default(12)
+  pfEmployerPercent  Float    @default(12)
+  pfCeiling          Float    @default(15000)
+  esiEmployeePercent Float    @default(0.75)
+  esiEmployerPercent Float    @default(3.25)
+  esiCeiling         Float    @default(21000)
+  professionalTax    Float    @default(200)
+  standardDeduction  Float    @default(50000)
+  section80CLimit    Float    @default(150000)
+  section80DLimit    Float    @default(75000)
+  section80ELimit    Float    @default(0)
+  hraExemptPercent   Float    @default(50)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@map("payroll_configs")
 }
@@ -1270,40 +1270,40 @@ model SalaryComponent {
 }
 
 model PayrollRun {
-  id             String           @id @default(cuid())
-  month          Int
-  year           Int
-  status         PayrollRunStatus @default(PENDING)
-  totalEmployees Int              @default(0)
-  processedCount Int              @default(0)
-  totalGross     Float            @default(0)
-  totalDeductions Float           @default(0)
-  totalNet       Float            @default(0)
-  runBy          String
-  startedAt      DateTime?
-  completedAt    DateTime?
-  remarks        String?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id              String           @id @default(cuid())
+  month           Int
+  year            Int
+  status          PayrollRunStatus @default(PENDING)
+  totalEmployees  Int              @default(0)
+  processedCount  Int              @default(0)
+  totalGross      Float            @default(0)
+  totalDeductions Float            @default(0)
+  totalNet        Float            @default(0)
+  runBy           String
+  startedAt       DateTime?
+  completedAt     DateTime?
+  remarks         String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@unique([month, year])
   @@map("payroll_runs")
 }
 
 model Form16 {
-  id              String   @id @default(cuid())
-  employeeId      String
-  financialYear   String
-  assessmentYear  String
-  partA           Json?
-  partB           Json?
-  totalIncome     Float    @default(0)
-  totalTaxPayable Float    @default(0)
-  totalTdsDeducted Float   @default(0)
-  generatedAt     DateTime @default(now())
-  downloadUrl     String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String   @id @default(cuid())
+  employeeId       String
+  financialYear    String
+  assessmentYear   String
+  partA            Json?
+  partB            Json?
+  totalIncome      Float    @default(0)
+  totalTaxPayable  Float    @default(0)
+  totalTdsDeducted Float    @default(0)
+  generatedAt      DateTime @default(now())
+  downloadUrl      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -1313,18 +1313,18 @@ model Form16 {
 }
 
 model Investment {
-  id              String   @id @default(cuid())
-  employeeId      String
-  financialYear   String
-  section         String
-  category        String
-  description     String?
-  declaredAmount  Float    @default(0)
-  approvedAmount  Float    @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  employeeId     String
+  financialYear  String
+  section        String
+  category       String
+  description    String?
+  declaredAmount Float    @default(0)
+  approvedAmount Float    @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  employee Employee @relation(fields: [employeeId], references: [id])
+  employee Employee          @relation(fields: [employeeId], references: [id])
   proofs   InvestmentProof[]
 
   @@index([employeeId, financialYear])
@@ -1353,15 +1353,15 @@ model InvestmentProof {
 // ─── REIMBURSEMENTS (Extended) ──────────────────────────────────────
 
 model ReimbursementCategory {
-  id           String   @id @default(cuid())
-  name         String
-  code         String   @unique
-  description  String?
-  maxAmount    Float?
-  requiresReceipt Boolean @default(true)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  code            String   @unique
+  description     String?
+  maxAmount       Float?
+  requiresReceipt Boolean  @default(true)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   reimbursements Reimbursement[]
 
@@ -1437,16 +1437,16 @@ model Claim {
 // ─── LOANS ──────────────────────────────────────────────────────────
 
 model LoanType {
-  id          String   @id @default(cuid())
-  name        String
-  code        String   @unique
-  description String?
-  maxAmount   Float?
-  maxTenure   Int?
+  id           String   @id @default(cuid())
+  name         String
+  code         String   @unique
+  description  String?
+  maxAmount    Float?
+  maxTenure    Int?
   interestRate Float?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   loans Loan[]
 
@@ -1518,11 +1518,11 @@ model PerformanceGoal {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  employee   Employee          @relation(fields: [employeeId], references: [id])
-  parentGoal PerformanceGoal?  @relation("GoalCascade", fields: [parentGoalId], references: [id])
-  childGoals PerformanceGoal[] @relation("GoalCascade")
+  employee        Employee          @relation(fields: [employeeId], references: [id])
+  parentGoal      PerformanceGoal?  @relation("GoalCascade", fields: [parentGoalId], references: [id])
+  childGoals      PerformanceGoal[] @relation("GoalCascade")
   progressHistory GoalProgress[]
-  kpis       KPI[]
+  kpis            KPI[]
 
   @@index([employeeId])
   @@index([cycle, year])
@@ -1548,17 +1548,17 @@ model GoalProgress {
 }
 
 model PerformanceReviewCycle {
-  id          String      @id @default(cuid())
-  name        String
-  cycle       ReviewCycle
-  year        Int
-  startDate   DateTime
-  endDate     DateTime
+  id              String      @id @default(cuid())
+  name            String
+  cycle           ReviewCycle
+  year            Int
+  startDate       DateTime
+  endDate         DateTime
   selfDeadline    DateTime?
   managerDeadline DateTime?
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
   reviews Review[]
 
@@ -1585,10 +1585,10 @@ model Review {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
-  reviewee    Employee                @relation("ReviewReviewee", fields: [revieweeId], references: [id])
-  reviewer    Employee                @relation("ReviewReviewer", fields: [reviewerId], references: [id])
-  reviewCycle PerformanceReviewCycle? @relation(fields: [cycleId], references: [id])
-  ratings     ReviewRating[]
+  reviewee          Employee                @relation("ReviewReviewee", fields: [revieweeId], references: [id])
+  reviewer          Employee                @relation("ReviewReviewer", fields: [reviewerId], references: [id])
+  reviewCycle       PerformanceReviewCycle? @relation(fields: [cycleId], references: [id])
+  ratings           ReviewRating[]
   competencyRatings CompetencyRating[]
 
   @@unique([revieweeId, cycle, year])
@@ -1598,17 +1598,17 @@ model Review {
 }
 
 model ReviewRating {
-  id         String @id @default(cuid())
-  reviewId   String
-  kraId      String?
-  area       String
-  selfRating Float?
-  mgrRating  Float?
+  id          String   @id @default(cuid())
+  reviewId    String
+  kraId       String?
+  area        String
+  selfRating  Float?
+  mgrRating   Float?
   selfComment String?
   mgrComment  String?
-  weightage  Float  @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  weightage   Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   kra    KRA?   @relation(fields: [kraId], references: [id])
@@ -1618,19 +1618,19 @@ model ReviewRating {
 }
 
 model CompetencyRating {
-  id             String @id @default(cuid())
-  reviewId       String
-  competencyId   String
-  employeeId     String
-  selfRating     Float?
-  managerRating  Float?
-  comments       String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String   @id @default(cuid())
+  reviewId      String
+  competencyId  String
+  employeeId    String
+  selfRating    Float?
+  managerRating Float?
+  comments      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  review     Review               @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  competency CompetencyFramework  @relation(fields: [competencyId], references: [id])
-  employee   Employee             @relation(fields: [employeeId], references: [id])
+  review     Review              @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  competency CompetencyFramework @relation(fields: [competencyId], references: [id])
+  employee   Employee            @relation(fields: [employeeId], references: [id])
 
   @@unique([reviewId, competencyId])
   @@index([employeeId])
@@ -1638,15 +1638,15 @@ model CompetencyRating {
 }
 
 model KRA {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   employeeId  String
   title       String
   description String?
-  weightage   Float    @default(0)
+  weightage   Float       @default(0)
   cycle       ReviewCycle @default(ANNUAL)
   year        Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   employee Employee       @relation(fields: [employeeId], references: [id])
   kpis     KPI[]
@@ -1658,14 +1658,14 @@ model KRA {
 }
 
 model KPI {
-  id       String @id @default(cuid())
-  kraId    String
-  goalId   String?
-  title    String
-  target   String
-  actual   String?
-  unit     String?
-  weightage Float @default(0)
+  id        String   @id @default(cuid())
+  kraId     String
+  goalId    String?
+  title     String
+  target    String
+  actual    String?
+  unit      String?
+  weightage Float    @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1701,18 +1701,18 @@ model PIP {
 }
 
 model Feedback360 {
-  id          String         @id @default(cuid())
-  targetId    String
+  id            String      @id @default(cuid())
+  targetId      String
   requestedById String
-  cycle       ReviewCycle
-  year        Int
-  deadline    DateTime?
-  isAnonymous Boolean        @default(true)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  cycle         ReviewCycle
+  year          Int
+  deadline      DateTime?
+  isAnonymous   Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-  target      Employee          @relation("Feedback360Target", fields: [targetId], references: [id])
-  requestedBy Employee          @relation("Feedback360Requester", fields: [requestedById], references: [id])
+  target      Employee           @relation("Feedback360Target", fields: [targetId], references: [id])
+  requestedBy Employee           @relation("Feedback360Requester", fields: [requestedById], references: [id])
   responses   FeedbackResponse[]
 
   @@index([targetId])
@@ -1721,17 +1721,17 @@ model Feedback360 {
 }
 
 model FeedbackResponse {
-  id           String         @id @default(cuid())
+  id            String         @id @default(cuid())
   feedback360Id String
-  responderId  String
-  status       FeedbackStatus @default(REQUESTED)
-  ratings      Json?
-  strengths    String?        @db.Text
-  improvements String?        @db.Text
-  comments     String?        @db.Text
-  submittedAt  DateTime?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  responderId   String
+  status        FeedbackStatus @default(REQUESTED)
+  ratings       Json?
+  strengths     String?        @db.Text
+  improvements  String?        @db.Text
+  comments      String?        @db.Text
+  submittedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   feedback360 Feedback360 @relation(fields: [feedback360Id], references: [id], onDelete: Cascade)
   responder   Employee    @relation(fields: [responderId], references: [id])
@@ -1770,10 +1770,10 @@ model JobRequisition {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
-  department  Department     @relation(fields: [departmentId], references: [id])
-  designation Designation?   @relation(fields: [designationId], references: [id])
-  createdBy   Employee       @relation("RequisitionCreator", fields: [createdById], references: [id])
-  approvedBy  Employee?      @relation("RequisitionApprover", fields: [approvedById], references: [id])
+  department  Department   @relation(fields: [departmentId], references: [id])
+  designation Designation? @relation(fields: [designationId], references: [id])
+  createdBy   Employee     @relation("RequisitionCreator", fields: [createdById], references: [id])
+  approvedBy  Employee?    @relation("RequisitionApprover", fields: [approvedById], references: [id])
   jobPostings JobPosting[]
 
   @@index([departmentId])
@@ -1783,27 +1783,27 @@ model JobRequisition {
 }
 
 model JobPosting {
-  id              String    @id @default(cuid())
-  requisitionId   String
-  title           String
-  departmentId    String
-  description     String    @db.Text
-  requirements    String?   @db.Text
-  skills          String[]
-  location        String?
-  positions       Int       @default(1)
-  minExp          Float?
-  maxExp          Float?
-  minSalary       Float?
-  maxSalary       Float?
-  employmentType  EmploymentType @default(FULL_TIME)
-  isActive        Boolean   @default(true)
-  isPublished     Boolean   @default(false)
+  id                 String         @id @default(cuid())
+  requisitionId      String
+  title              String
+  departmentId       String
+  description        String         @db.Text
+  requirements       String?        @db.Text
+  skills             String[]
+  location           String?
+  positions          Int            @default(1)
+  minExp             Float?
+  maxExp             Float?
+  minSalary          Float?
+  maxSalary          Float?
+  employmentType     EmploymentType @default(FULL_TIME)
+  isActive           Boolean        @default(true)
+  isPublished        Boolean        @default(false)
   publishedPlatforms String[]
-  postedAt        DateTime  @default(now())
-  closingDate     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  postedAt           DateTime       @default(now())
+  closingDate        DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 
   requisition  JobRequisition @relation(fields: [requisitionId], references: [id])
   department   Department     @relation(fields: [departmentId], references: [id])
@@ -1820,29 +1820,29 @@ model JobPosting {
 }
 
 model Candidate {
-  id            String   @id @default(cuid())
-  firstName     String
-  lastName      String
-  email         String   @unique
-  phone         String?
-  resumeUrl     String?
-  linkedinUrl   String?
+  id             String             @id @default(cuid())
+  firstName      String
+  lastName       String
+  email          String             @unique
+  phone          String?
+  resumeUrl      String?
+  linkedinUrl    String?
   currentCompany String?
   currentTitle   String?
-  totalExp      Float?
-  currentSalary Float?
+  totalExp       Float?
+  currentSalary  Float?
   expectedSalary Float?
-  skills        String[]
-  location      String?
-  source        SourcePlatformType @default(OTHER)
-  sourceDetails String?
-  notes         String?  @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  skills         String[]
+  location       String?
+  source         SourcePlatformType @default(OTHER)
+  sourceDetails  String?
+  notes          String?            @db.Text
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 
-  applications  Application[]
-  tags          CandidateTag[]
-  talentPools   TalentPoolCandidate[]
+  applications Application[]
+  tags         CandidateTag[]
+  talentPools  TalentPoolCandidate[]
 
   @@index([email])
   @@index([source])
@@ -1863,25 +1863,25 @@ model CandidateTag {
 }
 
 model Application {
-  id           String            @id @default(cuid())
+  id           String             @id @default(cuid())
   jobPostingId String
   candidateId  String
-  status       ApplicationStatus @default(APPLIED)
-  stage        String            @default("APPLIED")
+  status       ApplicationStatus  @default(APPLIED)
+  stage        String             @default("APPLIED")
   referredById String?
   source       SourcePlatformType @default(OTHER)
-  coverLetter  String?           @db.Text
+  coverLetter  String?            @db.Text
   remarks      String?
-  appliedAt    DateTime          @default(now())
-  movedAt      DateTime          @default(now())
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  appliedAt    DateTime           @default(now())
+  movedAt      DateTime           @default(now())
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 
-  jobPosting  JobPosting          @relation(fields: [jobPostingId], references: [id])
-  candidate   Candidate           @relation(fields: [candidateId], references: [id])
-  referredBy  Employee?           @relation(fields: [referredById], references: [id])
-  interviews  InterviewSchedule[]
-  offer       OfferLetter?
+  jobPosting JobPosting          @relation(fields: [jobPostingId], references: [id])
+  candidate  Candidate           @relation(fields: [candidateId], references: [id])
+  referredBy Employee?           @relation(fields: [referredById], references: [id])
+  interviews InterviewSchedule[]
+  offer      OfferLetter?
 
   // AI Screening
   aiScreeningSessions AIScreeningSession[]
@@ -1910,25 +1910,25 @@ model InterviewRound {
 }
 
 model InterviewSchedule {
-  id              String          @id @default(cuid())
-  applicationId   String
-  interviewerId   String
-  roundId         String?
-  scheduledAt     DateTime
-  duration        Int             @default(60)
-  round           Int             @default(1)
-  mode            String          @default("IN_PERSON")
-  location        String?
-  meetingLink     String?
-  notes           String?
-  result          InterviewResult @default(PENDING)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id            String          @id @default(cuid())
+  applicationId String
+  interviewerId String
+  roundId       String?
+  scheduledAt   DateTime
+  duration      Int             @default(60)
+  round         Int             @default(1)
+  mode          String          @default("IN_PERSON")
+  location      String?
+  meetingLink   String?
+  notes         String?
+  result        InterviewResult @default(PENDING)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
-  application  Application      @relation(fields: [applicationId], references: [id])
-  interviewer  Employee         @relation("Interviewer", fields: [interviewerId], references: [id])
-  roundType    InterviewRound?  @relation(fields: [roundId], references: [id])
-  feedbacks    InterviewFeedback[]
+  application Application         @relation(fields: [applicationId], references: [id])
+  interviewer Employee            @relation("Interviewer", fields: [interviewerId], references: [id])
+  roundType   InterviewRound?     @relation(fields: [roundId], references: [id])
+  feedbacks   InterviewFeedback[]
 
   @@index([applicationId])
   @@index([interviewerId])
@@ -1937,19 +1937,19 @@ model InterviewSchedule {
 }
 
 model InterviewFeedback {
-  id                String   @id @default(cuid())
+  id                  String   @id @default(cuid())
   interviewScheduleId String
-  interviewerId     String
-  technicalRating   Int?
+  interviewerId       String
+  technicalRating     Int?
   communicationRating Int?
-  cultureFitRating  Int?
-  overallRating     Float?
-  strengths         String?  @db.Text
-  weaknesses        String?  @db.Text
-  recommendation    String?
-  comments          String?  @db.Text
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  cultureFitRating    Int?
+  overallRating       Float?
+  strengths           String?  @db.Text
+  weaknesses          String?  @db.Text
+  recommendation      String?
+  comments            String?  @db.Text
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   interviewSchedule InterviewSchedule @relation(fields: [interviewScheduleId], references: [id])
   interviewer       Employee          @relation(fields: [interviewerId], references: [id])
@@ -2027,16 +2027,16 @@ model TalentPoolCandidate {
 }
 
 model SourcePlatform {
-  id          String             @id @default(cuid())
-  name        String
-  type        SourcePlatformType
-  apiKey      String?
-  apiSecret   String?
-  isActive    Boolean            @default(true)
-  config      Json?
-  lastSyncAt  DateTime?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  id         String             @id @default(cuid())
+  name       String
+  type       SourcePlatformType
+  apiKey     String?
+  apiSecret  String?
+  isActive   Boolean            @default(true)
+  config     Json?
+  lastSyncAt DateTime?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
 
   @@unique([type])
   @@map("source_platforms")
@@ -2045,17 +2045,17 @@ model SourcePlatform {
 // ─── SECURITY SERVICES ──────────────────────────────────────────────
 
 model SecurityPass {
-  id          String     @id @default(cuid())
-  employeeId  String
-  passNumber  String     @unique
-  passType    PassType   @default(EMPLOYEE)
-  status      PassStatus @default(ACTIVE)
-  issuedAt    DateTime   @default(now())
-  expiresAt   DateTime?
-  revokedAt   DateTime?
-  remarks     String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id         String     @id @default(cuid())
+  employeeId String
+  passNumber String     @unique
+  passType   PassType   @default(EMPLOYEE)
+  status     PassStatus @default(ACTIVE)
+  issuedAt   DateTime   @default(now())
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+  remarks    String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -2065,21 +2065,21 @@ model SecurityPass {
 }
 
 model VisitorLog {
-  id            String        @id @default(cuid())
-  hostId        String
-  visitorName   String
-  visitorOrg    String?
-  visitorPhone  String?
-  visitorEmail  String?
-  purpose       String
-  passNumber    String?
-  checkInTime   DateTime?
-  checkOutTime  DateTime?
-  status        VisitorStatus @default(EXPECTED)
-  expectedAt    DateTime?
-  remarks       String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id           String        @id @default(cuid())
+  hostId       String
+  visitorName  String
+  visitorOrg   String?
+  visitorPhone String?
+  visitorEmail String?
+  purpose      String
+  passNumber   String?
+  checkInTime  DateTime?
+  checkOutTime DateTime?
+  status       VisitorStatus @default(EXPECTED)
+  expectedAt   DateTime?
+  remarks      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   host Employee @relation(fields: [hostId], references: [id])
 
@@ -2172,19 +2172,19 @@ model NotificationTemplate {
 }
 
 model EmailLog {
-  id         String      @id @default(cuid())
-  to         String
-  from       String?
-  subject    String
-  body       String      @db.Text
-  status     EmailStatus @default(QUEUED)
-  provider   String?
-  messageId  String?
-  error      String?
-  attempts   Int         @default(0)
-  sentAt     DateTime?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id        String      @id @default(cuid())
+  to        String
+  from      String?
+  subject   String
+  body      String      @db.Text
+  status    EmailStatus @default(QUEUED)
+  provider  String?
+  messageId String?
+  error     String?
+  attempts  Int         @default(0)
+  sentAt    DateTime?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
   @@index([status])
   @@index([to])
@@ -2212,15 +2212,15 @@ model SMSLog {
 }
 
 model PushSubscription {
-  id         String   @id @default(cuid())
-  userId     String
-  endpoint   String   @db.Text
-  p256dh     String
-  auth       String
-  userAgent  String?
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @db.Text
+  p256dh    String
+  auth      String
+  userAgent String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2283,16 +2283,16 @@ model Announcement {
 }
 
 model Banner {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   title     String
   imageUrl  String
   link      String?
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
-  startDate DateTime @default(now())
+  order     Int       @default(0)
+  isActive  Boolean   @default(true)
+  startDate DateTime  @default(now())
   endDate   DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([isActive, startDate])
   @@map("banners")
@@ -2348,32 +2348,32 @@ enum DifficultyLevel {
 }
 
 model AIScreeningSession {
-  id              String                  @id @default(cuid())
-  applicationId   String
-  jobPostingId    String
-  candidateName   String
-  candidateEmail  String
-  candidatePhone  String?
-  status          ScreeningSessionStatus  @default(PENDING)
-  templateId      String?
-  language        String                  @default("en")
-  startedAt       DateTime?
-  completedAt     DateTime?
-  overallScore    Float?
-  recommendation  AIRecommendation?
-  summary         String?                 @db.Text
-  initiatedById   String?
-  metadata        Json?
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
+  id             String                 @id @default(cuid())
+  applicationId  String
+  jobPostingId   String
+  candidateName  String
+  candidateEmail String
+  candidatePhone String?
+  status         ScreeningSessionStatus @default(PENDING)
+  templateId     String?
+  language       String                 @default("en")
+  startedAt      DateTime?
+  completedAt    DateTime?
+  overallScore   Float?
+  recommendation AIRecommendation?
+  summary        String?                @db.Text
+  initiatedById  String?
+  metadata       Json?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
 
-  application   Application          @relation(fields: [applicationId], references: [id])
-  jobPosting    JobPosting           @relation(fields: [jobPostingId], references: [id])
-  template      ScreeningTemplate?   @relation(fields: [templateId], references: [id])
-  questions     AIScreeningQuestion[]
-  responses     AIScreeningResponse[]
-  scores        AIScreeningScore[]
-  voiceCalls    VoiceCallLog[]
+  application Application           @relation(fields: [applicationId], references: [id])
+  jobPosting  JobPosting            @relation(fields: [jobPostingId], references: [id])
+  template    ScreeningTemplate?    @relation(fields: [templateId], references: [id])
+  questions   AIScreeningQuestion[]
+  responses   AIScreeningResponse[]
+  scores      AIScreeningScore[]
+  voiceCalls  VoiceCallLog[]
 
   @@index([applicationId])
   @@index([jobPostingId])
@@ -2383,16 +2383,16 @@ model AIScreeningSession {
 }
 
 model AIScreeningQuestion {
-  id              String               @id @default(cuid())
-  sessionId       String
-  questionText    String               @db.Text
-  questionType    ScreeningQuestionType @default(TECHNICAL)
-  difficulty      DifficultyLevel      @default(MEDIUM)
-  orderIndex      Int                  @default(0)
-  expectedAnswer  String?              @db.Text
-  maxScore        Float                @default(10)
-  timeLimit       Int?                 // seconds
-  createdAt       DateTime             @default(now())
+  id             String                @id @default(cuid())
+  sessionId      String
+  questionText   String                @db.Text
+  questionType   ScreeningQuestionType @default(TECHNICAL)
+  difficulty     DifficultyLevel       @default(MEDIUM)
+  orderIndex     Int                   @default(0)
+  expectedAnswer String?               @db.Text
+  maxScore       Float                 @default(10)
+  timeLimit      Int? // seconds
+  createdAt      DateTime              @default(now())
 
   session   AIScreeningSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   responses AIScreeningResponse[]
@@ -2402,18 +2402,18 @@ model AIScreeningQuestion {
 }
 
 model AIScreeningResponse {
-  id             String   @id @default(cuid())
-  sessionId      String
-  questionId     String
-  responseText   String?  @db.Text
-  audioUrl       String?
-  duration       Int?     // seconds
-  score          Float?
-  sentiment      String?  // positive, negative, neutral
-  confidence     Float?   // 0-1
-  feedback       String?  @db.Text
-  evaluatedAt    DateTime?
-  createdAt      DateTime @default(now())
+  id           String    @id @default(cuid())
+  sessionId    String
+  questionId   String
+  responseText String?   @db.Text
+  audioUrl     String?
+  duration     Int? // seconds
+  score        Float?
+  sentiment    String? // positive, negative, neutral
+  confidence   Float? // 0-1
+  feedback     String?   @db.Text
+  evaluatedAt  DateTime?
+  createdAt    DateTime  @default(now())
 
   session  AIScreeningSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   question AIScreeningQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -2424,13 +2424,13 @@ model AIScreeningResponse {
 }
 
 model AIScreeningScore {
-  id            String @id @default(cuid())
-  sessionId     String
-  category      String // Technical, Communication, CulturalFit, Confidence, ProblemSolving
-  score         Float
-  maxScore      Float  @default(100)
-  details       String? @db.Text
-  createdAt     DateTime @default(now())
+  id        String   @id @default(cuid())
+  sessionId String
+  category  String // Technical, Communication, CulturalFit, Confidence, ProblemSolving
+  score     Float
+  maxScore  Float    @default(100)
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
 
   session AIScreeningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
@@ -2439,25 +2439,25 @@ model AIScreeningScore {
 }
 
 model VoiceCallLog {
-  id                String          @id @default(cuid())
-  sessionId         String?
-  provider          VoiceProvider   @default(VAPI)
-  providerCallId    String?         @unique
-  candidateName     String
-  candidatePhone    String
-  direction         String          @default("outbound") // inbound or outbound
-  status            VoiceCallStatus @default(QUEUED)
-  startedAt         DateTime?
-  endedAt           DateTime?
-  duration          Int?            // seconds
-  recordingUrl      String?
-  costCents         Float?
-  errorMessage      String?
-  metadata          Json?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  id             String          @id @default(cuid())
+  sessionId      String?
+  provider       VoiceProvider   @default(VAPI)
+  providerCallId String?         @unique
+  candidateName  String
+  candidatePhone String
+  direction      String          @default("outbound") // inbound or outbound
+  status         VoiceCallStatus @default(QUEUED)
+  startedAt      DateTime?
+  endedAt        DateTime?
+  duration       Int? // seconds
+  recordingUrl   String?
+  costCents      Float?
+  errorMessage   String?
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
-  session     AIScreeningSession? @relation(fields: [sessionId], references: [id])
+  session     AIScreeningSession?   @relation(fields: [sessionId], references: [id])
   transcripts VoiceCallTranscript[]
 
   @@index([sessionId])
@@ -2470,9 +2470,9 @@ model VoiceCallLog {
 model VoiceCallTranscript {
   id         String   @id @default(cuid())
   callId     String
-  speaker    String   // "ai" or "candidate"
+  speaker    String // "ai" or "candidate"
   text       String   @db.Text
-  timestamp  Float    // seconds from call start
+  timestamp  Float // seconds from call start
   confidence Float?
   createdAt  DateTime @default(now())
 
@@ -2483,20 +2483,20 @@ model VoiceCallTranscript {
 }
 
 model AIAssistantConfig {
-  id                  String        @id @default(cuid())
-  name                String        @default("AI Screening Assistant")
-  voiceProvider       VoiceProvider @default(VAPI)
-  voiceId             String?
-  personality         String?       @db.Text
-  companyContext      String?       @db.Text
-  language            String        @default("en")
-  supportedLanguages  String[]      @default(["en", "hi"])
-  maxCallDuration     Int           @default(900) // seconds (15 min default)
-  evaluationCriteria  Json?
-  isActive            Boolean       @default(true)
-  createdById         String?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  id                 String        @id @default(cuid())
+  name               String        @default("AI Screening Assistant")
+  voiceProvider      VoiceProvider @default(VAPI)
+  voiceId            String?
+  personality        String?       @db.Text
+  companyContext     String?       @db.Text
+  language           String        @default("en")
+  supportedLanguages String[]      @default(["en", "hi"])
+  maxCallDuration    Int           @default(900) // seconds (15 min default)
+  evaluationCriteria Json?
+  isActive           Boolean       @default(true)
+  createdById        String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   @@map("ai_assistant_configs")
 }
@@ -2507,7 +2507,7 @@ model ScreeningTemplate {
   description String?
   roleTitle   String?
   department  String?
-  questions   Json     // Array of { text, type, difficulty, expectedAnswer, maxScore }
+  questions   Json // Array of { text, type, difficulty, expectedAnswer, maxScore }
   isActive    Boolean  @default(true)
   createdById String?
   createdAt   DateTime @default(now())
@@ -2520,21 +2520,21 @@ model ScreeningTemplate {
 }
 
 model CandidateAIScore {
-  id              String           @id @default(cuid())
-  applicationId   String
-  jobPostingId    String
-  technicalScore  Float?
+  id                 String            @id @default(cuid())
+  applicationId      String
+  jobPostingId       String
+  technicalScore     Float?
   communicationScore Float?
   culturalFitScore   Float?
   confidenceScore    Float?
-  overallScore    Float?
-  resumeScore     Float?
-  ranking         Int?
-  recommendation  AIRecommendation?
-  reasoning       String?          @db.Text
-  parsedResume    Json?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  overallScore       Float?
+  resumeScore        Float?
+  ranking            Int?
+  recommendation     AIRecommendation?
+  reasoning          String?           @db.Text
+  parsedResume       Json?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   application Application @relation(fields: [applicationId], references: [id])
   jobPosting  JobPosting  @relation(fields: [jobPostingId], references: [id])
@@ -2548,16 +2548,16 @@ model CandidateAIScore {
 // ─── AUDIT LOG ──────────────────────────────────────────────────────
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String
-  action     String
-  entity     String
-  entityId   String?
-  oldData    Json?
-  newData    Json?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
 
@@ -2570,46 +2570,46 @@ model AuditLog {
 // ─── TRAVEL MANAGEMENT ───────────────────────────────────────────────
 
 model TravelPolicy {
-  id                 String   @id @default(cuid())
-  name               String
-  description        String?
-  perDiemDomestic    Float    @default(0)
-  perDiemInternational Float  @default(0)
-  maxHotelDomestic   Float    @default(0)
-  maxHotelInternational Float @default(0)
-  advanceBookingDays Int      @default(7)
-  maxAdvancePercent  Float    @default(80)
-  flightClass        String   @default("ECONOMY")
-  trainClass         String   @default("AC_2TIER")
-  isActive           Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  name                  String
+  description           String?
+  perDiemDomestic       Float    @default(0)
+  perDiemInternational  Float    @default(0)
+  maxHotelDomestic      Float    @default(0)
+  maxHotelInternational Float    @default(0)
+  advanceBookingDays    Int      @default(7)
+  maxAdvancePercent     Float    @default(80)
+  flightClass           String   @default("ECONOMY")
+  trainClass            String   @default("AC_2TIER")
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   @@map("travel_policies")
 }
 
 model TravelRequest {
-  id              String              @id @default(cuid())
-  employeeId      String
-  destination     String
-  fromCity        String
-  travelStartDate DateTime
-  travelEndDate   DateTime
-  purpose         String
-  estimatedCost   Float               @default(0)
-  advanceAmount   Float               @default(0)
-  travelMode      String              @default("FLIGHT")
-  accommodationType String            @default("HOTEL")
-  status          TravelRequestStatus @default(DRAFT)
-  approvedBy      String?
-  approvedAt      DateTime?
-  remarks         String?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id                String              @id @default(cuid())
+  employeeId        String
+  destination       String
+  fromCity          String
+  travelStartDate   DateTime
+  travelEndDate     DateTime
+  purpose           String
+  estimatedCost     Float               @default(0)
+  advanceAmount     Float               @default(0)
+  travelMode        String              @default("FLIGHT")
+  accommodationType String              @default("HOTEL")
+  status            TravelRequestStatus @default(DRAFT)
+  approvedBy        String?
+  approvedAt        DateTime?
+  remarks           String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 
-  employee   Employee          @relation(fields: [employeeId], references: [id])
+  employee    Employee          @relation(fields: [employeeId], references: [id])
   itineraries TravelItinerary[]
-  expenses   TravelExpense[]
+  expenses    TravelExpense[]
 
   @@index([employeeId])
   @@index([status])
@@ -2640,20 +2640,20 @@ model TravelItinerary {
 }
 
 model TravelExpense {
-  id              String             @id @default(cuid())
+  id              String              @id @default(cuid())
   travelRequestId String
   category        String
   description     String
   amount          Float
-  currency        String             @default("INR")
+  currency        String              @default("INR")
   receiptUrl      String?
   expenseDate     DateTime
   status          TravelExpenseStatus @default(DRAFT)
   approvedBy      String?
   approvedAt      DateTime?
   remarks         String?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
   travelRequest TravelRequest @relation(fields: [travelRequestId], references: [id], onDelete: Cascade)
 
@@ -2665,21 +2665,21 @@ model TravelExpense {
 // ─── BENEFITS MANAGEMENT ─────────────────────────────────────────────
 
 model BenefitPlan {
-  id          String      @id @default(cuid())
-  name        String
-  type        BenefitType
-  description String?
-  provider    String?
-  coverage    String?
-  premium     Float       @default(0)
-  employerContribution Float @default(0)
-  employeeContribution Float @default(0)
-  minGradeLevel Int       @default(0)
-  isActive    Boolean     @default(true)
-  validFrom   DateTime
-  validTo     DateTime?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id                   String      @id @default(cuid())
+  name                 String
+  type                 BenefitType
+  description          String?
+  provider             String?
+  coverage             String?
+  premium              Float       @default(0)
+  employerContribution Float       @default(0)
+  employeeContribution Float       @default(0)
+  minGradeLevel        Int         @default(0)
+  isActive             Boolean     @default(true)
+  validFrom            DateTime
+  validTo              DateTime?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
 
   enrollments BenefitEnrollment[]
 
@@ -2689,15 +2689,15 @@ model BenefitPlan {
 }
 
 model BenefitEnrollment {
-  id           String                 @id @default(cuid())
-  employeeId   String
+  id            String                  @id @default(cuid())
+  employeeId    String
   benefitPlanId String
-  startDate    DateTime
-  endDate      DateTime?
-  status       BenefitEnrollmentStatus @default(PENDING)
-  nominees     Json?
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
+  startDate     DateTime
+  endDate       DateTime?
+  status        BenefitEnrollmentStatus @default(PENDING)
+  nominees      Json?
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
 
   employee    Employee    @relation(fields: [employeeId], references: [id])
   benefitPlan BenefitPlan @relation(fields: [benefitPlanId], references: [id])
@@ -2709,19 +2709,19 @@ model BenefitEnrollment {
 }
 
 model InsurancePolicy {
-  id              String   @id @default(cuid())
-  name            String
-  policyNumber    String   @unique
-  provider        String
-  type            String
-  coverageAmount  Float
-  premium         Float
-  startDate       DateTime
-  endDate         DateTime
-  description     String?
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  policyNumber   String   @unique
+  provider       String
+  type           String
+  coverageAmount Float
+  premium        Float
+  startDate      DateTime
+  endDate        DateTime
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([isActive])
   @@map("insurance_policies")
@@ -2746,19 +2746,19 @@ model CorporateService {
 }
 
 model ServiceRequest {
-  id                String              @id @default(cuid())
-  employeeId        String
+  id                 String               @id @default(cuid())
+  employeeId         String
   corporateServiceId String
-  subject           String
-  description       String
-  priority          ServicePriority     @default(MEDIUM)
-  status            ServiceRequestStatus @default(OPEN)
-  assignedTo        String?
-  resolvedAt        DateTime?
-  resolution        String?
-  slaDeadline       DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  subject            String
+  description        String
+  priority           ServicePriority      @default(MEDIUM)
+  status             ServiceRequestStatus @default(OPEN)
+  assignedTo         String?
+  resolvedAt         DateTime?
+  resolution         String?
+  slaDeadline        DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
 
   employee         Employee         @relation(fields: [employeeId], references: [id])
   corporateService CorporateService @relation(fields: [corporateServiceId], references: [id])
@@ -2772,22 +2772,22 @@ model ServiceRequest {
 // ─── ASSET MANAGEMENT ────────────────────────────────────────────────
 
 model Asset {
-  id            String        @id @default(cuid())
-  assetTag      String        @unique
+  id            String         @id @default(cuid())
+  assetTag      String         @unique
   name          String
   category      String
   make          String?
   model         String?
-  serialNumber  String?       @unique
+  serialNumber  String?        @unique
   purchaseDate  DateTime?
   purchasePrice Float?
   warrantyEnd   DateTime?
-  status        AssetStatus   @default(AVAILABLE)
+  status        AssetStatus    @default(AVAILABLE)
   condition     AssetCondition @default(NEW)
   location      String?
   notes         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   assignments AssetAssignment[]
 
@@ -2797,16 +2797,16 @@ model Asset {
 }
 
 model AssetAssignment {
-  id          String    @id @default(cuid())
-  assetId     String
-  employeeId  String
-  assignedAt  DateTime  @default(now())
-  returnedAt  DateTime?
-  assignedBy  String?
-  condition   String?
-  notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  assetId    String
+  employeeId String
+  assignedAt DateTime  @default(now())
+  returnedAt DateTime?
+  assignedBy String?
+  condition  String?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   asset    Asset    @relation(fields: [assetId], references: [id])
   employee Employee @relation(fields: [employeeId], references: [id])
@@ -2819,24 +2819,24 @@ model AssetAssignment {
 // ─── HELPDESK ────────────────────────────────────────────────────────
 
 model HelpdeskTicket {
-  id          String         @id @default(cuid())
-  ticketNumber String        @unique
-  employeeId  String
-  category    TicketCategory
-  subject     String
-  description String
-  priority    ServicePriority @default(MEDIUM)
-  status      TicketStatus   @default(OPEN)
-  assignedTo  String?
-  resolvedAt  DateTime?
-  resolution  String?
-  feedback    String?
-  rating      Int?
-  slaDeadline DateTime?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id           String          @id @default(cuid())
+  ticketNumber String          @unique
+  employeeId   String
+  category     TicketCategory
+  subject      String
+  description  String
+  priority     ServicePriority @default(MEDIUM)
+  status       TicketStatus    @default(OPEN)
+  assignedTo   String?
+  resolvedAt   DateTime?
+  resolution   String?
+  feedback     String?
+  rating       Int?
+  slaDeadline  DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
-  employee Employee           @relation(fields: [employeeId], references: [id])
+  employee Employee          @relation(fields: [employeeId], references: [id])
   comments HelpdeskComment[]
 
   @@index([employeeId])
@@ -2846,29 +2846,18 @@ model HelpdeskTicket {
 }
 
 model HelpdeskComment {
-  id        String   @id @default(cuid())
-  ticketId  String
-  authorId  String
-  content   String
-  isInternal Boolean @default(false)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  ticketId   String
+  authorId   String
+  content    String
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   ticket HelpdeskTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 
   @@index([ticketId])
   @@map("helpdesk_comments")
 }
-
-// ─── MEETING ROOMS ───────────────────────────────────────────────────
-
-model MeetingRoom {
-  id          String   @id @default(cuid())
-  name        String
-  floor       Int
-  capacity    Int
-  hasProjector Boolean @default(false)
-  hasWhiteboard Boolean @default(false)
-  hasVideoConf Boolean @default(false)
 
 // ─── SYSTEM CONFIGURATION ──────────────────────────────────────────
 
@@ -2955,16 +2944,16 @@ model SystemConfig {
 }
 
 model UserSession {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   userId     String
-  token      String    @unique
+  token      String   @unique
   ipAddress  String?
   userAgent  String?
   deviceInfo String?
-  isActive   Boolean   @default(true)
-  lastActive DateTime  @default(now())
+  isActive   Boolean  @default(true)
+  lastActive DateTime @default(now())
   expiresAt  DateTime
-  createdAt  DateTime  @default(now())
+  createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2974,14 +2963,14 @@ model UserSession {
 }
 
 model LoginHistory {
-  id        String   @id @default(cuid())
-  userId    String
-  ipAddress String?
-  userAgent String?
-  location  String?
-  success   Boolean  @default(true)
+  id         String   @id @default(cuid())
+  userId     String
+  ipAddress  String?
+  userAgent  String?
+  location   String?
+  success    Boolean  @default(true)
   failReason String?
-  createdAt DateTime @default(now())
+  createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2991,21 +2980,21 @@ model LoginHistory {
 }
 
 model SecurityPolicy {
-  id                   String   @id @default(cuid())
-  minPasswordLength    Int      @default(8)
-  requireUppercase     Boolean  @default(true)
-  requireLowercase     Boolean  @default(true)
-  requireNumbers       Boolean  @default(true)
-  requireSpecialChars  Boolean  @default(true)
-  passwordExpiryDays   Int      @default(90)
-  maxLoginAttempts     Int      @default(5)
-  lockoutDurationMins  Int      @default(30)
-  sessionTimeoutMins   Int      @default(480)
-  enable2FA            Boolean  @default(false)
-  ipWhitelist          String?  @db.Text
-  enforceIPWhitelist   Boolean  @default(false)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  minPasswordLength   Int      @default(8)
+  requireUppercase    Boolean  @default(true)
+  requireLowercase    Boolean  @default(true)
+  requireNumbers      Boolean  @default(true)
+  requireSpecialChars Boolean  @default(true)
+  passwordExpiryDays  Int      @default(90)
+  maxLoginAttempts    Int      @default(5)
+  lockoutDurationMins Int      @default(30)
+  sessionTimeoutMins  Int      @default(480)
+  enable2FA           Boolean  @default(false)
+  ipWhitelist         String?  @db.Text
+  enforceIPWhitelist  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   @@map("security_policies")
 }
@@ -3028,18 +3017,18 @@ model BackupLog {
 }
 
 model IntegrationConfig {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String    @id @default(cuid())
+  name        String    @unique
   provider    String
   description String?
   config      Json?
   apiKey      String?
   apiSecret   String?
   webhookUrl  String?
-  isEnabled   Boolean  @default(false)
+  isEnabled   Boolean   @default(false)
   lastSyncAt  DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@map("integration_configs")
 }
@@ -3062,13 +3051,13 @@ model APIKey {
 }
 
 model SystemHealth {
-  id          String   @id @default(cuid())
-  metric      String
-  value       Float
-  unit        String?
-  status      String   @default("OK")
-  details     Json?
-  recordedAt  DateTime @default(now())
+  id         String   @id @default(cuid())
+  metric     String
+  value      Float
+  unit       String?
+  status     String   @default("OK")
+  details    Json?
+  recordedAt DateTime @default(now())
 
   @@index([metric])
   @@index([recordedAt])
@@ -3076,15 +3065,15 @@ model SystemHealth {
 }
 
 model MaintenanceWindow {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
   description String?
   startTime   DateTime
   endTime     DateTime
-  isActive    Boolean   @default(true)
+  isActive    Boolean  @default(true)
   createdBy   String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("maintenance_windows")
 }
@@ -3109,15 +3098,15 @@ model CustomField {
 }
 
 model Workflow {
-  id          String         @id @default(cuid())
-  name        String
-  module      String
-  description String?
+  id           String         @id @default(cuid())
+  name         String
+  module       String
+  description  String?
   triggerEvent String?
-  status      WorkflowStatus @default(DRAFT)
-  createdBy   String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  status       WorkflowStatus @default(DRAFT)
+  createdBy    String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   steps WorkflowStep[]
 
@@ -3127,18 +3116,18 @@ model Workflow {
 }
 
 model WorkflowStep {
-  id            String   @id @default(cuid())
-  workflowId    String
-  stepOrder     Int
-  name          String
-  approverRole  UserRole?
-  approverId    String?
-  condition     Json?
-  isRequired    Boolean  @default(true)
-  autoApprove   Boolean  @default(false)
-  timeoutHours  Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(cuid())
+  workflowId   String
+  stepOrder    Int
+  name         String
+  approverRole UserRole?
+  approverId   String?
+  condition    Json?
+  isRequired   Boolean   @default(true)
+  autoApprove  Boolean   @default(false)
+  timeoutHours Int?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   workflow  Workflow           @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   approvals WorkflowApproval[]
@@ -3184,20 +3173,20 @@ model BulkOperation {
 }
 
 model DataImport {
-  id           String       @id @default(cuid())
-  module       String
-  fileName     String
-  fileSize     Int?
-  status       ImportStatus @default(UPLOADING)
-  totalRows    Int          @default(0)
-  importedRows Int          @default(0)
-  failedRows   Int          @default(0)
-  errors       Json?
+  id            String       @id @default(cuid())
+  module        String
+  fileName      String
+  fileSize      Int?
+  status        ImportStatus @default(UPLOADING)
+  totalRows     Int          @default(0)
+  importedRows  Int          @default(0)
+  failedRows    Int          @default(0)
+  errors        Json?
   columnMapping Json?
-  importedBy   String?
-  startedAt    DateTime     @default(now())
-  completedAt  DateTime?
-  createdAt    DateTime     @default(now())
+  importedBy    String?
+  startedAt     DateTime     @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime     @default(now())
 
   @@index([module])
   @@index([status])
@@ -3245,17 +3234,17 @@ model AnnouncementBoard {
 }
 
 model CompanyPolicy {
-  id          String   @id @default(cuid())
-  title       String
-  content     String   @db.Text
-  category    String
-  version     String   @default("1.0")
-  isActive    Boolean  @default(true)
+  id            String    @id @default(cuid())
+  title         String
+  content       String    @db.Text
+  category      String
+  version       String    @default("1.0")
+  isActive      Boolean   @default(true)
   effectiveFrom DateTime
-  effectiveTo DateTime?
-  createdBy   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  effectiveTo   DateTime?
+  createdBy     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([category])
   @@index([isActive])
@@ -3295,16 +3284,16 @@ model Grade {
 }
 
 model MeetingRoom {
-  id          String   @id @default(cuid())
-  name        String
-  floor       Int
-  capacity    Int
-  hasProjector Boolean @default(false)
-  hasWhiteboard Boolean @default(false)
-  hasVideoConf Boolean @default(false)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(cuid())
+  name          String
+  floor         Int
+  capacity      Int
+  hasProjector  Boolean  @default(false)
+  hasWhiteboard Boolean  @default(false)
+  hasVideoConf  Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   bookings MeetingBooking[]
 
@@ -3339,21 +3328,21 @@ model MeetingBooking {
 // ─── CAB BOOKING ─────────────────────────────────────────────────────
 
 model CabRequest {
-  id          String           @id @default(cuid())
-  employeeId  String
+  id             String           @id @default(cuid())
+  employeeId     String
   pickupLocation String
-  dropLocation String
-  pickupTime  DateTime
-  cabType     CabType          @default(SEDAN)
-  passengers  Int              @default(1)
-  purpose     String?
-  status      CabRequestStatus @default(REQUESTED)
-  driverName  String?
-  driverPhone String?
-  vehicleNumber String?
-  completedAt DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  dropLocation   String
+  pickupTime     DateTime
+  cabType        CabType          @default(SEDAN)
+  passengers     Int              @default(1)
+  purpose        String?
+  status         CabRequestStatus @default(REQUESTED)
+  driverName     String?
+  driverPhone    String?
+  vehicleNumber  String?
+  completedAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -3365,15 +3354,15 @@ model CabRequest {
 // ─── FOOD & GIFT VOUCHERS ────────────────────────────────────────────
 
 model FoodCoupon {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   employeeId String
-  couponCode String   @unique
+  couponCode String    @unique
   amount     Float
   validFrom  DateTime
   validTo    DateTime
-  isUsed     Boolean  @default(false)
+  isUsed     Boolean   @default(false)
   usedAt     DateTime?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   employee Employee @relation(fields: [employeeId], references: [id])
 
@@ -3382,17 +3371,17 @@ model FoodCoupon {
 }
 
 model GiftVoucher {
-  id         String   @id @default(cuid())
-  employeeId String
-  voucherCode String  @unique
-  amount     Float
-  occasion   String?
-  message    String?
-  validFrom  DateTime
-  validTo    DateTime
-  isRedeemed Boolean  @default(false)
-  redeemedAt DateTime?
-  createdAt  DateTime @default(now())
+  id          String    @id @default(cuid())
+  employeeId  String
+  voucherCode String    @unique
+  amount      Float
+  occasion    String?
+  message     String?
+  validFrom   DateTime
+  validTo     DateTime
+  isRedeemed  Boolean   @default(false)
+  redeemedAt  DateTime?
+  createdAt   DateTime  @default(now())
 
   employee Employee @relation(fields: [employeeId], references: [id])
 

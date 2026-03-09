@@ -36,7 +36,7 @@ export default function DepartmentsPage() {
     },
   });
 
-  const departments: DepartmentItem[] = data?.data || [];
+  const departments: DepartmentItem[] = (data?.data as DepartmentItem[]) || [];
 
   return (
     <div className="space-y-6">

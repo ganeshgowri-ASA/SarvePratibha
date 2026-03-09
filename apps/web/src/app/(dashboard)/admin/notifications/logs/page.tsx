@@ -20,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { apiClient } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { EmailLogItem, SMSLogItem, ApiResponse, PaginatedResponse } from '@sarve-pratibha/shared';
 
 const EMAIL_STATUS_CONFIG: Record<string, { icon: typeof CheckCircle2; color: string; label: string }> = {
@@ -74,7 +74,7 @@ export default function NotificationLogsPage() {
       if (dateTo) params.set('to', dateTo);
       if (statusFilter) params.set('status', statusFilter);
 
-      const data = await apiClient<PaginatedResponse<EmailLogItem>>(
+      const data = await apiFetch<PaginatedResponse<EmailLogItem>>(
         `/api/notifications/logs/email?${params}`,
         { token },
       );
@@ -96,7 +96,7 @@ export default function NotificationLogsPage() {
       if (dateTo) params.set('to', dateTo);
       if (statusFilter) params.set('status', statusFilter);
 
-      const data = await apiClient<PaginatedResponse<SMSLogItem>>(
+      const data = await apiFetch<PaginatedResponse<SMSLogItem>>(
         `/api/notifications/logs/sms?${params}`,
         { token },
       );

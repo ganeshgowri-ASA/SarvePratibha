@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { apiClient } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import type { UserRole } from '@sarve-pratibha/shared';
 
 const ROLES: { value: UserRole; label: string }[] = [
@@ -81,7 +81,7 @@ export default function AdminNotificationsPage() {
     if (!token || !singleForm.userId || !singleForm.title || !singleForm.message) return;
     try {
       setSingleSending(true);
-      await apiClient('/api/notifications/send', {
+      await apiFetch('/api/notifications/send', {
         method: 'POST',
         token,
         body: JSON.stringify({
@@ -111,7 +111,7 @@ export default function AdminNotificationsPage() {
         .filter(([, v]) => v)
         .map(([k]) => k === 'inApp' ? 'IN_APP' : k.toUpperCase());
 
-      await apiClient('/api/notifications/bulk', {
+      await apiFetch('/api/notifications/bulk', {
         method: 'POST',
         token,
         body: JSON.stringify({
