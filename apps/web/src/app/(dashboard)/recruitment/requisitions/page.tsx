@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { REQUISITION_STATUS_LABELS, PRIORITY_LABELS } from '@sarve-pratibha/shared';
 
 interface Requisition {
@@ -181,11 +181,14 @@ export default function RequisitionsPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-              <option value="">All Statuses</option>
-              {Object.entries(REQUISITION_STATUS_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
+              <SelectTrigger><SelectValue placeholder="All Statuses" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Statuses</SelectItem>
+                {Object.entries(REQUISITION_STATUS_LABELS).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>{label as string}</SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
         </CardContent>

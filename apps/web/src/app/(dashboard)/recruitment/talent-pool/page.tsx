@@ -191,7 +191,7 @@ export default function TalentPoolPage() {
 
       {/* Create Pool Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent onClose={() => setShowCreateDialog(false)}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Create Talent Pool</DialogTitle>
           </DialogHeader>

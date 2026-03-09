@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
   });
 
   const health = healthData?.data;
-  const recentLogs = auditData?.data || [];
+  const recentLogs = (auditData?.data as any[]) || [];
 
   return (
     <div className="space-y-6">

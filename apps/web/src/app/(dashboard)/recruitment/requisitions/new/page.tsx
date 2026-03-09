@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function NewRequisitionPage() {
   const router = useRouter();
@@ -91,36 +91,43 @@ export default function NewRequisitionPage() {
               </div>
               <div>
                 <Label htmlFor="departmentId">Department *</Label>
-                <Select id="departmentId" name="departmentId" required>
-                  <option value="">Select Department</option>
-                  <option value="dept1">Engineering</option>
-                  <option value="dept2">Product</option>
-                  <option value="dept3">Design</option>
-                  <option value="dept4">Marketing</option>
-                  <option value="dept5">HR</option>
-                  <option value="dept6">Finance</option>
-                  <option value="dept7">Analytics</option>
+                <Select>
+                  <SelectTrigger id="departmentId"><SelectValue placeholder="Select Department" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="dept1">Engineering</SelectItem>
+                    <SelectItem value="dept2">Product</SelectItem>
+                    <SelectItem value="dept3">Design</SelectItem>
+                    <SelectItem value="dept4">Marketing</SelectItem>
+                    <SelectItem value="dept5">HR</SelectItem>
+                    <SelectItem value="dept6">Finance</SelectItem>
+                    <SelectItem value="dept7">Analytics</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label htmlFor="designationId">Designation</Label>
-                <Select id="designationId" name="designationId">
-                  <option value="">Select Designation</option>
-                  <option value="des1">Junior Engineer</option>
-                  <option value="des2">Software Engineer</option>
-                  <option value="des3">Senior Engineer</option>
-                  <option value="des4">Lead Engineer</option>
-                  <option value="des5">Manager</option>
+                <Select>
+                  <SelectTrigger id="designationId"><SelectValue placeholder="Select Designation" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="des1">Junior Engineer</SelectItem>
+                    <SelectItem value="des2">Software Engineer</SelectItem>
+                    <SelectItem value="des3">Senior Engineer</SelectItem>
+                    <SelectItem value="des4">Lead Engineer</SelectItem>
+                    <SelectItem value="des5">Manager</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label htmlFor="employmentType">Employment Type *</Label>
-                <Select id="employmentType" name="employmentType" defaultValue="FULL_TIME" required>
-                  <option value="FULL_TIME">Full Time</option>
-                  <option value="PART_TIME">Part Time</option>
-                  <option value="CONTRACT">Contract</option>
-                  <option value="INTERN">Intern</option>
-                  <option value="CONSULTANT">Consultant</option>
+                <Select defaultValue="FULL_TIME">
+                  <SelectTrigger id="employmentType"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FULL_TIME">Full Time</SelectItem>
+                    <SelectItem value="PART_TIME">Part Time</SelectItem>
+                    <SelectItem value="CONTRACT">Contract</SelectItem>
+                    <SelectItem value="INTERN">Intern</SelectItem>
+                    <SelectItem value="CONSULTANT">Consultant</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
@@ -133,11 +140,14 @@ export default function NewRequisitionPage() {
               </div>
               <div>
                 <Label htmlFor="priority">Priority *</Label>
-                <Select id="priority" name="priority" defaultValue="MEDIUM" required>
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                  <option value="URGENT">Urgent</option>
+                <Select defaultValue="MEDIUM">
+                  <SelectTrigger id="priority"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LOW">Low</SelectItem>
+                    <SelectItem value="MEDIUM">Medium</SelectItem>
+                    <SelectItem value="HIGH">High</SelectItem>
+                    <SelectItem value="URGENT">Urgent</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>

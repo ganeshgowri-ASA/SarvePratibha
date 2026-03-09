@@ -220,7 +220,7 @@ export default function InterviewsPage() {
 
       {/* Schedule Dialog */}
       <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
-        <DialogContent className="max-w-lg" onClose={() => setShowScheduleDialog(false)}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Schedule Interview</DialogTitle>
           </DialogHeader>
@@ -228,20 +228,24 @@ export default function InterviewsPage() {
             <div className="space-y-4 py-4">
               <div>
                 <Label>Application *</Label>
-                <Select required>
-                  <option value="">Select Application</option>
-                  <option value="a1">Suresh Kumar - Senior SE</option>
-                  <option value="a2">Divya Agarwal - Senior SE</option>
-                  <option value="a4">Pooja Shah - Senior SE</option>
+                <Select>
+                  <SelectTrigger><SelectValue placeholder="Select Application" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="a1">Suresh Kumar - Senior SE</SelectItem>
+                    <SelectItem value="a2">Divya Agarwal - Senior SE</SelectItem>
+                    <SelectItem value="a4">Pooja Shah - Senior SE</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Interviewer *</Label>
-                <Select required>
-                  <option value="">Select Interviewer</option>
-                  <option value="emp1">Priya Sharma (Engineering Lead)</option>
-                  <option value="emp2">Vikram Singh (Tech Architect)</option>
-                  <option value="emp3">Rajesh Kumar (Section Head)</option>
+                <Select>
+                  <SelectTrigger><SelectValue placeholder="Select Interviewer" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="emp1">Priya Sharma (Engineering Lead)</SelectItem>
+                    <SelectItem value="emp2">Vikram Singh (Tech Architect)</SelectItem>
+                    <SelectItem value="emp3">Rajesh Kumar (Section Head)</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -261,10 +265,13 @@ export default function InterviewsPage() {
                 </div>
                 <div>
                   <Label>Mode *</Label>
-                  <Select defaultValue="VIDEO" required>
-                    <option value="IN_PERSON">In Person</option>
-                    <option value="VIDEO">Video Call</option>
-                    <option value="PHONE">Phone</option>
+                  <Select defaultValue="VIDEO">
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="IN_PERSON">In Person</SelectItem>
+                      <SelectItem value="VIDEO">Video Call</SelectItem>
+                      <SelectItem value="PHONE">Phone</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -287,7 +294,7 @@ export default function InterviewsPage() {
 
       {/* Feedback Dialog */}
       <Dialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
-        <DialogContent className="max-w-lg" onClose={() => setShowFeedbackDialog(false)}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Interview Feedback</DialogTitle>
           </DialogHeader>
