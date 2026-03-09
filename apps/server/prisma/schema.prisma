@@ -194,6 +194,40 @@ enum ApplicationStatus {
   ACCEPTED
   REJECTED
   WITHDRAWN
+  HIRED
+}
+
+enum RequisitionStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  OPEN
+  ON_HOLD
+  CLOSED
+  CANCELLED
+}
+
+enum OfferStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  SENT
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum SourcePlatformType {
+  NAUKRI
+  LINKEDIN
+  INDEED
+  GLASSDOOR
+  INTERNAL
+  REFERRAL
+  CAREER_PAGE
+  OTHER
 }
 
 enum InterviewResult {
@@ -416,6 +450,7 @@ model Department {
   children     Department[]  @relation("DepartmentHierarchy")
   employees    Employee[]
   jobPostings  JobPosting[]
+  jobRequisitions JobRequisition[]
 
   @@index([organizationId])
   @@index([parentId])
@@ -432,7 +467,8 @@ model Designation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  employees Employee[]
+  employees       Employee[]
+  jobRequisitions JobRequisition[]
 
   @@map("designations")
 }
@@ -584,9 +620,14 @@ model Employee {
   feedbackResponses    FeedbackResponse[]
   kras             KRA[]
 
-  // Talent
+  // Talent / Recruitment
   applications     Application[]
   interviewsAsInterviewer InterviewSchedule[] @relation("Interviewer")
+  interviewFeedbacks      InterviewFeedback[]
+  requisitionsCreated     JobRequisition[]    @relation("RequisitionCreator")
+  requisitionsApproved    JobRequisition[]    @relation("RequisitionApprover")
+  offersCreated           OfferLetter[]       @relation("OfferCreator")
+  offersApproved          OfferLetter[]       @relation("OfferApprover")
 
   // Security & Services
   securityPasses SecurityPass[]
@@ -1523,80 +1564,296 @@ model FeedbackResponse {
   @@map("feedback_responses")
 }
 
-// ─── TALENT MANAGEMENT / RECRUITMENT ────────────────────────────────
+// ─── ATS / RECRUITMENT ──────────────────────────────────────────────
+
+model JobRequisition {
+  id              String            @id @default(cuid())
+  title           String
+  departmentId    String
+  designationId   String?
+  description     String            @db.Text
+  requirements    String?           @db.Text
+  skills          String[]
+  location        String?
+  positions       Int               @default(1)
+  filledPositions Int               @default(0)
+  minExp          Float?
+  maxExp          Float?
+  minSalary       Float?
+  maxSalary       Float?
+  employmentType  EmploymentType    @default(FULL_TIME)
+  status          RequisitionStatus @default(DRAFT)
+  priority        String            @default("MEDIUM")
+  createdById     String
+  approvedById    String?
+  approvedAt      DateTime?
+  closingDate     DateTime?
+  remarks         String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  department  Department     @relation(fields: [departmentId], references: [id])
+  designation Designation?   @relation(fields: [designationId], references: [id])
+  createdBy   Employee       @relation("RequisitionCreator", fields: [createdById], references: [id])
+  approvedBy  Employee?      @relation("RequisitionApprover", fields: [approvedById], references: [id])
+  jobPostings JobPosting[]
+
+  @@index([departmentId])
+  @@index([status])
+  @@index([createdById])
+  @@map("job_requisitions")
+}
 
 model JobPosting {
-  id           String   @id @default(cuid())
-  title        String
-  departmentId String
-  description  String
-  requirements String?
-  location     String?
-  positions    Int      @default(1)
-  minExp       Float?
-  maxExp       Float?
-  minSalary    Float?
-  maxSalary    Float?
-  isActive     Boolean  @default(true)
-  postedAt     DateTime @default(now())
-  closingDate  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String    @id @default(cuid())
+  requisitionId   String
+  title           String
+  departmentId    String
+  description     String    @db.Text
+  requirements    String?   @db.Text
+  skills          String[]
+  location        String?
+  positions       Int       @default(1)
+  minExp          Float?
+  maxExp          Float?
+  minSalary       Float?
+  maxSalary       Float?
+  employmentType  EmploymentType @default(FULL_TIME)
+  isActive        Boolean   @default(true)
+  isPublished     Boolean   @default(false)
+  publishedPlatforms String[]
+  postedAt        DateTime  @default(now())
+  closingDate     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  department   Department    @relation(fields: [departmentId], references: [id])
+  requisition  JobRequisition @relation(fields: [requisitionId], references: [id])
+  department   Department     @relation(fields: [departmentId], references: [id])
   applications Application[]
 
   @@index([departmentId])
   @@index([isActive])
+  @@index([requisitionId])
   @@map("job_postings")
+}
+
+model Candidate {
+  id            String   @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String   @unique
+  phone         String?
+  resumeUrl     String?
+  linkedinUrl   String?
+  currentCompany String?
+  currentTitle   String?
+  totalExp      Float?
+  currentSalary Float?
+  expectedSalary Float?
+  skills        String[]
+  location      String?
+  source        SourcePlatformType @default(OTHER)
+  sourceDetails String?
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  applications  Application[]
+  tags          CandidateTag[]
+  talentPools   TalentPoolCandidate[]
+
+  @@index([email])
+  @@index([source])
+  @@map("candidates")
+}
+
+model CandidateTag {
+  id          String   @id @default(cuid())
+  candidateId String
+  tag         String
+  createdAt   DateTime @default(now())
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, tag])
+  @@index([tag])
+  @@map("candidate_tags")
 }
 
 model Application {
   id           String            @id @default(cuid())
   jobPostingId String
-  candidateName String
-  email        String
-  phone        String?
-  resumeUrl    String?
-  coverLetter  String?
+  candidateId  String
   status       ApplicationStatus @default(APPLIED)
+  stage        String            @default("APPLIED")
   referredById String?
-  source       String?
+  source       SourcePlatformType @default(OTHER)
+  coverLetter  String?           @db.Text
   remarks      String?
+  appliedAt    DateTime          @default(now())
+  movedAt      DateTime          @default(now())
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
 
   jobPosting  JobPosting          @relation(fields: [jobPostingId], references: [id])
+  candidate   Candidate           @relation(fields: [candidateId], references: [id])
   referredBy  Employee?           @relation(fields: [referredById], references: [id])
   interviews  InterviewSchedule[]
+  offer       OfferLetter?
 
+  @@unique([jobPostingId, candidateId])
   @@index([jobPostingId])
+  @@index([candidateId])
   @@index([status])
+  @@index([stage])
   @@map("applications")
 }
 
-model InterviewSchedule {
-  id            String          @id @default(cuid())
-  applicationId String
-  interviewerId String
-  scheduledAt   DateTime
-  duration      Int             @default(60)
-  round         Int             @default(1)
-  mode          String          @default("IN_PERSON")
-  location      String?
-  meetingLink   String?
-  feedback      String?
-  rating        Float?
-  result        InterviewResult @default(PENDING)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+model InterviewRound {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  order       Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  application Application @relation(fields: [applicationId], references: [id])
-  interviewer Employee    @relation("Interviewer", fields: [interviewerId], references: [id])
+  schedules InterviewSchedule[]
+
+  @@map("interview_rounds")
+}
+
+model InterviewSchedule {
+  id              String          @id @default(cuid())
+  applicationId   String
+  interviewerId   String
+  roundId         String?
+  scheduledAt     DateTime
+  duration        Int             @default(60)
+  round           Int             @default(1)
+  mode            String          @default("IN_PERSON")
+  location        String?
+  meetingLink     String?
+  notes           String?
+  result          InterviewResult @default(PENDING)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  application  Application      @relation(fields: [applicationId], references: [id])
+  interviewer  Employee         @relation("Interviewer", fields: [interviewerId], references: [id])
+  roundType    InterviewRound?  @relation(fields: [roundId], references: [id])
+  feedbacks    InterviewFeedback[]
 
   @@index([applicationId])
   @@index([interviewerId])
+  @@index([scheduledAt])
   @@map("interview_schedules")
+}
+
+model InterviewFeedback {
+  id                String   @id @default(cuid())
+  interviewScheduleId String
+  interviewerId     String
+  technicalRating   Int?
+  communicationRating Int?
+  cultureFitRating  Int?
+  overallRating     Float?
+  strengths         String?  @db.Text
+  weaknesses        String?  @db.Text
+  recommendation    String?
+  comments          String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  interviewSchedule InterviewSchedule @relation(fields: [interviewScheduleId], references: [id])
+  interviewer       Employee          @relation(fields: [interviewerId], references: [id])
+
+  @@unique([interviewScheduleId, interviewerId])
+  @@index([interviewerId])
+  @@map("interview_feedbacks")
+}
+
+model OfferLetter {
+  id              String      @id @default(cuid())
+  applicationId   String      @unique
+  candidateName   String
+  designation     String
+  department      String
+  joiningDate     DateTime
+  basicSalary     Float
+  hra             Float       @default(0)
+  conveyance      Float       @default(0)
+  specialAllow    Float       @default(0)
+  otherAllow      Float       @default(0)
+  grossSalary     Float
+  pfContribution  Float       @default(0)
+  esiContribution Float       @default(0)
+  professionalTax Float       @default(0)
+  tds             Float       @default(0)
+  netSalary       Float
+  bonus           Float?
+  stockOptions    String?
+  benefits        String?     @db.Text
+  status          OfferStatus @default(DRAFT)
+  validUntil      DateTime?
+  createdById     String
+  approvedById    String?
+  approvedAt      DateTime?
+  sentAt          DateTime?
+  respondedAt     DateTime?
+  remarks         String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id])
+  createdBy   Employee    @relation("OfferCreator", fields: [createdById], references: [id])
+  approvedBy  Employee?   @relation("OfferApprover", fields: [approvedById], references: [id])
+
+  @@index([status])
+  @@map("offer_letters")
+}
+
+model TalentPool {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  skills      String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  candidates TalentPoolCandidate[]
+
+  @@map("talent_pools")
+}
+
+model TalentPoolCandidate {
+  id           String   @id @default(cuid())
+  talentPoolId String
+  candidateId  String
+  addedAt      DateTime @default(now())
+
+  talentPool TalentPool @relation(fields: [talentPoolId], references: [id], onDelete: Cascade)
+  candidate  Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([talentPoolId, candidateId])
+  @@map("talent_pool_candidates")
+}
+
+model SourcePlatform {
+  id          String             @id @default(cuid())
+  name        String
+  type        SourcePlatformType
+  apiKey      String?
+  apiSecret   String?
+  isActive    Boolean            @default(true)
+  config      Json?
+  lastSyncAt  DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@unique([type])
+  @@map("source_platforms")
 }
 
 // ─── SECURITY SERVICES ──────────────────────────────────────────────

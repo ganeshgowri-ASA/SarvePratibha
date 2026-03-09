@@ -717,3 +717,98 @@ export interface BellCurveData {
     department: string;
   }[];
 }
+
+// ─── Recruitment / ATS ─────────────────────────────────────────────
+
+export type RequisitionStatus = 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'OPEN' | 'ON_HOLD' | 'CLOSED' | 'CANCELLED';
+export type ApplicationStage = 'APPLIED' | 'SCREENING' | 'INTERVIEW' | 'OFFERED' | 'HIRED' | 'REJECTED';
+export type OfferStatus = 'DRAFT' | 'PENDING_APPROVAL' | 'APPROVED' | 'SENT' | 'ACCEPTED' | 'REJECTED' | 'WITHDRAWN' | 'EXPIRED';
+export type SourcePlatform = 'NAUKRI' | 'LINKEDIN' | 'INDEED' | 'GLASSDOOR' | 'INTERNAL' | 'REFERRAL' | 'CAREER_PAGE' | 'OTHER';
+export type InterviewMode = 'IN_PERSON' | 'VIDEO' | 'PHONE';
+export type FeedbackRecommendation = 'STRONG_HIRE' | 'HIRE' | 'NO_HIRE' | 'STRONG_NO_HIRE';
+
+export interface RequisitionSummary {
+  id: string;
+  title: string;
+  department: string;
+  positions: number;
+  filledPositions: number;
+  status: RequisitionStatus;
+  priority: string;
+  createdAt: string;
+  closingDate?: string;
+}
+
+export interface CandidateSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  currentCompany?: string;
+  currentTitle?: string;
+  totalExp?: number;
+  source: SourcePlatform;
+  skills: string[];
+  applicationCount: number;
+}
+
+export interface PipelineStage {
+  stage: ApplicationStage;
+  label: string;
+  count: number;
+  applications: PipelineCard[];
+}
+
+export interface PipelineCard {
+  id: string;
+  candidateId: string;
+  candidateName: string;
+  email: string;
+  currentTitle?: string;
+  source: SourcePlatform;
+  appliedAt: string;
+  movedAt: string;
+  interviewCount: number;
+  avgRating?: number;
+}
+
+export interface InterviewEvent {
+  id: string;
+  applicationId: string;
+  candidateName: string;
+  jobTitle: string;
+  interviewerName: string;
+  scheduledAt: string;
+  duration: number;
+  round: number;
+  mode: InterviewMode;
+  location?: string;
+  meetingLink?: string;
+  result: string;
+}
+
+export interface OfferSummary {
+  id: string;
+  applicationId: string;
+  candidateName: string;
+  designation: string;
+  department: string;
+  grossSalary: number;
+  netSalary: number;
+  joiningDate: string;
+  status: OfferStatus;
+  validUntil?: string;
+}
+
+export interface RecruitmentAnalytics {
+  totalRequisitions: number;
+  openPositions: number;
+  totalCandidates: number;
+  totalApplications: number;
+  hiredThisMonth: number;
+  avgTimeToHire: number;
+  hiringFunnel: { stage: string; count: number }[];
+  sourceEffectiveness: { source: string; count: number; hiredCount: number }[];
+  departmentOpenings: { department: string; openings: number; filled: number }[];
+}

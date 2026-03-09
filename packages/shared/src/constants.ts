@@ -34,6 +34,23 @@ export const SIDEBAR_MENU: MenuItem[] = [
   { id: 'travel', label: 'Travel & Guest House', icon: 'Plane', href: '/travel' },
   { id: 'engagement', label: 'Employee Engagement', icon: 'Smile', href: '/engagement' },
   { id: 'talent', label: 'Talent Management', icon: 'GraduationCap', href: '/talent', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
+  {
+    id: 'recruitment',
+    label: 'Recruitment',
+    icon: 'UserPlus',
+    href: '/recruitment',
+    roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'],
+    children: [
+      { id: 'req-dashboard', label: 'Dashboard', icon: 'LayoutDashboard', href: '/recruitment' },
+      { id: 'req-requisitions', label: 'Requisitions', icon: 'FileText', href: '/recruitment/requisitions' },
+      { id: 'req-candidates', label: 'Candidates', icon: 'Users', href: '/recruitment/candidates' },
+      { id: 'req-interviews', label: 'Interviews', icon: 'Calendar', href: '/recruitment/interviews' },
+      { id: 'req-offers', label: 'Offers', icon: 'Mail', href: '/recruitment/offers' },
+      { id: 'req-analytics', label: 'Analytics', icon: 'BarChart3', href: '/recruitment/analytics' },
+      { id: 'req-talent-pool', label: 'Talent Pool', icon: 'Database', href: '/recruitment/talent-pool' },
+      { id: 'req-sources', label: 'Sources', icon: 'Globe', href: '/recruitment/sources' },
+    ],
+  },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
 ];
 
@@ -68,3 +85,67 @@ export const BRAND_COLORS = {
 export const DATE_FORMAT = 'dd MMM yyyy';
 export const DATETIME_FORMAT = 'dd MMM yyyy, hh:mm a';
 export const TIME_FORMAT = 'hh:mm a';
+
+// ─── Recruitment Constants ─────────────────────────────────────────
+
+export const PIPELINE_STAGES = [
+  { key: 'APPLIED', label: 'Applied', color: 'bg-blue-100 text-blue-800' },
+  { key: 'SCREENING', label: 'Screening', color: 'bg-yellow-100 text-yellow-800' },
+  { key: 'INTERVIEW', label: 'Interview', color: 'bg-purple-100 text-purple-800' },
+  { key: 'OFFERED', label: 'Offered', color: 'bg-orange-100 text-orange-800' },
+  { key: 'HIRED', label: 'Hired', color: 'bg-green-100 text-green-800' },
+  { key: 'REJECTED', label: 'Rejected', color: 'bg-red-100 text-red-800' },
+] as const;
+
+export const REQUISITION_STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Draft',
+  PENDING_APPROVAL: 'Pending Approval',
+  APPROVED: 'Approved',
+  REJECTED: 'Rejected',
+  OPEN: 'Open',
+  ON_HOLD: 'On Hold',
+  CLOSED: 'Closed',
+  CANCELLED: 'Cancelled',
+};
+
+export const OFFER_STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Draft',
+  PENDING_APPROVAL: 'Pending Approval',
+  APPROVED: 'Approved',
+  SENT: 'Sent',
+  ACCEPTED: 'Accepted',
+  REJECTED: 'Rejected',
+  WITHDRAWN: 'Withdrawn',
+  EXPIRED: 'Expired',
+};
+
+export const SOURCE_LABELS: Record<string, string> = {
+  NAUKRI: 'Naukri',
+  LINKEDIN: 'LinkedIn',
+  INDEED: 'Indeed',
+  GLASSDOOR: 'Glassdoor',
+  INTERNAL: 'Internal',
+  REFERRAL: 'Referral',
+  CAREER_PAGE: 'Career Page',
+  OTHER: 'Other',
+};
+
+export const INTERVIEW_MODE_LABELS: Record<string, string> = {
+  IN_PERSON: 'In Person',
+  VIDEO: 'Video Call',
+  PHONE: 'Phone',
+};
+
+export const RECOMMENDATION_LABELS: Record<string, string> = {
+  STRONG_HIRE: 'Strong Hire',
+  HIRE: 'Hire',
+  NO_HIRE: 'No Hire',
+  STRONG_NO_HIRE: 'Strong No Hire',
+};
+
+export const PRIORITY_LABELS: Record<string, string> = {
+  LOW: 'Low',
+  MEDIUM: 'Medium',
+  HIGH: 'High',
+  URGENT: 'Urgent',
+};

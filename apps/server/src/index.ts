@@ -16,6 +16,7 @@ import { performanceRouter } from './routes/performance';
 import { payrollRouter } from './routes/payroll';
 import { taxRouter } from './routes/tax';
 import { reimbursementRouter } from './routes/reimbursement';
+import { recruitmentRouter } from './routes/recruitment';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -50,6 +51,7 @@ app.use('/api/performance', performanceRouter);
 app.use('/api/payroll', payrollRouter);
 app.use('/api/tax', taxRouter);
 app.use('/api/reimbursement', reimbursementRouter);
+app.use('/api/recruitment', recruitmentRouter);
 
 // Error handler
 app.use(errorHandler);
