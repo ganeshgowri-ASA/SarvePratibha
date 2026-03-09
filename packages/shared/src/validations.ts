@@ -326,6 +326,57 @@ export const peopleSearchSchema = z.object({
   type: z.enum(['name', 'mobile', 'email']).default('name'),
 });
 
+// ─── Tax Declaration Validations ────────────────────────────────────
+
+export const taxDeclarationSchema = z.object({
+  financialYear: z.string().min(1, 'Financial year is required'),
+  regime: z.enum(['OLD', 'NEW']),
+  section80C: z.number().min(0).max(150000).default(0),
+  section80D: z.number().min(0).max(75000).default(0),
+  section80G: z.number().min(0).default(0),
+  section24: z.number().min(0).max(200000).default(0),
+  hra: z.number().min(0).default(0),
+  lta: z.number().min(0).default(0),
+  otherDeductions: z.number().min(0).default(0),
+});
+
+export const regimeSelectionSchema = z.object({
+  financialYear: z.string().min(1, 'Financial year is required'),
+  regime: z.enum(['OLD', 'NEW']),
+});
+
+// ─── Reimbursement Validations ──────────────────────────────────────
+
+export const reimbursementSubmitSchema = z.object({
+  categoryId: z.string().min(1, 'Category is required'),
+  amount: z.number().positive('Amount must be positive'),
+  description: z.string().min(1, 'Description is required').max(500),
+  incurredDate: z.string().or(z.date()),
+  receiptUrl: z.string().optional(),
+  receiptName: z.string().optional(),
+});
+
+export const reimbursementApproveSchema = z.object({
+  remarks: z.string().optional(),
+});
+
+// ─── Payroll Run Validations ────────────────────────────────────────
+
+export const payrollRunSchema = z.object({
+  month: z.number().min(1).max(12),
+  year: z.number().min(2020).max(2050),
+});
+
+// ─── Investment Validations ─────────────────────────────────────────
+
+export const investmentSchema = z.object({
+  financialYear: z.string().min(1, 'Financial year is required'),
+  section: z.string().min(1, 'Section is required'),
+  category: z.string().min(1, 'Category is required'),
+  description: z.string().optional(),
+  declaredAmount: z.number().min(0, 'Amount must be non-negative'),
+});
+
 // ─── Type exports ───────────────────────────────────────────────────
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -360,3 +411,9 @@ export type ManagerReviewInput = z.infer<typeof managerReviewSchema>;
 export type Feedback360RequestInput = z.infer<typeof feedback360RequestSchema>;
 export type FeedbackResponseInput = z.infer<typeof feedbackResponseSchema>;
 export type PIPCreateInput = z.infer<typeof pipCreateSchema>;
+export type TaxDeclarationInput = z.infer<typeof taxDeclarationSchema>;
+export type RegimeSelectionInput = z.infer<typeof regimeSelectionSchema>;
+export type ReimbursementSubmitInput = z.infer<typeof reimbursementSubmitSchema>;
+export type ReimbursementApproveInput = z.infer<typeof reimbursementApproveSchema>;
+export type PayrollRunInput = z.infer<typeof payrollRunSchema>;
+export type InvestmentInput = z.infer<typeof investmentSchema>;

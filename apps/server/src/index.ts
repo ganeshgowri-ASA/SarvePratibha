@@ -13,6 +13,9 @@ import { attendanceRouter } from './routes/attendance';
 import { holidayRouter } from './routes/holiday';
 import { goalsRouter } from './routes/goals';
 import { performanceRouter } from './routes/performance';
+import { payrollRouter } from './routes/payroll';
+import { taxRouter } from './routes/tax';
+import { reimbursementRouter } from './routes/reimbursement';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -44,6 +47,9 @@ app.use('/api/attendance', attendanceRouter);
 app.use('/api', holidayRouter);
 app.use('/api/goals', goalsRouter);
 app.use('/api/performance', performanceRouter);
+app.use('/api/payroll', payrollRouter);
+app.use('/api/tax', taxRouter);
+app.use('/api/reimbursement', reimbursementRouter);
 
 // Error handler
 app.use(errorHandler);
