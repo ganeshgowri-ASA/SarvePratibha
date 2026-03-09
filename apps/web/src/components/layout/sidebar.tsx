@@ -21,6 +21,7 @@ import {
   Smile,
   GraduationCap,
   ClipboardCheck,
+  Bell,
   ChevronLeft,
   ChevronRight,
   type LucideIcon,
@@ -47,6 +48,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Smile,
   GraduationCap,
   ClipboardCheck,
+  Bell,
 };
 
 interface SidebarItem {
@@ -74,6 +76,7 @@ const MENU_ITEMS: SidebarItem[] = [
   { id: 'engagement', label: 'Employee Engagement', icon: 'Smile', href: '/engagement' },
   { id: 'talent', label: 'Talent Management', icon: 'GraduationCap', href: '/talent', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
+  { id: 'notifications', label: 'Notifications', icon: 'Bell', href: '/notifications' },
 ];
 
 export function Sidebar() {

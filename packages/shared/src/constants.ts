@@ -1,4 +1,4 @@
-import type { UserRole, MenuItem, QuickLink } from './types';
+import type { UserRole, MenuItem, QuickLink, NotificationCategory } from './types';
 
 // ─── Role Hierarchy ─────────────────────────────────────────────────
 
@@ -62,6 +62,37 @@ export const BRAND_COLORS = {
   textPrimary: '#0F172A',   // slate-900
   textSecondary: '#64748B', // slate-500
 } as const;
+
+// ─── Notification Categories ────────────────────────────────────────
+
+export const NOTIFICATION_CATEGORY_LABELS: Record<NotificationCategory, string> = {
+  LEAVE: 'Leave',
+  ATTENDANCE: 'Attendance',
+  PAYROLL: 'Payroll',
+  PERFORMANCE: 'Performance',
+  RECRUITMENT: 'Recruitment',
+  SYSTEM: 'System',
+  GENERAL: 'General',
+};
+
+export const NOTIFICATION_CATEGORIES: NotificationCategory[] = [
+  'LEAVE', 'ATTENDANCE', 'PAYROLL', 'PERFORMANCE', 'RECRUITMENT', 'SYSTEM', 'GENERAL',
+];
+
+export const NOTIFICATION_TEMPLATE_VARIABLES: Record<string, string> = {
+  '{{employeeName}}': 'Employee full name',
+  '{{employeeId}}': 'Employee ID',
+  '{{leaveType}}': 'Leave type (e.g., Casual, Sick)',
+  '{{startDate}}': 'Start date',
+  '{{endDate}}': 'End date',
+  '{{approverName}}': 'Approver name',
+  '{{month}}': 'Month name',
+  '{{year}}': 'Year',
+  '{{reviewCycle}}': 'Review cycle name',
+  '{{interviewDate}}': 'Interview date/time',
+  '{{position}}': 'Job position',
+  '{{companyName}}': 'Company name',
+};
 
 // ─── Date Formats ───────────────────────────────────────────────────
 
