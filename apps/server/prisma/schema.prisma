@@ -118,6 +118,25 @@ enum ReviewCycle {
   ANNUAL
 }
 
+enum GoalCategory {
+  BUSINESS
+  LEARNING
+  DEVELOPMENT
+}
+
+enum PIPStatus {
+  ACTIVE
+  COMPLETED
+  EXTENDED
+  TERMINATED
+}
+
+enum FeedbackStatus {
+  REQUESTED
+  SUBMITTED
+  EXPIRED
+}
+
 enum ApplicationStatus {
   APPLIED
   SCREENING
@@ -421,6 +440,14 @@ model Employee {
   performanceGoals PerformanceGoal[]
   reviewsAsReviewee Review[]          @relation("ReviewReviewee")
   reviewsAsReviewer Review[]          @relation("ReviewReviewer")
+  goalProgress     GoalProgress[]
+  competencyRatings CompetencyRating[]
+  pipsAsEmployee   PIP[]              @relation("PIPEmployee")
+  pipsAsCreator    PIP[]              @relation("PIPCreator")
+  feedback360Requested Feedback360[]  @relation("Feedback360Requester")
+  feedback360Target    Feedback360[]  @relation("Feedback360Target")
+  feedbackResponses    FeedbackResponse[]
+  kras             KRA[]
 
   // Talent
   applications     Application[]
@@ -747,56 +774,254 @@ model CompetencyFramework {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  competencyRatings CompetencyRating[]
+
   @@map("competency_frameworks")
 }
 
 model PerformanceGoal {
-  id          String     @id @default(cuid())
-  employeeId  String
-  title       String
-  description String?
-  weightage   Float      @default(0)
-  targetDate  DateTime?
-  status      GoalStatus @default(NOT_STARTED)
-  progress    Int        @default(0)
-  selfRating  Float?
-  mgrRating   Float?
-  cycle       ReviewCycle @default(ANNUAL)
-  year        Int
-  remarks     String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id           String       @id @default(cuid())
+  employeeId   String
+  title        String
+  description  String?
+  category     GoalCategory @default(BUSINESS)
+  weightage    Float        @default(0)
+  targetDate   DateTime?
+  status       GoalStatus   @default(NOT_STARTED)
+  progress     Int          @default(0)
+  selfRating   Float?
+  mgrRating    Float?
+  cycle        ReviewCycle  @default(ANNUAL)
+  year         Int
+  parentGoalId String?
+  isApproved   Boolean      @default(false)
+  approvedAt   DateTime?
+  remarks      String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
-  employee Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee          @relation(fields: [employeeId], references: [id])
+  parentGoal PerformanceGoal?  @relation("GoalCascade", fields: [parentGoalId], references: [id])
+  childGoals PerformanceGoal[] @relation("GoalCascade")
+  progressHistory GoalProgress[]
+  kpis       KPI[]
 
   @@index([employeeId])
   @@index([cycle, year])
+  @@index([parentGoalId])
+  @@index([category])
   @@map("performance_goals")
+}
+
+model GoalProgress {
+  id         String   @id @default(cuid())
+  goalId     String
+  employeeId String
+  progress   Int
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  goal     PerformanceGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  employee Employee        @relation(fields: [employeeId], references: [id])
+
+  @@index([goalId])
+  @@index([employeeId])
+  @@map("goal_progress")
+}
+
+model PerformanceReviewCycle {
+  id          String      @id @default(cuid())
+  name        String
+  cycle       ReviewCycle
+  year        Int
+  startDate   DateTime
+  endDate     DateTime
+  selfDeadline    DateTime?
+  managerDeadline DateTime?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  reviews Review[]
+
+  @@unique([cycle, year])
+  @@index([isActive])
+  @@map("performance_review_cycles")
 }
 
 model Review {
   id              String       @id @default(cuid())
   revieweeId      String
   reviewerId      String
+  cycleId         String?
   cycle           ReviewCycle
   year            Int
   overallRating   Float?
   selfRating      Float?
   managerRating   Float?
   status          ReviewStatus @default(SELF_REVIEW)
-  selfComments    String?
-  managerComments String?
+  selfComments    String?      @db.Text
+  managerComments String?      @db.Text
   promotionRec    Boolean      @default(false)
   completedAt     DateTime?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
-  reviewee Employee @relation("ReviewReviewee", fields: [revieweeId], references: [id])
-  reviewer Employee @relation("ReviewReviewer", fields: [reviewerId], references: [id])
+  reviewee    Employee                @relation("ReviewReviewee", fields: [revieweeId], references: [id])
+  reviewer    Employee                @relation("ReviewReviewer", fields: [reviewerId], references: [id])
+  reviewCycle PerformanceReviewCycle? @relation(fields: [cycleId], references: [id])
+  ratings     ReviewRating[]
+  competencyRatings CompetencyRating[]
 
   @@unique([revieweeId, cycle, year])
   @@index([reviewerId])
+  @@index([cycleId])
   @@map("reviews")
+}
+
+model ReviewRating {
+  id         String @id @default(cuid())
+  reviewId   String
+  kraId      String?
+  area       String
+  selfRating Float?
+  mgrRating  Float?
+  selfComment String?
+  mgrComment  String?
+  weightage  Float  @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  kra    KRA?   @relation(fields: [kraId], references: [id])
+
+  @@index([reviewId])
+  @@map("review_ratings")
+}
+
+model CompetencyRating {
+  id             String @id @default(cuid())
+  reviewId       String
+  competencyId   String
+  employeeId     String
+  selfRating     Float?
+  managerRating  Float?
+  comments       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  review     Review               @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  competency CompetencyFramework  @relation(fields: [competencyId], references: [id])
+  employee   Employee             @relation(fields: [employeeId], references: [id])
+
+  @@unique([reviewId, competencyId])
+  @@index([employeeId])
+  @@map("competency_ratings")
+}
+
+model KRA {
+  id          String   @id @default(cuid())
+  employeeId  String
+  title       String
+  description String?
+  weightage   Float    @default(0)
+  cycle       ReviewCycle @default(ANNUAL)
+  year        Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employee Employee       @relation(fields: [employeeId], references: [id])
+  kpis     KPI[]
+  ratings  ReviewRating[]
+
+  @@index([employeeId])
+  @@index([cycle, year])
+  @@map("kras")
+}
+
+model KPI {
+  id       String @id @default(cuid())
+  kraId    String
+  goalId   String?
+  title    String
+  target   String
+  actual   String?
+  unit     String?
+  weightage Float @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  kra  KRA              @relation(fields: [kraId], references: [id], onDelete: Cascade)
+  goal PerformanceGoal? @relation(fields: [goalId], references: [id])
+
+  @@index([kraId])
+  @@map("kpis")
+}
+
+model PIP {
+  id          String    @id @default(cuid())
+  employeeId  String
+  createdById String
+  reason      String    @db.Text
+  startDate   DateTime
+  endDate     DateTime
+  status      PIPStatus @default(ACTIVE)
+  milestones  Json?
+  reviewDates Json?
+  outcome     String?
+  completedAt DateTime?
+  remarks     String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  employee  Employee @relation("PIPEmployee", fields: [employeeId], references: [id])
+  createdBy Employee @relation("PIPCreator", fields: [createdById], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("pips")
+}
+
+model Feedback360 {
+  id          String         @id @default(cuid())
+  targetId    String
+  requestedById String
+  cycle       ReviewCycle
+  year        Int
+  deadline    DateTime?
+  isAnonymous Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  target      Employee          @relation("Feedback360Target", fields: [targetId], references: [id])
+  requestedBy Employee          @relation("Feedback360Requester", fields: [requestedById], references: [id])
+  responses   FeedbackResponse[]
+
+  @@index([targetId])
+  @@index([requestedById])
+  @@map("feedback_360")
+}
+
+model FeedbackResponse {
+  id           String         @id @default(cuid())
+  feedback360Id String
+  responderId  String
+  status       FeedbackStatus @default(REQUESTED)
+  ratings      Json?
+  strengths    String?        @db.Text
+  improvements String?        @db.Text
+  comments     String?        @db.Text
+  submittedAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  feedback360 Feedback360 @relation(fields: [feedback360Id], references: [id], onDelete: Cascade)
+  responder   Employee    @relation(fields: [responderId], references: [id])
+
+  @@unique([feedback360Id, responderId])
+  @@index([responderId])
+  @@index([status])
+  @@map("feedback_responses")
 }
 
 // ─── TALENT MANAGEMENT / RECRUITMENT ────────────────────────────────
