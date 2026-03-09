@@ -49,7 +49,7 @@ export default function WorkflowsPage() {
     },
   });
 
-  const workflows: WorkflowItem[] = data?.data || [];
+  const workflows: WorkflowItem[] = (data?.data as WorkflowItem[]) || [];
 
   return (
     <div className="space-y-6">

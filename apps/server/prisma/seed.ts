@@ -304,6 +304,85 @@ async function main() {
     });
   }
 
+  // Create holiday calendar for 2026
+  const holidays2026 = [
+    { name: 'Republic Day', date: new Date('2026-01-26'), type: 'NATIONAL', year: 2026 },
+    { name: 'Holi', date: new Date('2026-03-14'), type: 'NATIONAL', year: 2026 },
+    { name: 'Good Friday', date: new Date('2026-04-03'), type: 'OPTIONAL', year: 2026, isOptional: true },
+    { name: 'Dr. Ambedkar Jayanti', date: new Date('2026-04-14'), type: 'NATIONAL', year: 2026 },
+    { name: 'May Day', date: new Date('2026-05-01'), type: 'NATIONAL', year: 2026 },
+    { name: 'Independence Day', date: new Date('2026-08-15'), type: 'NATIONAL', year: 2026 },
+    { name: 'Ganesh Chaturthi', date: new Date('2026-08-27'), type: 'RESTRICTED', year: 2026, isOptional: true },
+    { name: 'Mahatma Gandhi Jayanti', date: new Date('2026-10-02'), type: 'NATIONAL', year: 2026 },
+    { name: 'Dussehra', date: new Date('2026-10-02'), type: 'NATIONAL', year: 2026, location: 'North India' },
+    { name: 'Diwali', date: new Date('2026-10-21'), type: 'NATIONAL', year: 2026 },
+    { name: 'Christmas', date: new Date('2026-12-25'), type: 'NATIONAL', year: 2026 },
+  ];
+
+  for (const h of holidays2026) {
+    await prisma.holidayCalendar.upsert({
+      where: { date_location: { date: h.date, location: h.location || null } },
+      update: {},
+      create: {
+        name: h.name,
+        date: h.date,
+        type: h.type,
+        year: h.year,
+        location: h.location || null,
+        isOptional: h.isOptional || false,
+      },
+    });
+  }
+
+  // Create a sample job requisition
+  const adminEmployee = await prisma.employee.findUnique({ where: { employeeId: 'SP-ADMIN-001' } });
+  if (adminEmployee) {
+    await prisma.jobRequisition.upsert({
+      where: { id: 'seed-req-001' },
+      update: {},
+      create: {
+        id: 'seed-req-001',
+        title: 'Senior Full Stack Developer',
+        departmentId: engDept.id,
+        description: 'We are looking for a Senior Full Stack Developer with 5+ years of experience in React, Node.js, and PostgreSQL.',
+        requirements: '5+ years experience, React, Node.js, TypeScript, PostgreSQL',
+        skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Docker'],
+        location: 'Mumbai',
+        positions: 2,
+        minExp: 5,
+        maxExp: 10,
+        minSalary: 2000000,
+        maxSalary: 3500000,
+        status: 'OPEN',
+        priority: 'HIGH',
+        createdById: adminEmployee.id,
+        closingDate: new Date('2026-04-30'),
+      },
+    });
+  }
+
+  // Create leave balances for all employees (2026)
+  const leaveTypes = await prisma.leaveType.findMany({ where: { isActive: true } });
+  for (const emp of allEmployees) {
+    for (const lt of leaveTypes) {
+      if (lt.defaultDays > 0) {
+        await prisma.leaveBalance.upsert({
+          where: { employeeId_leaveTypeId_year: { employeeId: emp.id, leaveTypeId: lt.id, year: 2026 } },
+          update: {},
+          create: {
+            employeeId: emp.id,
+            leaveTypeId: lt.id,
+            year: 2026,
+            allocated: lt.defaultDays,
+            used: 0,
+            carried: 0,
+            balance: lt.defaultDays,
+          },
+        });
+      }
+    }
+  }
+
   console.log('Seed completed successfully!');
   console.log('Default login credentials:');
   console.log('  IT Admin:      admin@sarvepratibha.com / Password@123');

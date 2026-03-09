@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -116,11 +116,14 @@ export default function OffersPage() {
 
       {/* Filter */}
       <div className="flex gap-3">
-        <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-48">
-          <option value="">All Statuses</option>
-          {Object.entries(OFFER_STATUS_LABELS).map(([key, label]) => (
-            <option key={key} value={key}>{label}</option>
-          ))}
+        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
+          <SelectTrigger className="w-48"><SelectValue placeholder="All Statuses" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Statuses</SelectItem>
+            {Object.entries(OFFER_STATUS_LABELS).map(([key, label]) => (
+              <SelectItem key={key} value={key}>{label as string}</SelectItem>
+            ))}
+          </SelectContent>
         </Select>
       </div>
 
@@ -202,7 +205,7 @@ export default function OffersPage() {
 
       {/* Create Offer Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl" onClose={() => setShowCreateDialog(false)}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Create Offer Letter</DialogTitle>
           </DialogHeader>
@@ -210,10 +213,12 @@ export default function OffersPage() {
             <div className="grid grid-cols-2 gap-4 py-4">
               <div className="col-span-2">
                 <Label>Application *</Label>
-                <Select required>
-                  <option value="">Select Application</option>
-                  <option value="app1">Arjun Mehta - Senior SE</option>
-                  <option value="app2">Lakshmi Rao - Senior SE</option>
+                <Select>
+                  <SelectTrigger><SelectValue placeholder="Select Application" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="app1">Arjun Mehta - Senior SE</SelectItem>
+                    <SelectItem value="app2">Lakshmi Rao - Senior SE</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div>
@@ -278,7 +283,7 @@ export default function OffersPage() {
 
       {/* Offer Detail Dialog */}
       <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-        <DialogContent onClose={() => setShowDetailDialog(false)}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Offer Details</DialogTitle>
           </DialogHeader>

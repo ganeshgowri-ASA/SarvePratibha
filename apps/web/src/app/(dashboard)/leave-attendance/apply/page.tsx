@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, CalendarDays, AlertCircle } from 'lucide-react';
@@ -167,19 +167,16 @@ export default function ApplyLeavePage() {
             {/* Leave Type */}
             <div className="space-y-2">
               <Label htmlFor="leaveType">Leave Type *</Label>
-              <Select
-                id="leaveType"
-                value={leaveTypeId}
-                onChange={(e) => setLeaveTypeId(e.target.value)}
-                required
-              >
-                <option value="">Select leave type</option>
-                {leaveTypes.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name} ({type.code})
-                    {!type.isPaidLeave ? ' - Unpaid' : ''}
-                  </option>
-                ))}
+              <Select value={leaveTypeId} onValueChange={(value) => setLeaveTypeId(value)}>
+                <SelectTrigger id="leaveType"><SelectValue placeholder="Select leave type" /></SelectTrigger>
+                <SelectContent>
+                  {leaveTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.name} ({type.code})
+                      {!type.isPaidLeave ? ' - Unpaid' : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
               {selectedBalance && (
                 <p className="text-xs text-gray-500">
@@ -224,19 +221,25 @@ export default function ApplyLeavePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Start Day</Label>
-                  <Select value={startDayType} onChange={(e) => setStartDayType(e.target.value)}>
-                    <option value="FULL">Full Day</option>
-                    <option value="FIRST_HALF">First Half</option>
-                    <option value="SECOND_HALF">Second Half</option>
+                  <Select value={startDayType} onValueChange={(value) => setStartDayType(value)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="FULL">Full Day</SelectItem>
+                      <SelectItem value="FIRST_HALF">First Half</SelectItem>
+                      <SelectItem value="SECOND_HALF">Second Half</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
                 {startDate !== endDate && (
                   <div className="space-y-2">
                     <Label>End Day</Label>
-                    <Select value={endDayType} onChange={(e) => setEndDayType(e.target.value)}>
-                      <option value="FULL">Full Day</option>
-                      <option value="FIRST_HALF">First Half</option>
-                      <option value="SECOND_HALF">Second Half</option>
+                    <Select value={endDayType} onValueChange={(value) => setEndDayType(value)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="FULL">Full Day</SelectItem>
+                        <SelectItem value="FIRST_HALF">First Half</SelectItem>
+                        <SelectItem value="SECOND_HALF">Second Half</SelectItem>
+                      </SelectContent>
                     </Select>
                   </div>
                 )}

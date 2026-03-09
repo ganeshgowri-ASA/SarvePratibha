@@ -215,7 +215,7 @@ export default function SourcesPage() {
 
       {/* Import Dialog */}
       <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
-        <DialogContent onClose={() => setShowImportDialog(false)}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Import from {selectedPlatform?.name}</DialogTitle>
           </DialogHeader>
@@ -264,7 +264,7 @@ export default function SourcesPage() {
 
       {/* Connect Dialog */}
       <Dialog open={showConnectDialog} onOpenChange={setShowConnectDialog}>
-        <DialogContent onClose={() => setShowConnectDialog(false)}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Connect {selectedPlatform?.name}</DialogTitle>
           </DialogHeader>

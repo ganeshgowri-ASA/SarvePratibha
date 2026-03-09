@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { ArrowLeft, Target, Save } from 'lucide-react';
 
@@ -84,27 +84,25 @@ export default function NewGoalPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">Category *</Label>
-                <Select
-                  id="category"
-                  value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                >
-                  <option value="BUSINESS">Business</option>
-                  <option value="LEARNING">Learning</option>
-                  <option value="DEVELOPMENT">Development</option>
+                <Select value={form.category} onValueChange={(value) => setForm({ ...form, category: value })}>
+                  <SelectTrigger id="category"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BUSINESS">Business</SelectItem>
+                    <SelectItem value="LEARNING">Learning</SelectItem>
+                    <SelectItem value="DEVELOPMENT">Development</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="cycle">Review Cycle</Label>
-                <Select
-                  id="cycle"
-                  value={form.cycle}
-                  onChange={(e) => setForm({ ...form, cycle: e.target.value })}
-                >
-                  <option value="ANNUAL">Annual</option>
-                  <option value="HALF_YEARLY">Half Yearly</option>
-                  <option value="QUARTERLY">Quarterly</option>
+                <Select value={form.cycle} onValueChange={(value) => setForm({ ...form, cycle: value })}>
+                  <SelectTrigger id="cycle"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ANNUAL">Annual</SelectItem>
+                    <SelectItem value="HALF_YEARLY">Half Yearly</SelectItem>
+                    <SelectItem value="QUARTERLY">Quarterly</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>
@@ -137,13 +135,12 @@ export default function NewGoalPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="year">Year</Label>
-                <Select
-                  id="year"
-                  value={String(form.year)}
-                  onChange={(e) => setForm({ ...form, year: Number(e.target.value) })}
-                >
-                  <option value="2025">2025</option>
-                  <option value="2026">2026</option>
+                <Select value={String(form.year)} onValueChange={(value) => setForm({ ...form, year: Number(value) })}>
+                  <SelectTrigger id="year"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2025">2025</SelectItem>
+                    <SelectItem value="2026">2026</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </div>

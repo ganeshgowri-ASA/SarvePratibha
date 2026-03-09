@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Upload, Receipt, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -104,18 +104,15 @@ export default function SubmitReimbursementPage() {
             {/* Category */}
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
-              <Select
-                id="category"
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                required
-              >
-                <option value="">Select a category</option>
-                {CATEGORIES.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name} (Max: ₹{cat.maxAmount.toLocaleString('en-IN')})
-                  </option>
-                ))}
+              <Select value={categoryId} onValueChange={(value) => setCategoryId(value)}>
+                <SelectTrigger id="category"><SelectValue placeholder="Select a category" /></SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name} (Max: ₹{cat.maxAmount.toLocaleString('en-IN')})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 

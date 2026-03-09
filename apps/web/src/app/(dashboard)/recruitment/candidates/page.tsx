@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -108,11 +108,14 @@ export default function CandidatesPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}>
-              <option value="">All Sources</option>
-              {Object.entries(SOURCE_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
+            <Select value={sourceFilter} onValueChange={(value) => setSourceFilter(value)}>
+              <SelectTrigger><SelectValue placeholder="All Sources" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Sources</SelectItem>
+                {Object.entries(SOURCE_LABELS).map(([key, label]) => (
+                  <SelectItem key={key} value={key}>{label as string}</SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
         </CardContent>
@@ -189,7 +192,7 @@ export default function CandidatesPage() {
 
       {/* Add Candidate Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-2xl" onClose={() => setShowAddDialog(false)}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add New Candidate</DialogTitle>
           </DialogHeader>
@@ -230,10 +233,13 @@ export default function CandidatesPage() {
               </div>
               <div>
                 <Label htmlFor="source">Source</Label>
-                <Select id="source" name="source" defaultValue="OTHER">
-                  {Object.entries(SOURCE_LABELS).map(([key, label]) => (
-                    <option key={key} value={key}>{label}</option>
-                  ))}
+                <Select defaultValue="OTHER">
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(SOURCE_LABELS).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>{label as string}</SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div className="col-span-2">

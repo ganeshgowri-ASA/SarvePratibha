@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft, AlertCircle, ClipboardCheck } from 'lucide-react';
@@ -184,14 +184,13 @@ export default function RegularizePage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="status">Requested Status *</Label>
-                <Select
-                  id="status"
-                  value={requestedStatus}
-                  onChange={(e) => setRequestedStatus(e.target.value)}
-                >
-                  <option value="PRESENT">Present</option>
-                  <option value="HALF_DAY">Half Day</option>
-                  <option value="WORK_FROM_HOME">Work From Home</option>
+                <Select value={requestedStatus} onValueChange={(value) => setRequestedStatus(value)}>
+                  <SelectTrigger id="status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PRESENT">Present</SelectItem>
+                    <SelectItem value="HALF_DAY">Half Day</SelectItem>
+                    <SelectItem value="WORK_FROM_HOME">Work From Home</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">

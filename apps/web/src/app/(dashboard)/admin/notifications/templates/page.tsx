@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -28,7 +28,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { apiClient } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { NOTIFICATION_TEMPLATE_VARIABLES } from '@sarve-pratibha/shared';
 import type { NotificationTemplateItem, ApiResponse } from '@sarve-pratibha/shared';
 
@@ -92,7 +92,7 @@ export default function NotificationTemplatesPage() {
     if (!token) return;
     try {
       setLoading(true);
-      const data = await apiClient<ApiResponse<NotificationTemplateItem[]>>(
+      const data = await apiFetch<ApiResponse<NotificationTemplateItem[]>>(
         '/api/notifications/templates',
         { token },
       );
@@ -132,13 +132,13 @@ export default function NotificationTemplatesPage() {
     try {
       setSaving(true);
       if (editingId) {
-        await apiClient(`/api/notifications/templates/${editingId}`, {
+        await apiFetch(`/api/notifications/templates/${editingId}`, {
           method: 'PUT',
           token,
           body: JSON.stringify(form),
         });
       } else {
-        await apiClient('/api/notifications/templates', {
+        await apiFetch('/api/notifications/templates', {
           method: 'POST',
           token,
           body: JSON.stringify(form),
@@ -264,24 +264,24 @@ export default function NotificationTemplatesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Category</Label>
-                <Select
-                  value={form.category}
-                  onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
+                <Select value={form.category} onValueChange={(value) => setForm((p) => ({ ...p, category: value }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Channel</Label>
-                <Select
-                  value={form.channel}
-                  onChange={(e) => setForm((p) => ({ ...p, channel: e.target.value }))}
-                >
-                  {CHANNELS.map((c) => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
-                  ))}
+                <Select value={form.channel} onValueChange={(value) => setForm((p) => ({ ...p, channel: value }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CHANNELS.map((c) => (
+                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
             </div>

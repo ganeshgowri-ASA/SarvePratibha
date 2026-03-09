@@ -44,7 +44,7 @@ export default function IntegrationsPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'integrations'] }),
   });
 
-  const integrations: IntegrationItem[] = data?.data || [];
+  const integrations: IntegrationItem[] = (data?.data as IntegrationItem[]) || [];
 
   // Merge DB integrations with defaults
   const displayIntegrations = DEFAULT_INTEGRATIONS.map((def) => {

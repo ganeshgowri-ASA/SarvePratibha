@@ -39,7 +39,7 @@ export default function BackupPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'backup-logs'] }),
   });
 
-  const backups: BackupLogItem[] = data?.data || [];
+  const backups: BackupLogItem[] = (data?.data as BackupLogItem[]) || [];
 
   return (
     <div className="space-y-6">

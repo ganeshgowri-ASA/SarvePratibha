@@ -6,225 +6,297 @@
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 14 + TypeScript + Tailwind CSS + shadcn/ui |
-| Backend | Node.js + Express.js + Prisma ORM |
-| Database | PostgreSQL (Railway) + Redis |
-| Auth | NextAuth.js (RBAC - 4 roles) |
-| Email | Resend / SendGrid |
-| SMS | Twilio / MSG91 |
-| Storage | Cloudflare R2 / AWS S3 |
+| Frontend | Next.js 14 (App Router) + TypeScript + Tailwind CSS + shadcn/ui |
+| Backend | Node.js + Express.js + TypeScript + Prisma ORM |
+| Database | PostgreSQL 16 + Redis 7 (Docker) |
+| Auth | NextAuth.js (Credentials + Google OAuth, JWT sessions) |
+| Validation | Zod (shared between frontend/backend) |
+| Email | Nodemailer / SendGrid |
+| SMS | Twilio |
+| AI Voice | Vapi.ai / ElevenLabs / Sarvam AI |
+| Monorepo | Turborepo + npm workspaces |
 | Deploy | Vercel (frontend) + Railway (backend) |
-| Real-time | Socket.io |
 
-## Role-Based Access (4 Interfaces)
+## Quick Start
 
-- **Employee** - Self-service portal
-- **Manager (L1)** - Team oversight & approvals
-- **Section Head (L2)** - Department control & analytics
-- **IT Admin** - Full system administration
+### Prerequisites
 
-## Modules (30+)
+- Node.js >= 18
+- Docker & Docker Compose
+- npm >= 10
 
-### Core HR
-1. Employee Management & Personal Details
-2. Organization Directory & People Search
-3. Buddy/Reporting Manager Allocation
+### Setup
 
-### Leave & Attendance
-4. Leave Management (Apply/Approve/Regularize)
-5. Attendance Calendar (Punch In-Out, Weekly Hours)
-6. Shift Change/Planning
-7. Time Report - Team View
+```bash
+# 1. Clone and install
+git clone <repo-url>
+cd SarvePratibha
+npm install
 
-### Payroll & Finance
-8. Compensation Details & Payslips
-9. Investment Declaration (ITR - 80C/80D)
-10. Tax Calculator (Old/New Regime)
-11. Bank Details Management
-12. Salary Deducted & Payback Dates
+# 2. Start PostgreSQL & Redis
+docker-compose up -d postgres redis
 
-### Reimbursements
-13. Create/Track Claims
-14. Expense Report (Self/Team)
-15. Eligibility Checker
-16. Reimbursement Dashboard
-17. Household Goods Relocation
+# 3. Configure environment
+cp .env.example .env
+# Edit .env with your values (defaults work for local dev)
 
-### Benefits
-18. Health & Wellness (Medibuddy)
-19. Marriage/Maternity/Paternity Benefits
-20. Vehicle & Mobile Services
-21. Retail Gift Voucher
-22. Loan & Advances
-23. Educational Support
-24. Retiral Benefits (PF Balance)
-25. Coverage Claims (GHP/MMP)
+# 4. Setup database
+npm run db:generate    # Generate Prisma client
+npm run db:push        # Push schema to database
+npm run db:seed        # Seed with demo data
 
-### Self Services
-26. R-Performance
-27. Bonafide Letter Generation
-28. Separation/Exit Management
-29. ID Card Request
-30. Vehicle Log Book
-31. Visiting Card Request
-32. Competency Assurance System
-33. POA Management
+# 5. Start development
+npm run dev            # Starts web (port 3000) + server (port 4000)
+```
 
-### Corporate Services
-34. Car Pool Management & Approvals
-35. Conference Room Booking
-36. Help Desk & JioDesk
-37. Corporate Services Survey
+### Default Login Credentials
 
-### Security Services
-38. Vehicle Access Pass
-39. Visitor Management System
-40. Gate Pass (Returnable/Non-Returnable Challans)
-
-### Performance Management
-41. Goal Setting (OKR/KRA)
-42. Competency Evaluation
-43. 360-Degree Feedback
-44. Bell Curve Rating
-
-### Travel & Guest House
-45. Travel Plan & Request Creation
-46. Trip Management (Upcoming/History)
-47. Guest House Booking
-
-### Employee Engagement
-48. Rewards & Recognition
-49. Survey Management
-50. Social Connect
-51. R-Volunteer
-
-### Talent Management
-52. Competency Toolkit
-53. Career Aspirations
-54. Talent Form (Manager View)
-
-### Talent Acquisition (ATS)
-55. Multi-Platform Sourcing (Naukri/LinkedIn/Indeed/Glassdoor)
-56. Job Postings & Candidate Pipeline
-57. Interview Scheduling & Assessment Sheets
-58. Onboarding Workflow
-
-### Compliance Management
-59. IRCMS (Regulatory Compliance)
-60. Company Policies & Documents
-61. Statutory Compliance Tracking
-
-### D&I (Diversity & Inclusion)
-62. Leadership/Gallery/Program/Policies/Resources/Support
-63. D&I Events & Important Days
-64. R-Aadya Program
-
-### Communication & Notifications
-65. Live Announcements & Dynamic Banners
-66. News & Updates Feed
-67. Email + SMS + In-App + Push Notifications
-68. HR Buddy (Query Management Chatbot)
-69. Emergency Contacts & REFERS Helpline
-
-### Dashboard Features
-70. Greeting Banner with Avatar
-71. Punch In-Out Widget
-72. Actionables (Special Days)
-73. Calendar (Monthly Attendance)
-74. Birthdays & Work Anniversaries
-75. Quick Links Panel
+| Role | Email | Password |
+|------|-------|----------|
+| IT Admin | admin@sarvepratibha.com | Password@123 |
+| Section Head | section.head@sarvepratibha.com | Password@123 |
+| Manager | manager@sarvepratibha.com | Password@123 |
+| Employee | employee@sarvepratibha.com | Password@123 |
 
 ## Project Structure
 
 ```
 SarvePratibha/
 ├── apps/
-│   ├── web/                    # Next.js Frontend (Vercel)
-│   │   ├── app/
-│   │   │   ├── (auth)/
-│   │   │   ├── (employee)/
-│   │   │   ├── (manager)/
-│   │   │   ├── (section-head)/
-│   │   │   └── (admin)/
-│   │   ├── components/
-│   │   └── lib/
-│   └── server/                 # Express Backend (Railway)
-│       ├── src/modules/
+│   ├── web/                    # Next.js 14 Frontend
+│   │   ├── src/
+│   │   │   ├── app/
+│   │   │   │   ├── (auth)/     # Login, Register
+│   │   │   │   └── (dashboard)/ # All dashboard pages
+│   │   │   ├── components/
+│   │   │   │   ├── ui/         # shadcn/ui components
+│   │   │   │   ├── layout/     # Sidebar, Navbar
+│   │   │   │   └── dashboard/  # Dashboard widgets
+│   │   │   └── lib/            # Utils, auth, API client
+│   │   └── package.json
+│   └── server/                 # Express.js Backend
+│       ├── src/
+│       │   ├── routes/         # 24 API route files
+│       │   ├── middleware/     # Auth, RBAC, error handling
+│       │   ├── services/       # Email, SMS, notifications
+│       │   └── lib/            # Prisma client
 │       ├── prisma/
-│       └── jobs/
+│       │   ├── schema.prisma   # 70+ models
+│       │   └── seed.ts         # Demo data
+│       └── package.json
 ├── packages/
-│   ├── shared/
-│   └── email-templates/
-├── docker-compose.yml
-├── turbo.json
-└── package.json
+│   ├── shared/                 # Shared types, constants, Zod validations
+│   └── email-templates/        # React Email templates
+├── docker-compose.yml          # PostgreSQL + Redis + app services
+├── turbo.json                  # Turborepo pipeline config
+├── .env.example                # Environment variable template
+└── package.json                # Root workspaces config
 ```
 
-## Development Phases
+## Role-Based Access Control (RBAC)
 
-| Phase | Focus | Timeline |
-|-------|-------|----------|
-| 1 | Auth + RBAC + Dashboard | Week 1-2 |
-| 2 | Leave + Attendance + Payroll | Week 3-4 |
-| 3 | Reimbursements + Benefits + Loans | Week 5-6 |
-| 4 | Performance + Talent + L&D | Week 7-8 |
-| 5 | Recruitment ATS + Onboarding | Week 9-10 |
-| 6 | Security + IT + Compliance | Week 11-12 |
-| 7 | Engagement + Notifications | Week 13-14 |
-| 8 | Testing + Polish + Deploy | Week 15-16 |
+4 roles with hierarchical permissions:
 
-## Claude Code IDE Sessions
+| Role | Level | Access |
+|------|-------|--------|
+| Employee | 0 | Self-service portal |
+| Manager | 1 | Team oversight & approvals |
+| Section Head | 2 | Department control & analytics |
+| IT Admin | 3 | Full system administration |
 
-| Session | Branch | Modules |
-|---------|--------|---------|
-| 1 | feat/auth-rbac | Auth, RBAC, 4 role interfaces |
-| 2 | feat/employee-core | Personal details, People, Org directory |
-| 3 | feat/leave-attendance | Leave, attendance, calendar, shift |
-| 4 | feat/payroll-finance | Payroll, reimbursements, loans, tax |
-| 5 | feat/benefits-services | Benefits, self/corporate services |
-| 6 | feat/performance-talent | Performance, talent, L&D |
-| 7 | feat/recruitment-ats | ATS, multi-platform sourcing |
-| 8 | feat/security-it | Security, IT services, compliance |
-| 9 | feat/engagement-comms | Engagement, announcements, notifications |
-| 10 | feat/ai-voice-assistant | AI Voice screening, interviews, onboarding |
+Higher roles inherit all lower role permissions. IT_ADMIN always has full access.
 
-## API Keys Required
+## Modules (30+)
 
-- DATABASE_URL (PostgreSQL - Railway)
-- NEXTAUTH_SECRET
-- RESEND_API_KEY (Email)
-- TWILIO_SID + AUTH_TOKEN (SMS)
-- CLOUDFLARE_R2 credentials (Storage)
-- RAPIDAPI_KEY (Job board APIs)
-- - VAPI_API_KEY (Voice AI orchestration)
-- ELEVENLABS_API_KEY (Premium voice synthesis)
-- SARVAM_API_KEY (Indian language voice AI)
-- RETELL_API_KEY (Cost-effective voice agent)
-- BLAND_API_KEY (High-volume outbound calls)
-- DEEPGRAM_API_KEY (Speech-to-text)
+### Core HR
+- Employee Management & Personal Details
+- Organization Directory & People Search
+- Family, Education, Experience, Nomination records
 
-## AI Voice Assistant Module
+### Leave & Attendance
+- Leave Management (Apply/Approve/Regularize)
+- Attendance Calendar (Punch In-Out, Weekly Hours)
+- Shift Scheduling, Comp-Off, Work From Home, On Duty
+- Holiday Calendar Management
 
-### Recommended Providers & Pricing
-| Provider | Best For | Cost/min | Languages |
-|----------|----------|----------|-----------|
-| Vapi.ai | Orchestration layer | $0.05 + provider | 40+ |
-| ElevenLabs | Premium voice quality | $0.07-0.08 | 70+ |
-| Sarvam AI | Indian languages (cheapest) | ~$0.006 | 10+ Indian |
-| Retell AI | All-in-one voice agent | $0.07-0.15 | 30+ |
-| Bland AI | High-volume outbound | $0.11-0.14 | 20+ |
-| Deepgram | Speech-to-text (STT) | $0.01 | 36 |
+### Payroll & Finance
+- Salary Structure & Payslips
+- Tax Declaration (Old/New Regime)
+- Tax Computation & Form 16
+- Investment Proof Management
+- Reimbursement Claims
+- Employee Loans
 
-### AI Screening Pipeline
-1. Recruiter posts job -> ATS creates candidate list
-2. AI Voice Agent calls candidates (Vapi/Bland/Retell)
-3. Preliminary screening: experience, availability, salary expectations
-4. Sarvam AI for regional language candidates (Hindi/Telugu/Tamil/etc.)
-5. AI scores & auto-pushes qualified candidates to shortlist
-6. ElevenLabs premium voice for technical screening rounds
-7. AI generates interview summary + scorecard + bias-aware report
-8. Manager reviews & approves for human interview
-9. Onboarding AI virtual assistant guides new hires
+### Performance Management
+- Goal Setting (OKR/KRA/KPI)
+- Performance Reviews (Self + Manager)
+- Competency Framework & Ratings
+- 360-Degree Feedback
+- PIP (Performance Improvement Plan)
+- Department Analytics & Bell Curve
+
+### Recruitment (ATS)
+- Job Requisitions & Postings
+- Multi-Platform Sourcing (Naukri/LinkedIn/Indeed/Glassdoor)
+- Candidate Pipeline with Kanban View
+- Interview Scheduling & Feedback
+- Offer Letter Management
+- Talent Pool Management
+
+### AI Screening
+- AI-powered candidate screening sessions
+- Voice call integration (Vapi / ElevenLabs / Sarvam AI)
+- Automated scoring & recommendations
+- Screening templates
+- Multi-language support
+
+### Travel & Expenses
+- Travel Request & Approval
+- Itinerary Management
+- Expense Tracking & Settlement
+- Travel Policy Configuration
+
+### Benefits
+- Benefit Plan Management
+- Employee Enrollment
+- Insurance Policies
+
+### Corporate Services
+- Service Request Management
+- IT Asset Management & Requests
+- Helpdesk Ticketing System
+- Meeting Room Booking
+- Cab Booking
+
+### Security Services
+- Security Pass Management
+- Visitor Log Management
+
+### Admin Panel
+- User & Role Management
+- Department, Designation, Location, Grade Management
+- System Configuration & Health
+- Security Policies
+- Audit Logs
+- Announcements & Company Policies
+- Workflow Management
+- Custom Fields
+- Data Import/Export
+- Notification Templates
+
+## API Overview
+
+All API endpoints are under `/api/` prefix. Standard response format:
+
+```json
+{
+  "success": true,
+  "data": {},
+  "message": "Optional message",
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 100,
+    "totalPages": 5
+  }
+}
+```
+
+### Route Groups
+
+| Prefix | Routes | Description |
+|--------|--------|-------------|
+| `/api/auth` | login, register, me | Authentication |
+| `/api/employees` | CRUD, profile, search | Employee management |
+| `/api/people` | directory, hierarchy | People directory |
+| `/api/leave` | apply, approve, balance | Leave management |
+| `/api/attendance` | punch, calendar, team | Attendance tracking |
+| `/api/holidays` | CRUD, calendar | Holiday management |
+| `/api/payroll` | structure, payslips, run | Payroll processing |
+| `/api/tax` | declaration, computation | Tax management |
+| `/api/reimbursement` | submit, approve | Reimbursements |
+| `/api/performance` | goals, reviews, KRA | Performance management |
+| `/api/goals` | CRUD, progress | Goal management |
+| `/api/recruitment` | requisitions, pipeline | Recruitment ATS |
+| `/api/ai` | screening, voice-calls | AI screening |
+| `/api/travel` | requests, expenses | Travel management |
+| `/api/benefits` | plans, enrollment | Benefits management |
+| `/api/services` | requests, catalog | Corporate services |
+| `/api/assets` | inventory, assignments | Asset management |
+| `/api/helpdesk` | tickets, comments | Helpdesk |
+| `/api/meeting-room` | rooms, bookings | Meeting room booking |
+| `/api/cab` | requests, booking | Cab booking |
+| `/api/notifications` | CRUD, preferences | Notifications |
+| `/api/admin` | config, users, health | Administration |
+
+## Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start all apps in development mode |
+| `npm run build` | Build all apps for production |
+| `npm run lint` | Lint all apps |
+| `npm run db:generate` | Generate Prisma client |
+| `npm run db:push` | Push schema to database |
+| `npm run db:migrate` | Run database migrations |
+| `npm run db:seed` | Seed database with demo data |
+| `npm run db:studio` | Open Prisma Studio (DB GUI) |
+| `npm run db:reset` | Reset database and re-apply migrations |
+| `npm run format` | Format code with Prettier |
+
+## Deployment
+
+### Frontend (Vercel)
+
+1. Connect your GitHub repo to Vercel
+2. Set root directory to `apps/web`
+3. Add environment variables:
+   - `NEXT_PUBLIC_API_URL` - Backend API URL
+   - `NEXTAUTH_URL` - Production URL
+   - `NEXTAUTH_SECRET` - Random secret
+   - `API_URL` - Backend API URL (server-side)
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (optional)
+
+### Backend (Railway)
+
+1. Create a new Railway project
+2. Add PostgreSQL and Redis services
+3. Deploy the server app:
+   - Set root directory to `apps/server`
+   - Build command: `npm run build`
+   - Start command: `npm run start`
+4. Add environment variables:
+   - `DATABASE_URL` - Railway PostgreSQL URL
+   - `REDIS_URL` - Railway Redis URL
+   - `JWT_SECRET` - Random secret
+   - `FRONTEND_URL` - Vercel frontend URL
+   - SMTP, Twilio, AI provider keys as needed
+
+### Docker (Self-hosted)
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Run migrations and seed
+docker-compose exec server npx prisma migrate deploy
+docker-compose exec server npx tsx prisma/seed.ts
+```
+
+## Environment Variables
+
+See `.env.example` for the complete list. Key variables:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `NEXTAUTH_SECRET` | Yes | NextAuth session encryption |
+| `NEXTAUTH_URL` | Yes | Frontend URL |
+| `JWT_SECRET` | Yes | JWT token signing |
+| `SMTP_HOST/USER/PASS` | No | Email sending |
+| `TWILIO_SID/AUTH_TOKEN` | No | SMS sending |
+| `VAPI_API_KEY` | No | AI voice screening |
+| `SENDGRID_API_KEY` | No | Alternative email |
 
 ## License
 

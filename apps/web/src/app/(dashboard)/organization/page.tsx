@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -210,20 +210,26 @@ export default function OrganizationDirectoryPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t">
               <div>
                 <label className="text-xs text-gray-500 mb-1 block">Department</label>
-                <Select value={deptFilter} onChange={(e) => { setDeptFilter(e.target.value); setPage(1); }}>
-                  <option value="">All Departments</option>
-                  {departments.map((d) => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
+                <Select value={deptFilter} onValueChange={(value) => { setDeptFilter(value); setPage(1); }}>
+                  <SelectTrigger><SelectValue placeholder="All Departments" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All Departments</SelectItem>
+                    {departments.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1 block">Designation</label>
-                <Select value={desigFilter} onChange={(e) => { setDesigFilter(e.target.value); setPage(1); }}>
-                  <option value="">All Designations</option>
-                  {designations.map((d) => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
+                <Select value={desigFilter} onValueChange={(value) => { setDesigFilter(value); setPage(1); }}>
+                  <SelectTrigger><SelectValue placeholder="All Designations" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All Designations</SelectItem>
+                    {designations.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
               <div>
