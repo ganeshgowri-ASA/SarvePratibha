@@ -35,6 +35,7 @@ export const SIDEBAR_MENU: MenuItem[] = [
   { id: 'engagement', label: 'Employee Engagement', icon: 'Smile', href: '/engagement' },
   { id: 'talent', label: 'Talent Management', icon: 'GraduationCap', href: '/talent', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
+  { id: 'admin', label: 'Admin Panel', icon: 'ShieldCheck', href: '/admin', roles: ['IT_ADMIN'] },
 ];
 
 // ─── Quick Links ────────────────────────────────────────────────────

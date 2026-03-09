@@ -208,6 +208,10 @@ model User {
   // Audit trail
   auditLogs AuditLog[]
 
+  // Admin / System
+  userSessions UserSession[]
+  loginHistory LoginHistory[]
+
   @@index([email])
   @@index([role])
   @@map("users")
@@ -1018,4 +1022,428 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ─── SYSTEM CONFIGURATION ──────────────────────────────────────────
+
+enum ConfigCategory {
+  GENERAL
+  EMAIL
+  SECURITY
+  NOTIFICATIONS
+  PAYROLL
+  LEAVE
+  ATTENDANCE
+  INTEGRATION
+}
+
+enum BackupStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum BulkOperationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ImportStatus {
+  UPLOADING
+  VALIDATING
+  IMPORTING
+  COMPLETED
+  FAILED
+}
+
+enum ExportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+enum WorkflowStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SKIPPED
+}
+
+enum FieldType {
+  TEXT
+  NUMBER
+  DATE
+  BOOLEAN
+  SELECT
+  MULTI_SELECT
+  FILE
+  URL
+  EMAIL
+  PHONE
+}
+
+model SystemConfig {
+  id          String         @id @default(cuid())
+  key         String         @unique
+  value       String         @db.Text
+  label       String
+  description String?
+  category    ConfigCategory @default(GENERAL)
+  isEditable  Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([category])
+  @@map("system_configs")
+}
+
+model UserSession {
+  id         String    @id @default(cuid())
+  userId     String
+  token      String    @unique
+  ipAddress  String?
+  userAgent  String?
+  deviceInfo String?
+  isActive   Boolean   @default(true)
+  lastActive DateTime  @default(now())
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("user_sessions")
+}
+
+model LoginHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  ipAddress String?
+  userAgent String?
+  location  String?
+  success   Boolean  @default(true)
+  failReason String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("login_history")
+}
+
+model SecurityPolicy {
+  id                   String   @id @default(cuid())
+  minPasswordLength    Int      @default(8)
+  requireUppercase     Boolean  @default(true)
+  requireLowercase     Boolean  @default(true)
+  requireNumbers       Boolean  @default(true)
+  requireSpecialChars  Boolean  @default(true)
+  passwordExpiryDays   Int      @default(90)
+  maxLoginAttempts     Int      @default(5)
+  lockoutDurationMins  Int      @default(30)
+  sessionTimeoutMins   Int      @default(480)
+  enable2FA            Boolean  @default(false)
+  ipWhitelist          String?  @db.Text
+  enforceIPWhitelist   Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("security_policies")
+}
+
+model BackupLog {
+  id          String       @id @default(cuid())
+  type        String       @default("FULL")
+  status      BackupStatus @default(PENDING)
+  fileName    String?
+  fileSize    BigInt?
+  startedAt   DateTime     @default(now())
+  completedAt DateTime?
+  triggeredBy String?
+  error       String?
+  createdAt   DateTime     @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("backup_logs")
+}
+
+model IntegrationConfig {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  provider    String
+  description String?
+  config      Json?
+  apiKey      String?
+  apiSecret   String?
+  webhookUrl  String?
+  isEnabled   Boolean  @default(false)
+  lastSyncAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("integration_configs")
+}
+
+model APIKey {
+  id          String    @id @default(cuid())
+  name        String
+  key         String    @unique
+  secret      String?
+  permissions String[]
+  isActive    Boolean   @default(true)
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([key])
+  @@map("api_keys")
+}
+
+model SystemHealth {
+  id          String   @id @default(cuid())
+  metric      String
+  value       Float
+  unit        String?
+  status      String   @default("OK")
+  details     Json?
+  recordedAt  DateTime @default(now())
+
+  @@index([metric])
+  @@index([recordedAt])
+  @@map("system_health")
+}
+
+model MaintenanceWindow {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  isActive    Boolean   @default(true)
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("maintenance_windows")
+}
+
+model CustomField {
+  id           String    @id @default(cuid())
+  module       String
+  fieldName    String
+  fieldLabel   String
+  fieldType    FieldType @default(TEXT)
+  options      Json?
+  isRequired   Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  displayOrder Int       @default(0)
+  defaultValue String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([module, fieldName])
+  @@index([module])
+  @@map("custom_fields")
+}
+
+model Workflow {
+  id          String         @id @default(cuid())
+  name        String
+  module      String
+  description String?
+  triggerEvent String?
+  status      WorkflowStatus @default(DRAFT)
+  createdBy   String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  steps WorkflowStep[]
+
+  @@index([module])
+  @@index([status])
+  @@map("workflows")
+}
+
+model WorkflowStep {
+  id            String   @id @default(cuid())
+  workflowId    String
+  stepOrder     Int
+  name          String
+  approverRole  UserRole?
+  approverId    String?
+  condition     Json?
+  isRequired    Boolean  @default(true)
+  autoApprove   Boolean  @default(false)
+  timeoutHours  Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  workflow  Workflow           @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  approvals WorkflowApproval[]
+
+  @@index([workflowId])
+  @@map("workflow_steps")
+}
+
+model WorkflowApproval {
+  id             String         @id @default(cuid())
+  workflowStepId String
+  entityType     String
+  entityId       String
+  approverId     String?
+  status         ApprovalStatus @default(PENDING)
+  comments       String?
+  decidedAt      DateTime?
+  createdAt      DateTime       @default(now())
+
+  workflowStep WorkflowStep @relation(fields: [workflowStepId], references: [id], onDelete: Cascade)
+
+  @@index([workflowStepId])
+  @@index([entityType, entityId])
+  @@map("workflow_approvals")
+}
+
+model BulkOperation {
+  id           String              @id @default(cuid())
+  type         String
+  status       BulkOperationStatus @default(PENDING)
+  totalRecords Int                 @default(0)
+  processed    Int                 @default(0)
+  succeeded    Int                 @default(0)
+  failed       Int                 @default(0)
+  errors       Json?
+  startedBy    String?
+  startedAt    DateTime            @default(now())
+  completedAt  DateTime?
+  createdAt    DateTime            @default(now())
+
+  @@index([status])
+  @@map("bulk_operations")
+}
+
+model DataImport {
+  id           String       @id @default(cuid())
+  module       String
+  fileName     String
+  fileSize     Int?
+  status       ImportStatus @default(UPLOADING)
+  totalRows    Int          @default(0)
+  importedRows Int          @default(0)
+  failedRows   Int          @default(0)
+  errors       Json?
+  columnMapping Json?
+  importedBy   String?
+  startedAt    DateTime     @default(now())
+  completedAt  DateTime?
+  createdAt    DateTime     @default(now())
+
+  @@index([module])
+  @@index([status])
+  @@map("data_imports")
+}
+
+model DataExport {
+  id          String       @id @default(cuid())
+  module      String
+  format      String       @default("CSV")
+  filters     Json?
+  status      ExportStatus @default(PENDING)
+  fileName    String?
+  fileSize    Int?
+  downloadUrl String?
+  exportedBy  String?
+  startedAt   DateTime     @default(now())
+  completedAt DateTime?
+  createdAt   DateTime     @default(now())
+
+  @@index([module])
+  @@index([status])
+  @@map("data_exports")
+}
+
+model AnnouncementBoard {
+  id           String               @id @default(cuid())
+  title        String
+  content      String               @db.Text
+  priority     AnnouncementPriority @default(MEDIUM)
+  targetRole   UserRole?
+  targetDeptId String?
+  targetLocId  String?
+  isPinned     Boolean              @default(false)
+  isActive     Boolean              @default(true)
+  publishAt    DateTime             @default(now())
+  expiresAt    DateTime?
+  createdBy    String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([isActive, publishAt])
+  @@index([isPinned])
+  @@map("announcement_boards")
+}
+
+model CompanyPolicy {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  category    String
+  version     String   @default("1.0")
+  isActive    Boolean  @default(true)
+  effectiveFrom DateTime
+  effectiveTo DateTime?
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@map("company_policies")
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  address   String?
+  city      String?
+  state     String?
+  country   String?
+  pincode   String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("locations")
+}
+
+model Grade {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  level       Int      @default(0)
+  minSalary   Float?
+  maxSalary   Float?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("grades")
 }
