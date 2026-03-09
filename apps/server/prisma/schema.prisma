@@ -266,6 +266,121 @@ enum AssetRequestStatus {
   REJECTED
 }
 
+enum TravelRequestStatus {
+  DRAFT
+  SUBMITTED
+  MANAGER_APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum TravelExpenseStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum BenefitType {
+  HEALTH
+  DENTAL
+  VISION
+  LIFE_INSURANCE
+  RETIREMENT
+  WELLNESS
+  EDUCATION
+  OTHER
+}
+
+enum BenefitEnrollmentStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+enum ServiceCategory {
+  IT_SUPPORT
+  FACILITIES
+  HR_SERVICES
+  FINANCE
+  ADMIN
+  TRANSPORT
+  CATERING
+  OTHER
+}
+
+enum ServiceRequestStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  CANCELLED
+}
+
+enum ServicePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AssetStatus {
+  AVAILABLE
+  ASSIGNED
+  UNDER_MAINTENANCE
+  RETIRED
+  LOST
+}
+
+enum AssetCondition {
+  NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_USER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketCategory {
+  HARDWARE
+  SOFTWARE
+  NETWORK
+  ACCESS
+  EMAIL
+  GENERAL
+  OTHER
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum CabRequestStatus {
+  REQUESTED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum CabType {
+  SEDAN
+  SUV
+  HATCHBACK
+  SHARED
+}
+
 enum NotificationType {
   INFO
   WARNING
@@ -633,6 +748,17 @@ model Employee {
   securityPasses SecurityPass[]
   visitorLogs    VisitorLog[]
   assetRequests  ITAssetRequest[]
+
+  // Travel & Benefits
+  travelRequests      TravelRequest[]
+  benefitEnrollments  BenefitEnrollment[]
+  serviceRequests     ServiceRequest[]
+  assetAssignments    AssetAssignment[]
+  helpdeskTickets     HelpdeskTicket[]
+  meetingBookings     MeetingBooking[]
+  cabRequests         CabRequest[]
+  foodCoupons         FoodCoupon[]
+  giftVouchers        GiftVoucher[]
 
   @@index([employeeId])
   @@index([organizationId])
@@ -2254,4 +2380,404 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ─── TRAVEL MANAGEMENT ───────────────────────────────────────────────
+
+model TravelPolicy {
+  id                 String   @id @default(cuid())
+  name               String
+  description        String?
+  perDiemDomestic    Float    @default(0)
+  perDiemInternational Float  @default(0)
+  maxHotelDomestic   Float    @default(0)
+  maxHotelInternational Float @default(0)
+  advanceBookingDays Int      @default(7)
+  maxAdvancePercent  Float    @default(80)
+  flightClass        String   @default("ECONOMY")
+  trainClass         String   @default("AC_2TIER")
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("travel_policies")
+}
+
+model TravelRequest {
+  id              String              @id @default(cuid())
+  employeeId      String
+  destination     String
+  fromCity        String
+  travelStartDate DateTime
+  travelEndDate   DateTime
+  purpose         String
+  estimatedCost   Float               @default(0)
+  advanceAmount   Float               @default(0)
+  travelMode      String              @default("FLIGHT")
+  accommodationType String            @default("HOTEL")
+  status          TravelRequestStatus @default(DRAFT)
+  approvedBy      String?
+  approvedAt      DateTime?
+  remarks         String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  employee   Employee          @relation(fields: [employeeId], references: [id])
+  itineraries TravelItinerary[]
+  expenses   TravelExpense[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("travel_requests")
+}
+
+model TravelItinerary {
+  id              String   @id @default(cuid())
+  travelRequestId String
+  day             Int
+  date            DateTime
+  fromLocation    String
+  toLocation      String
+  mode            String
+  bookingRef      String?
+  departureTime   String?
+  arrivalTime     String?
+  hotelName       String?
+  hotelBookingRef String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  travelRequest TravelRequest @relation(fields: [travelRequestId], references: [id], onDelete: Cascade)
+
+  @@index([travelRequestId])
+  @@map("travel_itineraries")
+}
+
+model TravelExpense {
+  id              String             @id @default(cuid())
+  travelRequestId String
+  category        String
+  description     String
+  amount          Float
+  currency        String             @default("INR")
+  receiptUrl      String?
+  expenseDate     DateTime
+  status          TravelExpenseStatus @default(DRAFT)
+  approvedBy      String?
+  approvedAt      DateTime?
+  remarks         String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  travelRequest TravelRequest @relation(fields: [travelRequestId], references: [id], onDelete: Cascade)
+
+  @@index([travelRequestId])
+  @@index([status])
+  @@map("travel_expenses")
+}
+
+// ─── BENEFITS MANAGEMENT ─────────────────────────────────────────────
+
+model BenefitPlan {
+  id          String      @id @default(cuid())
+  name        String
+  type        BenefitType
+  description String?
+  provider    String?
+  coverage    String?
+  premium     Float       @default(0)
+  employerContribution Float @default(0)
+  employeeContribution Float @default(0)
+  minGradeLevel Int       @default(0)
+  isActive    Boolean     @default(true)
+  validFrom   DateTime
+  validTo     DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  enrollments BenefitEnrollment[]
+
+  @@index([type])
+  @@index([isActive])
+  @@map("benefit_plans")
+}
+
+model BenefitEnrollment {
+  id           String                 @id @default(cuid())
+  employeeId   String
+  benefitPlanId String
+  startDate    DateTime
+  endDate      DateTime?
+  status       BenefitEnrollmentStatus @default(PENDING)
+  nominees     Json?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  employee    Employee    @relation(fields: [employeeId], references: [id])
+  benefitPlan BenefitPlan @relation(fields: [benefitPlanId], references: [id])
+
+  @@unique([employeeId, benefitPlanId])
+  @@index([employeeId])
+  @@index([status])
+  @@map("benefit_enrollments")
+}
+
+model InsurancePolicy {
+  id              String   @id @default(cuid())
+  name            String
+  policyNumber    String   @unique
+  provider        String
+  type            String
+  coverageAmount  Float
+  premium         Float
+  startDate       DateTime
+  endDate         DateTime
+  description     String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("insurance_policies")
+}
+
+// ─── CORPORATE SERVICES ──────────────────────────────────────────────
+
+model CorporateService {
+  id          String          @id @default(cuid())
+  name        String
+  category    ServiceCategory
+  description String?
+  icon        String?
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  serviceRequests ServiceRequest[]
+
+  @@index([category])
+  @@map("corporate_services")
+}
+
+model ServiceRequest {
+  id                String              @id @default(cuid())
+  employeeId        String
+  corporateServiceId String
+  subject           String
+  description       String
+  priority          ServicePriority     @default(MEDIUM)
+  status            ServiceRequestStatus @default(OPEN)
+  assignedTo        String?
+  resolvedAt        DateTime?
+  resolution        String?
+  slaDeadline       DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  employee         Employee         @relation(fields: [employeeId], references: [id])
+  corporateService CorporateService @relation(fields: [corporateServiceId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([priority])
+  @@map("service_requests")
+}
+
+// ─── ASSET MANAGEMENT ────────────────────────────────────────────────
+
+model Asset {
+  id            String        @id @default(cuid())
+  assetTag      String        @unique
+  name          String
+  category      String
+  make          String?
+  model         String?
+  serialNumber  String?       @unique
+  purchaseDate  DateTime?
+  purchasePrice Float?
+  warrantyEnd   DateTime?
+  status        AssetStatus   @default(AVAILABLE)
+  condition     AssetCondition @default(NEW)
+  location      String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  assignments AssetAssignment[]
+
+  @@index([status])
+  @@index([category])
+  @@map("assets")
+}
+
+model AssetAssignment {
+  id          String    @id @default(cuid())
+  assetId     String
+  employeeId  String
+  assignedAt  DateTime  @default(now())
+  returnedAt  DateTime?
+  assignedBy  String?
+  condition   String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  asset    Asset    @relation(fields: [assetId], references: [id])
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([assetId])
+  @@index([employeeId])
+  @@map("asset_assignments")
+}
+
+// ─── HELPDESK ────────────────────────────────────────────────────────
+
+model HelpdeskTicket {
+  id          String         @id @default(cuid())
+  ticketNumber String        @unique
+  employeeId  String
+  category    TicketCategory
+  subject     String
+  description String
+  priority    ServicePriority @default(MEDIUM)
+  status      TicketStatus   @default(OPEN)
+  assignedTo  String?
+  resolvedAt  DateTime?
+  resolution  String?
+  feedback    String?
+  rating      Int?
+  slaDeadline DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  employee Employee           @relation(fields: [employeeId], references: [id])
+  comments HelpdeskComment[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([ticketNumber])
+  @@map("helpdesk_tickets")
+}
+
+model HelpdeskComment {
+  id        String   @id @default(cuid())
+  ticketId  String
+  authorId  String
+  content   String
+  isInternal Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  ticket HelpdeskTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("helpdesk_comments")
+}
+
+// ─── MEETING ROOMS ───────────────────────────────────────────────────
+
+model MeetingRoom {
+  id          String   @id @default(cuid())
+  name        String
+  floor       Int
+  capacity    Int
+  hasProjector Boolean @default(false)
+  hasWhiteboard Boolean @default(false)
+  hasVideoConf Boolean @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings MeetingBooking[]
+
+  @@index([floor])
+  @@map("meeting_rooms")
+}
+
+model MeetingBooking {
+  id           String        @id @default(cuid())
+  roomId       String
+  employeeId   String
+  title        String
+  date         DateTime      @db.Date
+  startTime    String
+  endTime      String
+  attendees    Int           @default(1)
+  isRecurring  Boolean       @default(false)
+  recurringEnd DateTime?
+  status       BookingStatus @default(CONFIRMED)
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  room     MeetingRoom @relation(fields: [roomId], references: [id])
+  employee Employee    @relation(fields: [employeeId], references: [id])
+
+  @@index([roomId, date])
+  @@index([employeeId])
+  @@map("meeting_bookings")
+}
+
+// ─── CAB BOOKING ─────────────────────────────────────────────────────
+
+model CabRequest {
+  id          String           @id @default(cuid())
+  employeeId  String
+  pickupLocation String
+  dropLocation String
+  pickupTime  DateTime
+  cabType     CabType          @default(SEDAN)
+  passengers  Int              @default(1)
+  purpose     String?
+  status      CabRequestStatus @default(REQUESTED)
+  driverName  String?
+  driverPhone String?
+  vehicleNumber String?
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("cab_requests")
+}
+
+// ─── FOOD & GIFT VOUCHERS ────────────────────────────────────────────
+
+model FoodCoupon {
+  id         String   @id @default(cuid())
+  employeeId String
+  couponCode String   @unique
+  amount     Float
+  validFrom  DateTime
+  validTo    DateTime
+  isUsed     Boolean  @default(false)
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@map("food_coupons")
+}
+
+model GiftVoucher {
+  id         String   @id @default(cuid())
+  employeeId String
+  voucherCode String  @unique
+  amount     Float
+  occasion   String?
+  message    String?
+  validFrom  DateTime
+  validTo    DateTime
+  isRedeemed Boolean  @default(false)
+  redeemedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@map("gift_vouchers")
 }

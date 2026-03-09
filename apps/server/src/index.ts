@@ -19,6 +19,13 @@ import { reimbursementRouter } from './routes/reimbursement';
 import { recruitmentRouter } from './routes/recruitment';
 import { aiScreeningRouter } from './routes/ai-screening';
 import { aiVoiceRouter } from './routes/ai-voice';
+import { travelRouter } from './routes/travel';
+import { benefitsRouter } from './routes/benefits';
+import { servicesRouter } from './routes/services';
+import { assetsRouter } from './routes/assets';
+import { helpdeskRouter } from './routes/helpdesk';
+import { meetingRoomRouter } from './routes/meeting-room';
+import { cabRouter } from './routes/cab';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -56,6 +63,13 @@ app.use('/api/reimbursement', reimbursementRouter);
 app.use('/api/recruitment', recruitmentRouter);
 app.use('/api/ai', aiScreeningRouter);
 app.use('/api/ai', aiVoiceRouter);
+app.use('/api/travel', travelRouter);
+app.use('/api/benefits', benefitsRouter);
+app.use('/api/services', servicesRouter);
+app.use('/api/assets', assetsRouter);
+app.use('/api/helpdesk', helpdeskRouter);
+app.use('/api/meeting-room', meetingRoomRouter);
+app.use('/api/cab', cabRouter);
 
 // Error handler
 app.use(errorHandler);

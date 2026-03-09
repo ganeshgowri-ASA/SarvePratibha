@@ -547,6 +547,101 @@ export const candidateRankSchema = z.object({
   applicationIds: z.array(z.string()).min(1, 'At least one application is required'),
 });
 
+// ─── Travel Validations ────────────────────────────────────────────
+
+export const travelRequestSchema = z.object({
+  destination: z.string().min(1, 'Destination is required'),
+  fromCity: z.string().min(1, 'From city is required'),
+  travelStartDate: z.string().or(z.date()),
+  travelEndDate: z.string().or(z.date()),
+  purpose: z.string().min(1, 'Purpose is required').max(500),
+  estimatedCost: z.number().min(0, 'Estimated cost must be non-negative').optional(),
+  advanceAmount: z.number().min(0).optional(),
+  travelMode: z.enum(['FLIGHT', 'TRAIN', 'BUS', 'CAR', 'OTHER']).optional(),
+  accommodationType: z.enum(['HOTEL', 'GUEST_HOUSE', 'SELF', 'NONE']).optional(),
+});
+
+export const travelExpenseSchema = z.object({
+  travelRequestId: z.string().min(1, 'Travel request is required'),
+  category: z.string().min(1, 'Category is required'),
+  description: z.string().min(1, 'Description is required'),
+  amount: z.number().positive('Amount must be positive'),
+  expenseDate: z.string().or(z.date()),
+  currency: z.string().optional(),
+});
+
+export const travelItinerarySchema = z.object({
+  travelRequestId: z.string().min(1, 'Travel request is required'),
+  day: z.number().int().positive(),
+  date: z.string().or(z.date()),
+  fromLocation: z.string().min(1, 'From location is required'),
+  toLocation: z.string().min(1, 'To location is required'),
+  mode: z.string().min(1, 'Mode is required'),
+  departureTime: z.string().optional(),
+  arrivalTime: z.string().optional(),
+  hotelName: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+// ─── Benefits Validations ──────────────────────────────────────────
+
+export const benefitEnrollSchema = z.object({
+  benefitPlanId: z.string().min(1, 'Benefit plan is required'),
+  startDate: z.string().or(z.date()),
+  nominees: z.any().optional(),
+});
+
+// ─── Service Request Validations ───────────────────────────────────
+
+export const serviceRequestSchema = z.object({
+  corporateServiceId: z.string().min(1, 'Service is required'),
+  subject: z.string().min(1, 'Subject is required').max(200),
+  description: z.string().min(1, 'Description is required').max(2000),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+});
+
+// ─── Asset Validations ─────────────────────────────────────────────
+
+export const assetAssignSchema = z.object({
+  assetId: z.string().min(1, 'Asset is required'),
+  employeeId: z.string().min(1, 'Employee is required'),
+  notes: z.string().optional(),
+});
+
+// ─── Helpdesk Validations ──────────────────────────────────────────
+
+export const helpdeskTicketSchema = z.object({
+  category: z.enum(['HARDWARE', 'SOFTWARE', 'NETWORK', 'ACCESS', 'EMAIL', 'GENERAL', 'OTHER']),
+  subject: z.string().min(1, 'Subject is required').max(200),
+  description: z.string().min(1, 'Description is required').max(2000),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+});
+
+// ─── Meeting Room Validations ──────────────────────────────────────
+
+export const meetingBookingSchema = z.object({
+  roomId: z.string().min(1, 'Meeting room is required'),
+  title: z.string().min(1, 'Title is required').max(200),
+  date: z.string().or(z.date()),
+  startTime: z.string().min(1, 'Start time is required'),
+  endTime: z.string().min(1, 'End time is required'),
+  attendees: z.number().int().positive().optional(),
+  isRecurring: z.boolean().optional(),
+  recurringEnd: z.string().or(z.date()).optional(),
+  notes: z.string().optional(),
+});
+
+// ─── Cab Booking Validations ───────────────────────────────────────
+
+export const cabRequestSchema = z.object({
+  pickupLocation: z.string().min(1, 'Pickup location is required'),
+  dropLocation: z.string().min(1, 'Drop location is required'),
+  pickupTime: z.string().or(z.date()),
+  cabType: z.enum(['SEDAN', 'SUV', 'HATCHBACK', 'SHARED']).optional(),
+  passengers: z.number().int().positive().optional(),
+  purpose: z.string().optional(),
+});
+
 // ─── Type exports ───────────────────────────────────────────────────
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -602,3 +697,12 @@ export type AIAssistantConfigInput = z.infer<typeof aiAssistantConfigSchema>;
 export type ScreeningTemplateInput = z.infer<typeof screeningTemplateSchema>;
 export type ResumeParseInput = z.infer<typeof resumeParseSchema>;
 export type CandidateRankInput = z.infer<typeof candidateRankSchema>;
+export type TravelRequestInput = z.infer<typeof travelRequestSchema>;
+export type TravelExpenseInput = z.infer<typeof travelExpenseSchema>;
+export type TravelItineraryInput = z.infer<typeof travelItinerarySchema>;
+export type BenefitEnrollInput = z.infer<typeof benefitEnrollSchema>;
+export type ServiceRequestInput = z.infer<typeof serviceRequestSchema>;
+export type AssetAssignInput = z.infer<typeof assetAssignSchema>;
+export type HelpdeskTicketInput = z.infer<typeof helpdeskTicketSchema>;
+export type MeetingBookingInput = z.infer<typeof meetingBookingSchema>;
+export type CabRequestInput = z.infer<typeof cabRequestSchema>;
