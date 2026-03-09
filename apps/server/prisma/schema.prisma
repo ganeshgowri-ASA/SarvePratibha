@@ -74,6 +74,34 @@ enum PayFrequency {
   WEEKLY
 }
 
+enum TaxRegime {
+  OLD
+  NEW
+}
+
+enum PayrollRunStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ReimbursementStatus {
+  DRAFT
+  SUBMITTED
+  MANAGER_APPROVED
+  FINANCE_APPROVED
+  REJECTED
+  PAID
+}
+
+enum InvestmentProofStatus {
+  PENDING
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
 enum PayslipStatus {
   DRAFT
   GENERATED
@@ -417,6 +445,11 @@ model Employee {
   claims Claim[]
   loans  Loan[]
 
+  // Payroll Extended
+  form16s        Form16[]
+  investments    Investment[]
+  reimbursements Reimbursement[]
+
   // Performance
   performanceGoals PerformanceGoal[]
   reviewsAsReviewee Review[]          @relation("ReviewReviewee")
@@ -648,7 +681,170 @@ model TaxDeclaration {
   @@map("tax_declarations")
 }
 
-// ─── CLAIMS & REIMBURSEMENTS ────────────────────────────────────────
+// ─── PAYROLL CONFIG & COMPONENTS ───────────────────────────────────
+
+model PayrollConfig {
+  id                String   @id @default(cuid())
+  financialYear     String   @unique
+  pfEmployeePercent Float    @default(12)
+  pfEmployerPercent Float    @default(12)
+  pfCeiling         Float    @default(15000)
+  esiEmployeePercent Float   @default(0.75)
+  esiEmployerPercent Float   @default(3.25)
+  esiCeiling        Float    @default(21000)
+  professionalTax   Float    @default(200)
+  standardDeduction Float    @default(50000)
+  section80CLimit   Float    @default(150000)
+  section80DLimit   Float    @default(75000)
+  section80ELimit   Float    @default(0)
+  hraExemptPercent  Float    @default(50)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("payroll_configs")
+}
+
+model SalaryComponent {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  type        String   @default("EARNING")
+  isFixed     Boolean  @default(true)
+  isTaxable   Boolean  @default(true)
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("salary_components")
+}
+
+model PayrollRun {
+  id             String           @id @default(cuid())
+  month          Int
+  year           Int
+  status         PayrollRunStatus @default(PENDING)
+  totalEmployees Int              @default(0)
+  processedCount Int              @default(0)
+  totalGross     Float            @default(0)
+  totalDeductions Float           @default(0)
+  totalNet       Float            @default(0)
+  runBy          String
+  startedAt      DateTime?
+  completedAt    DateTime?
+  remarks        String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([month, year])
+  @@map("payroll_runs")
+}
+
+model Form16 {
+  id              String   @id @default(cuid())
+  employeeId      String
+  financialYear   String
+  assessmentYear  String
+  partA           Json?
+  partB           Json?
+  totalIncome     Float    @default(0)
+  totalTaxPayable Float    @default(0)
+  totalTdsDeducted Float   @default(0)
+  generatedAt     DateTime @default(now())
+  downloadUrl     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, financialYear])
+  @@index([employeeId])
+  @@map("form16s")
+}
+
+model Investment {
+  id              String   @id @default(cuid())
+  employeeId      String
+  financialYear   String
+  section         String
+  category        String
+  description     String?
+  declaredAmount  Float    @default(0)
+  approvedAmount  Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  proofs   InvestmentProof[]
+
+  @@index([employeeId, financialYear])
+  @@map("investments")
+}
+
+model InvestmentProof {
+  id           String                @id @default(cuid())
+  investmentId String
+  fileName     String
+  fileUrl      String
+  fileSize     Int?
+  status       InvestmentProofStatus @default(PENDING)
+  verifiedBy   String?
+  verifiedAt   DateTime?
+  remarks      String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  investment Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+
+  @@index([investmentId])
+  @@map("investment_proofs")
+}
+
+// ─── REIMBURSEMENTS (Extended) ──────────────────────────────────────
+
+model ReimbursementCategory {
+  id           String   @id @default(cuid())
+  name         String
+  code         String   @unique
+  description  String?
+  maxAmount    Float?
+  requiresReceipt Boolean @default(true)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  reimbursements Reimbursement[]
+
+  @@map("reimbursement_categories")
+}
+
+model Reimbursement {
+  id           String              @id @default(cuid())
+  employeeId   String
+  categoryId   String
+  amount       Float
+  description  String?
+  receiptUrl   String?
+  receiptName  String?
+  incurredDate DateTime
+  status       ReimbursementStatus @default(DRAFT)
+  approvedBy   String?
+  approvedAt   DateTime?
+  paidAt       DateTime?
+  remarks      String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  employee Employee              @relation(fields: [employeeId], references: [id])
+  category ReimbursementCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("reimbursements")
+}
+
+// ─── CLAIMS & REIMBURSEMENTS (Legacy) ───────────────────────────────
 
 model ClaimType {
   id          String   @id @default(cuid())
