@@ -11,6 +11,8 @@ import { adminRouter } from './routes/admin';
 import { leaveRouter } from './routes/leave';
 import { attendanceRouter } from './routes/attendance';
 import { holidayRouter } from './routes/holiday';
+import { goalsRouter } from './routes/goals';
+import { performanceRouter } from './routes/performance';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -40,6 +42,8 @@ app.use('/api/admin', adminRouter);
 app.use('/api/leave', leaveRouter);
 app.use('/api/attendance', attendanceRouter);
 app.use('/api', holidayRouter);
+app.use('/api/goals', goalsRouter);
+app.use('/api/performance', performanceRouter);
 
 // Error handler
 app.use(errorHandler);
