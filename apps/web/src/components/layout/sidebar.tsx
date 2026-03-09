@@ -21,8 +21,10 @@ import {
   Smile,
   GraduationCap,
   ClipboardCheck,
+  UserPlus,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -47,6 +49,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Smile,
   GraduationCap,
   ClipboardCheck,
+  UserPlus,
 };
 
 interface SidebarItem {
@@ -73,6 +76,7 @@ const MENU_ITEMS: SidebarItem[] = [
   { id: 'travel', label: 'Travel & Guest House', icon: 'Plane', href: '/travel' },
   { id: 'engagement', label: 'Employee Engagement', icon: 'Smile', href: '/engagement' },
   { id: 'talent', label: 'Talent Management', icon: 'GraduationCap', href: '/talent', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
+  { id: 'recruitment', label: 'Recruitment', icon: 'UserPlus', href: '/recruitment', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
 ];
 
