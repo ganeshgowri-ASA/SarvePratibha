@@ -83,12 +83,12 @@ export function NotificationBell() {
     if (!token || !userId) return;
     try {
       setLoading(true);
-      const data = await apiFetch<NotificationsResponse>(
+      const res = await apiFetch(
         `/api/notifications/${userId}?limit=5`,
         { token },
-      );
-      setNotifications(data.data || []);
-      setUnreadCount(data.unreadCount || 0);
+      ) as unknown as NotificationsResponse;
+      setNotifications(res.data || []);
+      setUnreadCount(res.unreadCount || 0);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     } finally {

@@ -119,13 +119,13 @@ export default function NotificationsPage() {
       const params = new URLSearchParams({ page: String(page), limit: '20' });
       if (category !== 'all') params.set('category', category);
 
-      const data = await apiFetch<NotificationsResponse>(
+      const res = await apiFetch(
         `/api/notifications/${userId}?${params}`,
         { token },
-      );
-      setNotifications(data.data || []);
-      setUnreadCount(data.unreadCount || 0);
-      setTotalPages(data.pagination?.totalPages || 1);
+      ) as unknown as NotificationsResponse;
+      setNotifications(res.data || []);
+      setUnreadCount(res.unreadCount || 0);
+      setTotalPages(res.pagination?.totalPages || 1);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     } finally {

@@ -55,12 +55,13 @@ export default function NotificationPreferencesPage() {
     if (!token || !userId) return;
     try {
       setLoading(true);
-      const data = await apiFetch<ApiResponse<PreferencesData>>(
+      const data = await apiFetch<PreferencesData>(
         `/api/notifications/preferences/${userId}`,
         { token },
       );
 
-      const existingPrefs = (data.data?.preferences || []) as PreferenceRow[];
+      const prefsData = data.data;
+      const existingPrefs = (prefsData?.preferences || []) as PreferenceRow[];
 
       // Fill in defaults for any missing categories
       const allPrefs: PreferenceRow[] = NOTIFICATION_CATEGORIES.map((cat) => {
@@ -76,8 +77,8 @@ export default function NotificationPreferencesPage() {
       });
 
       setPreferences(allPrefs);
-      if (data.data?.quietHours) {
-        setQuietHours(data.data.quietHours);
+      if (prefsData?.quietHours) {
+        setQuietHours(prefsData.quietHours);
       }
     } catch (error) {
       console.error('Failed to fetch preferences:', error);

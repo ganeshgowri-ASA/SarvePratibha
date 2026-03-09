@@ -39,9 +39,9 @@ function formatUptime(seconds: number) {
 }
 
 export default function AdminDashboardPage() {
-  const { data: healthData } = useQuery<{ data: SystemHealthData }>({
+  const { data: healthData } = useQuery({
     queryKey: ['admin', 'health'],
-    queryFn: () => api.get('/api/admin/system/health'),
+    queryFn: () => api.get<SystemHealthData>('/api/admin/system/health'),
   });
 
   const { data: auditData } = useQuery({

@@ -25,11 +25,12 @@ export default function RolesPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'roles'],
-    queryFn: () => api.get('/api/admin/roles'),
-    onSuccess: (res: any) => {
-      if (res?.data?.matrix) setMatrix(res.data.matrix);
+    queryFn: async () => {
+      const res = await api.get('/api/admin/roles');
+      if ((res?.data as any)?.matrix) setMatrix((res.data as any).matrix);
+      return res;
     },
-  } as any);
+  });
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -48,7 +49,7 @@ export default function RolesPage() {
     },
   });
 
-  const permissions = data?.data?.permissions || [];
+  const permissions = (data?.data as any)?.permissions || [];
   const modules = [...new Set(permissions.map((p: any) => p.module))];
 
   const togglePermission = (role: string, permId: string) => {
