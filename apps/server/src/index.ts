@@ -26,6 +26,7 @@ import { assetsRouter } from './routes/assets';
 import { helpdeskRouter } from './routes/helpdesk';
 import { meetingRoomRouter } from './routes/meeting-room';
 import { cabRouter } from './routes/cab';
+import { notificationRouter } from './routes/notifications';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -70,6 +71,7 @@ app.use('/api/assets', assetsRouter);
 app.use('/api/helpdesk', helpdeskRouter);
 app.use('/api/meeting-room', meetingRoomRouter);
 app.use('/api/cab', cabRouter);
+app.use('/api/notifications', notificationRouter);
 
 // Error handler
 app.use(errorHandler);

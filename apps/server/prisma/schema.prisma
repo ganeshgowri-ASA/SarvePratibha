@@ -389,6 +389,51 @@ enum NotificationType {
   SYSTEM
 }
 
+enum NotificationCategory {
+  LEAVE
+  ATTENDANCE
+  PAYROLL
+  PERFORMANCE
+  RECRUITMENT
+  SYSTEM
+  GENERAL
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+}
+
+enum NotificationFrequency {
+  INSTANT
+  DAILY_DIGEST
+  WEEKLY_DIGEST
+}
+
+enum EmailStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+}
+
+enum SMSStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+}
+
+enum BulkNotificationStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 enum AnnouncementPriority {
   LOW
   MEDIUM
@@ -444,7 +489,10 @@ model User {
   employee Employee?
 
   // Notifications
-  notifications Notification[]
+  notifications            Notification[]
+  notificationPreferences  NotificationPreference[]
+  pushSubscriptions        PushSubscription[]
+  quietHours               QuietHours?
 
   // Audit trail
   auditLogs AuditLog[]
@@ -2063,21 +2111,154 @@ model ITAssetRequest {
 // ─── NOTIFICATIONS & ANNOUNCEMENTS ──────────────────────────────────
 
 model Notification {
-  id        String           @id @default(cuid())
+  id        String               @id @default(cuid())
   userId    String
   title     String
   message   String
-  type      NotificationType @default(INFO)
+  type      NotificationType     @default(INFO)
+  category  NotificationCategory @default(GENERAL)
   link      String?
-  isRead    Boolean          @default(false)
+  isRead    Boolean              @default(false)
   readAt    DateTime?
-  createdAt DateTime         @default(now())
+  metadata  Json?
+  createdAt DateTime             @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isRead])
+  @@index([userId, category])
   @@index([createdAt])
   @@map("notifications")
+}
+
+model NotificationPreference {
+  id        String                @id @default(cuid())
+  userId    String
+  category  NotificationCategory
+  email     Boolean               @default(true)
+  sms       Boolean               @default(false)
+  push      Boolean               @default(true)
+  inApp     Boolean               @default(true)
+  frequency NotificationFrequency @default(INSTANT)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category])
+  @@map("notification_preferences")
+}
+
+model NotificationTemplate {
+  id        String               @id @default(cuid())
+  name      String               @unique
+  subject   String
+  body      String               @db.Text
+  category  NotificationCategory
+  channel   NotificationChannel
+  variables Json?
+  isActive  Boolean              @default(true)
+  createdBy String?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@index([category])
+  @@index([channel])
+  @@map("notification_templates")
+}
+
+model EmailLog {
+  id         String      @id @default(cuid())
+  to         String
+  from       String?
+  subject    String
+  body       String      @db.Text
+  status     EmailStatus @default(QUEUED)
+  provider   String?
+  messageId  String?
+  error      String?
+  attempts   Int         @default(0)
+  sentAt     DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([status])
+  @@index([to])
+  @@index([createdAt])
+  @@map("email_logs")
+}
+
+model SMSLog {
+  id        String    @id @default(cuid())
+  to        String
+  message   String
+  status    SMSStatus @default(QUEUED)
+  provider  String?
+  messageId String?
+  error     String?
+  attempts  Int       @default(0)
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status])
+  @@index([to])
+  @@index([createdAt])
+  @@map("sms_logs")
+}
+
+model PushSubscription {
+  id         String   @id @default(cuid())
+  userId     String
+  endpoint   String   @db.Text
+  p256dh     String
+  auth       String
+  userAgent  String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model BulkNotification {
+  id          String                 @id @default(cuid())
+  title       String
+  message     String                 @db.Text
+  type        NotificationType       @default(INFO)
+  category    NotificationCategory   @default(GENERAL)
+  targetRoles Json?
+  targetDepts Json?
+  totalCount  Int                    @default(0)
+  sentCount   Int                    @default(0)
+  failedCount Int                    @default(0)
+  status      BulkNotificationStatus @default(PENDING)
+  channels    Json?
+  createdBy   String
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("bulk_notifications")
+}
+
+model QuietHours {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  enabled   Boolean  @default(false)
+  startTime String   @default("22:00")
+  endTime   String   @default("07:00")
+  timezone  String   @default("Asia/Kolkata")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("quiet_hours")
 }
 
 model Announcement {

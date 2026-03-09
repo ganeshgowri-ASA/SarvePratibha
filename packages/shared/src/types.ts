@@ -472,13 +472,90 @@ export interface AIScreeningAnalytics {
 
 // ─── Notification ───────────────────────────────────────────────────
 
+export type NotificationTypeEnum = 'INFO' | 'WARNING' | 'ACTION_REQUIRED' | 'APPROVAL' | 'SYSTEM';
+export type NotificationCategory = 'LEAVE' | 'ATTENDANCE' | 'PAYROLL' | 'PERFORMANCE' | 'RECRUITMENT' | 'SYSTEM' | 'GENERAL';
+export type NotificationChannel = 'EMAIL' | 'SMS' | 'PUSH' | 'IN_APP';
+export type NotificationFrequency = 'INSTANT' | 'DAILY_DIGEST' | 'WEEKLY_DIGEST';
+export type EmailStatus = 'QUEUED' | 'SENT' | 'DELIVERED' | 'FAILED' | 'BOUNCED';
+export type SMSStatus = 'QUEUED' | 'SENT' | 'DELIVERED' | 'FAILED';
+
 export interface NotificationItem {
   id: string;
   title: string;
   message: string;
-  type: 'INFO' | 'WARNING' | 'ACTION_REQUIRED' | 'APPROVAL' | 'SYSTEM';
+  type: NotificationTypeEnum;
+  category: NotificationCategory;
   link?: string;
   isRead: boolean;
+  readAt?: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface NotificationPreferenceItem {
+  id: string;
+  category: NotificationCategory;
+  email: boolean;
+  sms: boolean;
+  push: boolean;
+  inApp: boolean;
+  frequency: NotificationFrequency;
+}
+
+export interface NotificationTemplateItem {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+  category: NotificationCategory;
+  channel: NotificationChannel;
+  variables?: Record<string, string>;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface EmailLogItem {
+  id: string;
+  to: string;
+  from?: string;
+  subject: string;
+  status: EmailStatus;
+  provider?: string;
+  error?: string;
+  sentAt?: string;
+  createdAt: string;
+}
+
+export interface SMSLogItem {
+  id: string;
+  to: string;
+  message: string;
+  status: SMSStatus;
+  provider?: string;
+  error?: string;
+  sentAt?: string;
+  createdAt: string;
+}
+
+export interface QuietHoursSettings {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+  timezone: string;
+}
+
+export interface BulkNotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationTypeEnum;
+  category: NotificationCategory;
+  targetRoles?: UserRole[];
+  targetDepts?: string[];
+  totalCount: number;
+  sentCount: number;
+  failedCount: number;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
   createdAt: string;
 }
 
