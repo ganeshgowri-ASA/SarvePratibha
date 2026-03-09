@@ -1,4 +1,4 @@
-import type { UserRole, MenuItem, QuickLink } from './types';
+import type { UserRole, MenuItem, QuickLink, NotificationCategory } from './types';
 
 // ─── Role Hierarchy ─────────────────────────────────────────────────
 
@@ -28,13 +28,36 @@ export const SIDEBAR_MENU: MenuItem[] = [
   { id: 'benefits', label: 'Benefits', icon: 'Gift', href: '/benefits' },
   { id: 'diversity', label: 'D&I', icon: 'Heart', href: '/diversity-inclusion' },
   { id: 'self-services', label: 'Self Services', icon: 'Settings', href: '/self-services' },
-  { id: 'corporate', label: 'Corporate Services', icon: 'Building2', href: '/corporate-services' },
+  { id: 'corporate', label: 'Corporate Services', icon: 'Building2', href: '/services' },
   { id: 'security', label: 'Security Services', icon: 'Shield', href: '/security-services' },
   { id: 'performance', label: 'Performance Management', icon: 'TrendingUp', href: '/performance' },
   { id: 'travel', label: 'Travel & Guest House', icon: 'Plane', href: '/travel' },
+  { id: 'assets', label: 'Assets', icon: 'Laptop', href: '/assets' },
+  { id: 'helpdesk', label: 'Helpdesk', icon: 'Headphones', href: '/helpdesk' },
+  { id: 'meeting-rooms', label: 'Meeting Rooms', icon: 'DoorOpen', href: '/meeting-rooms' },
+  { id: 'cab-booking', label: 'Cab Booking', icon: 'Car', href: '/cab-booking' },
   { id: 'engagement', label: 'Employee Engagement', icon: 'Smile', href: '/engagement' },
   { id: 'talent', label: 'Talent Management', icon: 'GraduationCap', href: '/talent', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
+  {
+    id: 'recruitment',
+    label: 'Recruitment',
+    icon: 'UserPlus',
+    href: '/recruitment',
+    roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'],
+    children: [
+      { id: 'req-dashboard', label: 'Dashboard', icon: 'LayoutDashboard', href: '/recruitment' },
+      { id: 'req-requisitions', label: 'Requisitions', icon: 'FileText', href: '/recruitment/requisitions' },
+      { id: 'req-candidates', label: 'Candidates', icon: 'Users', href: '/recruitment/candidates' },
+      { id: 'req-interviews', label: 'Interviews', icon: 'Calendar', href: '/recruitment/interviews' },
+      { id: 'req-offers', label: 'Offers', icon: 'Mail', href: '/recruitment/offers' },
+      { id: 'req-analytics', label: 'Analytics', icon: 'BarChart3', href: '/recruitment/analytics' },
+      { id: 'req-talent-pool', label: 'Talent Pool', icon: 'Database', href: '/recruitment/talent-pool' },
+      { id: 'req-sources', label: 'Sources', icon: 'Globe', href: '/recruitment/sources' },
+    ],
+  },
+  { id: 'ai-screening', label: 'AI Screening', icon: 'Bot', href: '/ai-screening', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
+  { id: 'admin', label: 'Admin Panel', icon: 'ShieldCheck', href: '/admin', roles: ['IT_ADMIN'] },
 ];
 
 // ─── Quick Links ────────────────────────────────────────────────────
@@ -43,7 +66,7 @@ export const EMPLOYEE_QUICK_LINKS: QuickLink[] = [
   { label: 'Apply Leave', href: '/leave-attendance/apply', icon: 'CalendarPlus', description: 'Submit a new leave request' },
   { label: 'View Payslip', href: '/payroll/payslips', icon: 'FileText', description: 'Download your latest payslip' },
   { label: 'Submit Claim', href: '/reimbursements/new', icon: 'Receipt', description: 'File a new reimbursement claim' },
-  { label: 'IT Support', href: '/self-services/it-request', icon: 'Laptop', description: 'Raise an IT support ticket' },
+  { label: 'IT Support', href: '/helpdesk/new', icon: 'Laptop', description: 'Raise an IT support ticket' },
   { label: 'My Goals', href: '/performance/goals', icon: 'Target', description: 'View and update your goals' },
   { label: 'Tax Declaration', href: '/payroll/tax', icon: 'Calculator', description: 'Submit tax declarations' },
 ];
@@ -63,8 +86,103 @@ export const BRAND_COLORS = {
   textSecondary: '#64748B', // slate-500
 } as const;
 
+// ─── Notification Categories ────────────────────────────────────────
+
+export const NOTIFICATION_CATEGORY_LABELS: Record<NotificationCategory, string> = {
+  LEAVE: 'Leave',
+  ATTENDANCE: 'Attendance',
+  PAYROLL: 'Payroll',
+  PERFORMANCE: 'Performance',
+  RECRUITMENT: 'Recruitment',
+  SYSTEM: 'System',
+  GENERAL: 'General',
+};
+
+export const NOTIFICATION_CATEGORIES: NotificationCategory[] = [
+  'LEAVE', 'ATTENDANCE', 'PAYROLL', 'PERFORMANCE', 'RECRUITMENT', 'SYSTEM', 'GENERAL',
+];
+
+export const NOTIFICATION_TEMPLATE_VARIABLES: Record<string, string> = {
+  '{{employeeName}}': 'Employee full name',
+  '{{employeeId}}': 'Employee ID',
+  '{{leaveType}}': 'Leave type (e.g., Casual, Sick)',
+  '{{startDate}}': 'Start date',
+  '{{endDate}}': 'End date',
+  '{{approverName}}': 'Approver name',
+  '{{month}}': 'Month name',
+  '{{year}}': 'Year',
+  '{{reviewCycle}}': 'Review cycle name',
+  '{{interviewDate}}': 'Interview date/time',
+  '{{position}}': 'Job position',
+  '{{companyName}}': 'Company name',
+};
+
 // ─── Date Formats ───────────────────────────────────────────────────
 
 export const DATE_FORMAT = 'dd MMM yyyy';
 export const DATETIME_FORMAT = 'dd MMM yyyy, hh:mm a';
 export const TIME_FORMAT = 'hh:mm a';
+
+// ─── Recruitment Constants ─────────────────────────────────────────
+
+export const PIPELINE_STAGES = [
+  { key: 'APPLIED', label: 'Applied', color: 'bg-blue-100 text-blue-800' },
+  { key: 'SCREENING', label: 'Screening', color: 'bg-yellow-100 text-yellow-800' },
+  { key: 'INTERVIEW', label: 'Interview', color: 'bg-purple-100 text-purple-800' },
+  { key: 'OFFERED', label: 'Offered', color: 'bg-orange-100 text-orange-800' },
+  { key: 'HIRED', label: 'Hired', color: 'bg-green-100 text-green-800' },
+  { key: 'REJECTED', label: 'Rejected', color: 'bg-red-100 text-red-800' },
+] as const;
+
+export const REQUISITION_STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Draft',
+  PENDING_APPROVAL: 'Pending Approval',
+  APPROVED: 'Approved',
+  REJECTED: 'Rejected',
+  OPEN: 'Open',
+  ON_HOLD: 'On Hold',
+  CLOSED: 'Closed',
+  CANCELLED: 'Cancelled',
+};
+
+export const OFFER_STATUS_LABELS: Record<string, string> = {
+  DRAFT: 'Draft',
+  PENDING_APPROVAL: 'Pending Approval',
+  APPROVED: 'Approved',
+  SENT: 'Sent',
+  ACCEPTED: 'Accepted',
+  REJECTED: 'Rejected',
+  WITHDRAWN: 'Withdrawn',
+  EXPIRED: 'Expired',
+};
+
+export const SOURCE_LABELS: Record<string, string> = {
+  NAUKRI: 'Naukri',
+  LINKEDIN: 'LinkedIn',
+  INDEED: 'Indeed',
+  GLASSDOOR: 'Glassdoor',
+  INTERNAL: 'Internal',
+  REFERRAL: 'Referral',
+  CAREER_PAGE: 'Career Page',
+  OTHER: 'Other',
+};
+
+export const INTERVIEW_MODE_LABELS: Record<string, string> = {
+  IN_PERSON: 'In Person',
+  VIDEO: 'Video Call',
+  PHONE: 'Phone',
+};
+
+export const RECOMMENDATION_LABELS: Record<string, string> = {
+  STRONG_HIRE: 'Strong Hire',
+  HIRE: 'Hire',
+  NO_HIRE: 'No Hire',
+  STRONG_NO_HIRE: 'Strong No Hire',
+};
+
+export const PRIORITY_LABELS: Record<string, string> = {
+  LOW: 'Low',
+  MEDIUM: 'Medium',
+  HIGH: 'High',
+  URGENT: 'Urgent',
+};

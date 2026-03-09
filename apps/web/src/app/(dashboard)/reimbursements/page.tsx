@@ -3,7 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Receipt, Plus } from 'lucide-react';
+import { Receipt, Plus, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 const CLAIMS = [
   { type: 'Travel', amount: '4,500', date: '5 Mar 2026', status: 'SUBMITTED' },
@@ -29,16 +30,25 @@ export default function ReimbursementsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Reimbursements</h1>
           <p className="text-sm text-gray-500">Submit and track your expense claims</p>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700">
-          <Plus size={16} className="mr-2" /> New Claim
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link href="/payroll/reimbursements">
+            <Button variant="outline" size="sm">
+              Full View <ChevronRight size={14} className="ml-1" />
+            </Button>
+          </Link>
+          <Link href="/payroll/reimbursements/submit">
+            <Button className="bg-teal-600 hover:bg-teal-700">
+              <Plus size={16} className="mr-2" /> New Claim
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <Receipt size={18} className="text-teal-600" />
-            My Claims
+            Recent Claims
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -54,6 +64,13 @@ export default function ReimbursementsPage() {
                 </Badge>
               </div>
             ))}
+          </div>
+          <div className="mt-4 text-center">
+            <Link href="/payroll/reimbursements">
+              <Button variant="ghost" size="sm" className="text-teal-600">
+                View All Claims <ChevronRight size={14} className="ml-1" />
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>

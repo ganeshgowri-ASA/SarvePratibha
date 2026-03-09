@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
-import { Bell, Search, LogOut, User, Settings, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Search, LogOut, User, Settings, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,13 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 import { ROLE_LABELS } from '@sarve-pratibha/shared';
 import type { UserRole } from '@sarve-pratibha/shared';
 
 export function Navbar() {
   const { data: session } = useSession();
   const [searchOpen, setSearchOpen] = useState(false);
-  const unreadCount = 3; // TODO: fetch from API
 
   const user = session?.user;
   const userRole = (user as any)?.role as UserRole | undefined;
@@ -56,43 +54,7 @@ export function Navbar() {
         {/* Right side actions */}
         <div className="flex items-center gap-2 ml-4">
           {/* Notification Bell */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell size={20} className="text-gray-600" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <DropdownMenuLabel className="flex items-center justify-between">
-                <span>Notifications</span>
-                <Badge variant="secondary" className="text-xs">
-                  {unreadCount} new
-                </Badge>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
-                <span className="font-medium text-sm">Leave Request Approved</span>
-                <span className="text-xs text-muted-foreground">Your casual leave for 12 Mar has been approved</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
-                <span className="font-medium text-sm">Payslip Generated</span>
-                <span className="text-xs text-muted-foreground">February 2026 payslip is now available</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3">
-                <span className="font-medium text-sm">Team Meeting Reminder</span>
-                <span className="text-xs text-muted-foreground">Quarterly review meeting at 3:00 PM today</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-center text-teal-600 font-medium justify-center">
-                View all notifications
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <NotificationBell />
 
           {/* Profile Dropdown */}
           <DropdownMenu>

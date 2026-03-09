@@ -21,8 +21,17 @@ import {
   Smile,
   GraduationCap,
   ClipboardCheck,
+  UserPlus,
+  Bot,
+  Headphones,
+  Laptop,
+  DoorOpen,
+  Car,
+  Bell,
+  ShieldCheck,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   type LucideIcon,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -47,6 +56,14 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Smile,
   GraduationCap,
   ClipboardCheck,
+  UserPlus,
+  Bot,
+  Headphones,
+  Laptop,
+  DoorOpen,
+  Car,
+  Bell,
+  ShieldCheck,
 };
 
 interface SidebarItem {
@@ -68,13 +85,21 @@ const MENU_ITEMS: SidebarItem[] = [
   { id: 'benefits', label: 'Benefits', icon: 'Gift', href: '/benefits' },
   { id: 'diversity', label: 'D&I', icon: 'Heart', href: '/diversity-inclusion' },
   { id: 'self-services', label: 'Self Services', icon: 'Settings', href: '/self-services' },
-  { id: 'corporate', label: 'Corporate Services', icon: 'Building2', href: '/corporate-services' },
+  { id: 'corporate', label: 'Corporate Services', icon: 'Building2', href: '/services' },
   { id: 'security', label: 'Security Services', icon: 'Shield', href: '/security-services' },
   { id: 'performance', label: 'Performance Management', icon: 'TrendingUp', href: '/performance' },
   { id: 'travel', label: 'Travel & Guest House', icon: 'Plane', href: '/travel' },
+  { id: 'assets', label: 'Assets', icon: 'Laptop', href: '/assets' },
+  { id: 'helpdesk', label: 'Helpdesk', icon: 'Headphones', href: '/helpdesk' },
+  { id: 'meeting-rooms', label: 'Meeting Rooms', icon: 'DoorOpen', href: '/meeting-rooms' },
+  { id: 'cab-booking', label: 'Cab Booking', icon: 'Car', href: '/cab-booking' },
   { id: 'engagement', label: 'Employee Engagement', icon: 'Smile', href: '/engagement' },
   { id: 'talent', label: 'Talent Management', icon: 'GraduationCap', href: '/talent', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
+  { id: 'recruitment', label: 'Recruitment', icon: 'UserPlus', href: '/recruitment', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
+  { id: 'ai-screening', label: 'AI Screening', icon: 'Bot', href: '/ai-screening', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
+  { id: 'notifications', label: 'Notifications', icon: 'Bell', href: '/notifications' },
+  { id: 'admin', label: 'Admin Panel', icon: 'ShieldCheck', href: '/admin', roles: ['IT_ADMIN'] },
 ];
 
 export function Sidebar() {
