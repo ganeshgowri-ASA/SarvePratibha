@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -91,15 +91,21 @@ export default function AnalyticsPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-40">
-            <option value="engineering">Engineering</option>
-            <option value="quality">Quality</option>
-            <option value="hr">HR</option>
-            <option value="finance">Finance</option>
+          <Select value={department} onValueChange={(value) => setDepartment(value)}>
+            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="engineering">Engineering</SelectItem>
+              <SelectItem value="quality">Quality</SelectItem>
+              <SelectItem value="hr">HR</SelectItem>
+              <SelectItem value="finance">Finance</SelectItem>
+            </SelectContent>
           </Select>
-          <Select value={year} onChange={(e) => setYear(e.target.value)} className="w-24">
-            <option value="2026">2026</option>
-            <option value="2025">2025</option>
+          <Select value={year} onValueChange={(value) => setYear(value)}>
+            <SelectTrigger className="w-24"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2026">2026</SelectItem>
+              <SelectItem value="2025">2025</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>

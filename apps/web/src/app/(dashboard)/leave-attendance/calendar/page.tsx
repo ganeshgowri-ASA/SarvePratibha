@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Calendar as CalendarIcon, Sun, Star, Flag } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
@@ -88,10 +88,13 @@ export default function HolidayCalendarPage() {
           <h1 className="text-2xl font-bold text-gray-900">Holiday Calendar</h1>
           <p className="text-sm text-gray-500">National and optional holidays for the year</p>
         </div>
-        <Select className="w-28" value={String(year)} onChange={(e) => setYear(Number(e.target.value))}>
-          {years.map((y) => (
-            <option key={y} value={y}>{y}</option>
-          ))}
+        <Select value={String(year)} onValueChange={(value) => setYear(Number(value))}>
+          <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {years.map((y) => (
+              <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+            ))}
+          </SelectContent>
         </Select>
       </div>
 

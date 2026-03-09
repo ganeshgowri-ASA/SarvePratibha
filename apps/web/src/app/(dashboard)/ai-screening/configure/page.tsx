@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -60,11 +60,14 @@ export default function ConfigureAssistantPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Provider</Label>
-              <Select value={provider} onChange={(e) => setProvider(e.target.value)}>
-                <option value="VAPI">Vapi.ai - Conversational AI</option>
-                <option value="RETELL">Retell AI - Phone Screening</option>
-                <option value="ELEVENLABS">ElevenLabs - Natural TTS</option>
-                <option value="SARVAM">Sarvam AI - Indian Languages</option>
+              <Select value={provider} onValueChange={(value) => setProvider(value)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="VAPI">Vapi.ai - Conversational AI</SelectItem>
+                  <SelectItem value="RETELL">Retell AI - Phone Screening</SelectItem>
+                  <SelectItem value="ELEVENLABS">ElevenLabs - Natural TTS</SelectItem>
+                  <SelectItem value="SARVAM">Sarvam AI - Indian Languages</SelectItem>
+                </SelectContent>
               </Select>
               <p className="text-xs text-gray-500">
                 {provider === 'VAPI' && 'Full conversational AI with phone calling capabilities. Best for end-to-end automated screening.'}
@@ -102,16 +105,19 @@ export default function ConfigureAssistantPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Primary Language</Label>
-              <Select value={language} onChange={(e) => setLanguage(e.target.value)}>
-                <option value="en">English</option>
-                <option value="hi">Hindi</option>
-                <option value="ta">Tamil</option>
-                <option value="te">Telugu</option>
-                <option value="kn">Kannada</option>
-                <option value="ml">Malayalam</option>
-                <option value="bn">Bengali</option>
-                <option value="mr">Marathi</option>
-                <option value="gu">Gujarati</option>
+              <Select value={language} onValueChange={(value) => setLanguage(value)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en">English</SelectItem>
+                  <SelectItem value="hi">Hindi</SelectItem>
+                  <SelectItem value="ta">Tamil</SelectItem>
+                  <SelectItem value="te">Telugu</SelectItem>
+                  <SelectItem value="kn">Kannada</SelectItem>
+                  <SelectItem value="ml">Malayalam</SelectItem>
+                  <SelectItem value="bn">Bengali</SelectItem>
+                  <SelectItem value="mr">Marathi</SelectItem>
+                  <SelectItem value="gu">Gujarati</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 

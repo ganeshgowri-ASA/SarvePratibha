@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -244,14 +244,13 @@ export default function PeoplePage() {
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   />
                 </div>
-                <Select
-                  value={searchType}
-                  onChange={(e) => setSearchType(e.target.value as 'name' | 'mobile' | 'email')}
-                  className="w-full sm:w-40"
-                >
-                  <option value="name">By Name</option>
-                  <option value="mobile">By Mobile</option>
-                  <option value="email">By Email</option>
+                <Select value={searchType} onValueChange={(value) => setSearchType(value as 'name' | 'mobile' | 'email')}>
+                  <SelectTrigger className="w-full sm:w-40"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">By Name</SelectItem>
+                    <SelectItem value="mobile">By Mobile</SelectItem>
+                    <SelectItem value="email">By Email</SelectItem>
+                  </SelectContent>
                 </Select>
               </div>
             </CardHeader>

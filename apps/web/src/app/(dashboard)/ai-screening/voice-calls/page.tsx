@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -120,14 +120,17 @@ export default function VoiceCallsPage() {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-40">
-              <option value="ALL">All Status</option>
-              <option value="QUEUED">Queued</option>
-              <option value="RINGING">Ringing</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="FAILED">Failed</option>
-              <option value="NO_ANSWER">No Answer</option>
+            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
+              <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Status</SelectItem>
+                <SelectItem value="QUEUED">Queued</SelectItem>
+                <SelectItem value="RINGING">Ringing</SelectItem>
+                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+                <SelectItem value="FAILED">Failed</SelectItem>
+                <SelectItem value="NO_ANSWER">No Answer</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </CardContent>

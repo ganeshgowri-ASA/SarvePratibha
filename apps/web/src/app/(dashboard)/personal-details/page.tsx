@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -878,15 +878,15 @@ function BasicInfoForm({ data, onSave, onCancel, saving }: { data: EmployeeData 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><Label>Title</Label><Select value={form.title} onChange={(e) => u('title', e.target.value)}><option value="">Select</option><option value="Mr">Mr</option><option value="Mrs">Mrs</option><option value="Ms">Ms</option><option value="Dr">Dr</option></Select></div>
+        <div><Label>Title</Label><Select value={form.title || undefined} onValueChange={(v) => u('title', v)}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="Mr">Mr</SelectItem><SelectItem value="Mrs">Mrs</SelectItem><SelectItem value="Ms">Ms</SelectItem><SelectItem value="Dr">Dr</SelectItem></SelectContent></Select></div>
         <div><Label>First Name *</Label><Input value={form.firstName} onChange={(e) => u('firstName', e.target.value)} /></div>
         <div><Label>Last Name *</Label><Input value={form.lastName} onChange={(e) => u('lastName', e.target.value)} /></div>
         <div><Label>Date of Birth</Label><Input type="date" value={form.dateOfBirth} onChange={(e) => u('dateOfBirth', e.target.value)} /></div>
-        <div><Label>Gender</Label><Select value={form.gender} onChange={(e) => u('gender', e.target.value)}><option value="">Select</option><option value="MALE">Male</option><option value="FEMALE">Female</option><option value="OTHER">Other</option></Select></div>
-        <div><Label>Marital Status</Label><Select value={form.maritalStatus} onChange={(e) => u('maritalStatus', e.target.value)}><option value="">Select</option><option value="SINGLE">Single</option><option value="MARRIED">Married</option><option value="DIVORCED">Divorced</option><option value="WIDOWED">Widowed</option></Select></div>
+        <div><Label>Gender</Label><Select value={form.gender || undefined} onValueChange={(v) => u('gender', v)}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="MALE">Male</SelectItem><SelectItem value="FEMALE">Female</SelectItem><SelectItem value="OTHER">Other</SelectItem></SelectContent></Select></div>
+        <div><Label>Marital Status</Label><Select value={form.maritalStatus || undefined} onValueChange={(v) => u('maritalStatus', v)}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="SINGLE">Single</SelectItem><SelectItem value="MARRIED">Married</SelectItem><SelectItem value="DIVORCED">Divorced</SelectItem><SelectItem value="WIDOWED">Widowed</SelectItem></SelectContent></Select></div>
         <div><Label>Since Date</Label><Input type="date" value={form.maritalSinceDate} onChange={(e) => u('maritalSinceDate', e.target.value)} /></div>
         <div><Label>Nationality</Label><Input value={form.nationality} onChange={(e) => u('nationality', e.target.value)} /></div>
-        <div><Label>Blood Group</Label><Select value={form.bloodGroup} onChange={(e) => u('bloodGroup', e.target.value)}><option value="">Select</option>{['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(bg=><option key={bg} value={bg}>{bg}</option>)}</Select></div>
+        <div><Label>Blood Group</Label><Select value={form.bloodGroup || undefined} onValueChange={(v) => u('bloodGroup', v)}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(bg=><SelectItem key={bg} value={bg}>{bg}</SelectItem>)}</SelectContent></Select></div>
         <div><Label>Place of Birth</Label><Input value={form.placeOfBirth} onChange={(e) => u('placeOfBirth', e.target.value)} /></div>
         <div><Label>State of Birth</Label><Input value={form.stateOfBirth} onChange={(e) => u('stateOfBirth', e.target.value)} /></div>
         <div><Label>Religion</Label><Input value={form.religion} onChange={(e) => u('religion', e.target.value)} /></div>
@@ -1001,9 +1001,9 @@ function FamilyMemberForm({ data, onSave, saving }: { data: Record<string, any>;
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div><Label>Name *</Label><Input value={form.name} onChange={(e) => u('name', e.target.value)} /></div>
-        <div><Label>Relationship *</Label><Select value={form.relationship} onChange={(e) => u('relationship', e.target.value)}><option value="">Select</option>{['FATHER','MOTHER','SPOUSE','SON','DAUGHTER','BROTHER','SISTER','OTHER'].map(r=><option key={r} value={r}>{r}</option>)}</Select></div>
+        <div><Label>Relationship *</Label><Select value={form.relationship || undefined} onValueChange={(v) => u('relationship', v)}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{['FATHER','MOTHER','SPOUSE','SON','DAUGHTER','BROTHER','SISTER','OTHER'].map(r=><SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select></div>
         <div><Label>Date of Birth</Label><Input type="date" value={form.dateOfBirth} onChange={(e) => u('dateOfBirth', e.target.value)} /></div>
-        <div><Label>Gender</Label><Select value={form.gender} onChange={(e) => u('gender', e.target.value)}><option value="">Select</option><option value="MALE">Male</option><option value="FEMALE">Female</option><option value="OTHER">Other</option></Select></div>
+        <div><Label>Gender</Label><Select value={form.gender || undefined} onValueChange={(v) => u('gender', v)}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="MALE">Male</SelectItem><SelectItem value="FEMALE">Female</SelectItem><SelectItem value="OTHER">Other</SelectItem></SelectContent></Select></div>
         <div><Label>Occupation</Label><Input value={form.occupation} onChange={(e) => u('occupation', e.target.value)} /></div>
         <div><Label>Phone</Label><Input value={form.phone} onChange={(e) => u('phone', e.target.value)} /></div>
       </div>
@@ -1032,9 +1032,9 @@ function NominationForm({ data, onSave, saving }: { data: Record<string, any>; o
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div><Label>Type *</Label><Select value={form.type} onChange={(e) => u('type', e.target.value)}><option value="">Select</option><option value="PF">Provident Fund</option><option value="GRATUITY">Gratuity</option><option value="INSURANCE">Insurance</option></Select></div>
+        <div><Label>Type *</Label><Select value={form.type || undefined} onValueChange={(v) => u('type', v)}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="PF">Provident Fund</SelectItem><SelectItem value="GRATUITY">Gratuity</SelectItem><SelectItem value="INSURANCE">Insurance</SelectItem></SelectContent></Select></div>
         <div><Label>Nominee Name *</Label><Input value={form.nomineeName} onChange={(e) => u('nomineeName', e.target.value)} /></div>
-        <div><Label>Relationship *</Label><Select value={form.relationship} onChange={(e) => u('relationship', e.target.value)}><option value="">Select</option>{['FATHER','MOTHER','SPOUSE','SON','DAUGHTER','BROTHER','SISTER','OTHER'].map(r=><option key={r} value={r}>{r}</option>)}</Select></div>
+        <div><Label>Relationship *</Label><Select value={form.relationship || undefined} onValueChange={(v) => u('relationship', v)}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{['FATHER','MOTHER','SPOUSE','SON','DAUGHTER','BROTHER','SISTER','OTHER'].map(r=><SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent></Select></div>
         <div><Label>Date of Birth</Label><Input type="date" value={form.dateOfBirth} onChange={(e) => u('dateOfBirth', e.target.value)} /></div>
         <div><Label>Percentage *</Label><Input type="number" min="0" max="100" value={form.percentage} onChange={(e) => u('percentage', e.target.value)} /></div>
         <div className="md:col-span-2"><Label>Address</Label><Textarea value={form.address} onChange={(e) => u('address', e.target.value)} rows={2} /></div>
@@ -1124,7 +1124,7 @@ function PersonalIdForm({ data, onSave, saving }: { data: Record<string, any>; o
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4">
-        <div><Label>Document Type</Label><Select value={form.documentType} onChange={(e) => u('documentType', e.target.value)} disabled={!!data.documentType}><option value="">Select</option>{Object.entries(DOC_LABELS).map(([k,l])=><option key={k} value={k}>{l}</option>)}</Select></div>
+        <div><Label>Document Type</Label><Select value={form.documentType || undefined} onValueChange={(v) => u('documentType', v)} disabled={!!data.documentType}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{Object.entries(DOC_LABELS).map(([k,l])=><SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent></Select></div>
         <div><Label>{DOC_LABELS[form.documentType] || 'Document Number'} *</Label><Input value={form.documentNumber} onChange={(e) => u('documentNumber', e.target.value)} /></div>
         {(form.documentType === 'PASSPORT' || form.documentType === 'DRIVING_LICENSE') && (
           <div><Label>Expiry Date</Label><Input type="date" value={form.expiryDate} onChange={(e) => u('expiryDate', e.target.value)} /></div>
