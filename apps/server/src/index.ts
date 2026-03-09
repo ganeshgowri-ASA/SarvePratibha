@@ -17,6 +17,8 @@ import { payrollRouter } from './routes/payroll';
 import { taxRouter } from './routes/tax';
 import { reimbursementRouter } from './routes/reimbursement';
 import { recruitmentRouter } from './routes/recruitment';
+import { aiScreeningRouter } from './routes/ai-screening';
+import { aiVoiceRouter } from './routes/ai-voice';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -52,6 +54,8 @@ app.use('/api/payroll', payrollRouter);
 app.use('/api/tax', taxRouter);
 app.use('/api/reimbursement', reimbursementRouter);
 app.use('/api/recruitment', recruitmentRouter);
+app.use('/api/ai', aiScreeningRouter);
+app.use('/api/ai', aiVoiceRouter);
 
 // Error handler
 app.use(errorHandler);

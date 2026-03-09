@@ -13,6 +13,7 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
 const PROTECTED_ROUTES: Record<string, UserRole> = {
   '/people': 'MANAGER',
   '/talent': 'MANAGER',
+  '/ai-screening': 'MANAGER',
   '/admin': 'IT_ADMIN',
 };
 
@@ -63,6 +64,7 @@ export const config = {
     '/travel/:path*',
     '/engagement/:path*',
     '/talent/:path*',
+    '/ai-screening/:path*',
     '/compliance/:path*',
     '/admin/:path*',
   ],

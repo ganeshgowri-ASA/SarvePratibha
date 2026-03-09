@@ -51,6 +51,7 @@ export const SIDEBAR_MENU: MenuItem[] = [
       { id: 'req-sources', label: 'Sources', icon: 'Globe', href: '/recruitment/sources' },
     ],
   },
+  { id: 'ai-screening', label: 'AI Screening', icon: 'Bot', href: '/ai-screening', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
   { id: 'compliance', label: 'Compliance Management', icon: 'ClipboardCheck', href: '/compliance' },
 ];
 

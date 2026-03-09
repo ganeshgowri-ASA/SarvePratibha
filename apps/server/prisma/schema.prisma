@@ -1631,6 +1631,10 @@ model JobPosting {
   department   Department     @relation(fields: [departmentId], references: [id])
   applications Application[]
 
+  // AI Screening
+  aiScreeningSessions AIScreeningSession[]
+  candidateAIScores   CandidateAIScore[]
+
   @@index([departmentId])
   @@index([isActive])
   @@index([requisitionId])
@@ -1700,6 +1704,10 @@ model Application {
   referredBy  Employee?           @relation(fields: [referredById], references: [id])
   interviews  InterviewSchedule[]
   offer       OfferLetter?
+
+  // AI Screening
+  aiScreeningSessions AIScreeningSession[]
+  candidateAIScores   CandidateAIScore[]
 
   @@unique([jobPostingId, candidateId])
   @@index([jobPostingId])
@@ -1977,6 +1985,253 @@ model Banner {
 
   @@index([isActive, startDate])
   @@map("banners")
+}
+
+// ─── AI SCREENING & VOICE ASSISTANT ─────────────────────────────────
+
+enum ScreeningSessionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+enum VoiceCallStatus {
+  QUEUED
+  RINGING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  NO_ANSWER
+  BUSY
+}
+
+enum VoiceProvider {
+  VAPI
+  RETELL
+  ELEVENLABS
+  SARVAM
+}
+
+enum AIRecommendation {
+  STRONG_SHORTLIST
+  SHORTLIST
+  HOLD
+  REJECT
+}
+
+enum ScreeningQuestionType {
+  TECHNICAL
+  BEHAVIORAL
+  SITUATIONAL
+  CULTURAL_FIT
+  COMMUNICATION
+}
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+}
+
+model AIScreeningSession {
+  id              String                  @id @default(cuid())
+  applicationId   String
+  jobPostingId    String
+  candidateName   String
+  candidateEmail  String
+  candidatePhone  String?
+  status          ScreeningSessionStatus  @default(PENDING)
+  templateId      String?
+  language        String                  @default("en")
+  startedAt       DateTime?
+  completedAt     DateTime?
+  overallScore    Float?
+  recommendation  AIRecommendation?
+  summary         String?                 @db.Text
+  initiatedById   String?
+  metadata        Json?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  application   Application          @relation(fields: [applicationId], references: [id])
+  jobPosting    JobPosting           @relation(fields: [jobPostingId], references: [id])
+  template      ScreeningTemplate?   @relation(fields: [templateId], references: [id])
+  questions     AIScreeningQuestion[]
+  responses     AIScreeningResponse[]
+  scores        AIScreeningScore[]
+  voiceCalls    VoiceCallLog[]
+
+  @@index([applicationId])
+  @@index([jobPostingId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("ai_screening_sessions")
+}
+
+model AIScreeningQuestion {
+  id              String               @id @default(cuid())
+  sessionId       String
+  questionText    String               @db.Text
+  questionType    ScreeningQuestionType @default(TECHNICAL)
+  difficulty      DifficultyLevel      @default(MEDIUM)
+  orderIndex      Int                  @default(0)
+  expectedAnswer  String?              @db.Text
+  maxScore        Float                @default(10)
+  timeLimit       Int?                 // seconds
+  createdAt       DateTime             @default(now())
+
+  session   AIScreeningSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  responses AIScreeningResponse[]
+
+  @@index([sessionId])
+  @@map("ai_screening_questions")
+}
+
+model AIScreeningResponse {
+  id             String   @id @default(cuid())
+  sessionId      String
+  questionId     String
+  responseText   String?  @db.Text
+  audioUrl       String?
+  duration       Int?     // seconds
+  score          Float?
+  sentiment      String?  // positive, negative, neutral
+  confidence     Float?   // 0-1
+  feedback       String?  @db.Text
+  evaluatedAt    DateTime?
+  createdAt      DateTime @default(now())
+
+  session  AIScreeningSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  question AIScreeningQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([questionId])
+  @@map("ai_screening_responses")
+}
+
+model AIScreeningScore {
+  id            String @id @default(cuid())
+  sessionId     String
+  category      String // Technical, Communication, CulturalFit, Confidence, ProblemSolving
+  score         Float
+  maxScore      Float  @default(100)
+  details       String? @db.Text
+  createdAt     DateTime @default(now())
+
+  session AIScreeningSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("ai_screening_scores")
+}
+
+model VoiceCallLog {
+  id                String          @id @default(cuid())
+  sessionId         String?
+  provider          VoiceProvider   @default(VAPI)
+  providerCallId    String?         @unique
+  candidateName     String
+  candidatePhone    String
+  direction         String          @default("outbound") // inbound or outbound
+  status            VoiceCallStatus @default(QUEUED)
+  startedAt         DateTime?
+  endedAt           DateTime?
+  duration          Int?            // seconds
+  recordingUrl      String?
+  costCents         Float?
+  errorMessage      String?
+  metadata          Json?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  session     AIScreeningSession? @relation(fields: [sessionId], references: [id])
+  transcripts VoiceCallTranscript[]
+
+  @@index([sessionId])
+  @@index([status])
+  @@index([provider])
+  @@index([createdAt])
+  @@map("voice_call_logs")
+}
+
+model VoiceCallTranscript {
+  id         String   @id @default(cuid())
+  callId     String
+  speaker    String   // "ai" or "candidate"
+  text       String   @db.Text
+  timestamp  Float    // seconds from call start
+  confidence Float?
+  createdAt  DateTime @default(now())
+
+  call VoiceCallLog @relation(fields: [callId], references: [id], onDelete: Cascade)
+
+  @@index([callId])
+  @@map("voice_call_transcripts")
+}
+
+model AIAssistantConfig {
+  id                  String        @id @default(cuid())
+  name                String        @default("AI Screening Assistant")
+  voiceProvider       VoiceProvider @default(VAPI)
+  voiceId             String?
+  personality         String?       @db.Text
+  companyContext      String?       @db.Text
+  language            String        @default("en")
+  supportedLanguages  String[]      @default(["en", "hi"])
+  maxCallDuration     Int           @default(900) // seconds (15 min default)
+  evaluationCriteria  Json?
+  isActive            Boolean       @default(true)
+  createdById         String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@map("ai_assistant_configs")
+}
+
+model ScreeningTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  roleTitle   String?
+  department  String?
+  questions   Json     // Array of { text, type, difficulty, expectedAnswer, maxScore }
+  isActive    Boolean  @default(true)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sessions AIScreeningSession[]
+
+  @@index([isActive])
+  @@map("screening_templates")
+}
+
+model CandidateAIScore {
+  id              String           @id @default(cuid())
+  applicationId   String
+  jobPostingId    String
+  technicalScore  Float?
+  communicationScore Float?
+  culturalFitScore   Float?
+  confidenceScore    Float?
+  overallScore    Float?
+  resumeScore     Float?
+  ranking         Int?
+  recommendation  AIRecommendation?
+  reasoning       String?          @db.Text
+  parsedResume    Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id])
+  jobPosting  JobPosting  @relation(fields: [jobPostingId], references: [id])
+
+  @@unique([applicationId, jobPostingId])
+  @@index([jobPostingId])
+  @@index([overallScore])
+  @@map("candidate_ai_scores")
 }
 
 // ─── AUDIT LOG ──────────────────────────────────────────────────────
