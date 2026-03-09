@@ -1,7 +1,13 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import bcrypt from 'bcryptjs';
+
+const DEMO_ACCOUNTS = [
+  { email: 'admin@sarvepratibha.com', password: 'admin123', id: 'demo-1', name: 'Admin User', role: 'IT_ADMIN', employeeId: 'EMP001' },
+  { email: 'manager@sarvepratibha.com', password: 'manager123', id: 'demo-2', name: 'Manager User', role: 'MANAGER', employeeId: 'EMP002' },
+  { email: 'sectionhead@sarvepratibha.com', password: 'sectionhead123', id: 'demo-3', name: 'Section Head', role: 'SECTION_HEAD', employeeId: 'EMP003' },
+  { email: 'employee@sarvepratibha.com', password: 'employee123', id: 'demo-4', name: 'Employee User', role: 'EMPLOYEE', employeeId: 'EMP004' },
+];
 
 // In production, this would use Prisma client.
 // For now, we define the auth options that connect to the Express API.
@@ -16,6 +22,20 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Email and password are required');
+        }
+
+        // Demo account check — allows login without a backend server
+        const demo = DEMO_ACCOUNTS.find(
+          (a) => a.email === credentials.email && a.password === credentials.password,
+        );
+        if (demo) {
+          return {
+            id: demo.id,
+            email: demo.email,
+            name: demo.name,
+            role: demo.role,
+            employeeId: demo.employeeId,
+          };
         }
 
         try {
@@ -49,10 +69,14 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
+    ...(process.env.GOOGLE_CLIENT_ID
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+          }),
+        ]
+      : []),
   ],
   session: {
     strategy: 'jwt',
