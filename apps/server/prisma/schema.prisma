@@ -180,6 +180,31 @@ enum AnnouncementPriority {
   CRITICAL
 }
 
+enum NominationType {
+  PF
+  GRATUITY
+  INSURANCE
+}
+
+enum Relationship {
+  FATHER
+  MOTHER
+  SPOUSE
+  SON
+  DAUGHTER
+  BROTHER
+  SISTER
+  OTHER
+}
+
+enum DocumentType {
+  AADHAAR
+  PAN
+  PASSPORT
+  DRIVING_LICENSE
+  VOTER_ID
+}
+
 // ─── USER & AUTHENTICATION ─────────────────────────────────────────
 
 model User {
@@ -385,6 +410,44 @@ model Employee {
   emergencyPhone   String?
   bloodGroup       String?
   profilePhoto     String?
+  // Extended personal details
+  title            String?
+  maritalSinceDate DateTime?
+  nationality      String?
+  placeOfBirth     String?
+  stateOfBirth     String?
+  religion         String?
+  identificationMark String?
+  heightCm         Float?
+  weightKg         Float?
+  motherTongue     String?
+  caste            String?
+  // Contact details
+  corporatePhone   String?
+  personalPhone    String?
+  residentialPhone String?
+  officePhone      String?
+  officialEmail    String?
+  // Address
+  workLocation     String?
+  permanentAddress String?
+  permanentCity    String?
+  permanentState   String?
+  permanentCountry String?
+  permanentPincode String?
+  // Bank details
+  bankBranch       String?
+  // Additional dates
+  confirmationDate DateTime?
+  lastPromotionDate DateTime?
+  lastCertifiedDate DateTime?
+  // Dotted line manager
+  dottedLineManagerId String?
+  orgUnitChiefId      String?
+  // Passport / DL
+  passportNumber   String?
+  drivingLicense   String?
+  voterIdNumber    String?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -396,6 +459,19 @@ model Employee {
   // Self-referential manager relationship
   manager       Employee?  @relation("ManagerReports", fields: [managerId], references: [id])
   directReports Employee[] @relation("ManagerReports")
+
+  // Dotted line and org unit chief
+  dottedLineManager Employee? @relation("DottedLineReports", fields: [dottedLineManagerId], references: [id])
+  dottedLineReports Employee[] @relation("DottedLineReports")
+  orgUnitChief      Employee? @relation("OrgUnitChiefReports", fields: [orgUnitChiefId], references: [id])
+  orgUnitChiefReports Employee[] @relation("OrgUnitChiefReports")
+
+  // Related detail records
+  familyMembers   FamilyMember[]
+  nominations     Nomination[]
+  personalDocuments PersonalDocument[]
+  educationRecords EducationRecord[]
+  experienceRecords ExperienceRecord[]
 
   // Leave
   leaveRequests LeaveRequest[]
@@ -437,6 +513,103 @@ model Employee {
   @@index([managerId])
   @@index([employmentStatus])
   @@map("employees")
+}
+
+// ─── EMPLOYEE DETAILS ──────────────────────────────────────────────
+
+model FamilyMember {
+  id           String       @id @default(cuid())
+  employeeId   String
+  name         String
+  relationship Relationship
+  dateOfBirth  DateTime?
+  gender       Gender?
+  occupation   String?
+  phone        String?
+  isDependent  Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@map("family_members")
+}
+
+model Nomination {
+  id             String         @id @default(cuid())
+  employeeId     String
+  type           NominationType
+  nomineeName    String
+  relationship   Relationship
+  dateOfBirth    DateTime?
+  percentage     Float
+  address        String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@map("nominations")
+}
+
+model PersonalDocument {
+  id           String       @id @default(cuid())
+  employeeId   String
+  documentType DocumentType
+  documentNumber String
+  fileUrl      String?
+  fileName     String?
+  isVerified   Boolean      @default(false)
+  expiryDate   DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, documentType])
+  @@index([employeeId])
+  @@map("personal_documents")
+}
+
+model EducationRecord {
+  id           String   @id @default(cuid())
+  employeeId   String
+  degree       String
+  institution  String
+  university   String?
+  yearOfPassing Int?
+  percentage   Float?
+  grade        String?
+  specialization String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@map("education_records")
+}
+
+model ExperienceRecord {
+  id              String   @id @default(cuid())
+  employeeId      String
+  companyName     String
+  designation     String
+  fromDate        DateTime
+  toDate          DateTime?
+  isCurrent       Boolean  @default(false)
+  reasonForLeaving String?
+  lastDrawnSalary Float?
+  location        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@map("experience_records")
 }
 
 // ─── LEAVE MANAGEMENT ───────────────────────────────────────────────

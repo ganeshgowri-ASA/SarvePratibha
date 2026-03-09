@@ -59,7 +59,8 @@ interface SidebarItem {
 
 const MENU_ITEMS: SidebarItem[] = [
   { id: 'home', label: 'Home', icon: 'Home', href: '/dashboard' },
-  { id: 'people', label: 'People', icon: 'Users', href: '/people', roles: ['MANAGER', 'SECTION_HEAD', 'IT_ADMIN'] },
+  { id: 'people', label: 'People', icon: 'Users', href: '/people' },
+  { id: 'organization', label: 'Organization', icon: 'Building2', href: '/organization' },
   { id: 'personal', label: 'Personal Details', icon: 'UserCircle', href: '/personal-details' },
   { id: 'leave-attendance', label: 'Leave & Attendance', icon: 'CalendarDays', href: '/leave-attendance' },
   { id: 'payroll', label: 'Payroll', icon: 'IndianRupee', href: '/payroll' },
