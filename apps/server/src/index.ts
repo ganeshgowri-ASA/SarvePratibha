@@ -8,6 +8,9 @@ import { employeeRouter } from './routes/employee';
 import { employeeProfileRouter } from './routes/employee-profile';
 import { peopleRouter } from './routes/people';
 import { adminRouter } from './routes/admin';
+import { leaveRouter } from './routes/leave';
+import { attendanceRouter } from './routes/attendance';
+import { holidayRouter } from './routes/holiday';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -34,6 +37,9 @@ app.use('/api/employees', employeeProfileRouter);
 app.use('/api/people', peopleRouter);
 app.use('/api', peopleRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/leave', leaveRouter);
+app.use('/api/attendance', attendanceRouter);
+app.use('/api', holidayRouter);
 
 // Error handler
 app.use(errorHandler);
