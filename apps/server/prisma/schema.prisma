@@ -812,6 +812,31 @@ model Employee {
   foodCoupons        FoodCoupon[]
   giftVouchers       GiftVoucher[]
 
+  // Engagement
+  surveyResponses       SurveyResponse[]
+  pollVotes             PollVote[]
+  engagementScores      EngagementScore[]
+
+  // Compliance
+  complianceAcknowledgements ComplianceAcknowledgement[]
+  complianceEnrollments      ComplianceTrainingEnrollment[]
+
+  // Documents
+  documents             Document[]
+  digitalSignatures     DigitalSignature[]
+
+  // Talent
+  talentProfile         TalentProfile?
+  successionPlansAsSuccessor SuccessionPlan[] @relation("SuccessorEmployee")
+  successionPlansForPosition SuccessionPlan[] @relation("PositionHolder")
+  learningEnrollments   LearningEnrollment[]
+  certificates          Certificate[]
+  skillMatrixEntries    SkillMatrix[]
+
+  // Onboarding / Offboarding
+  onboardingChecklists  OnboardingChecklist[]
+  offboardingChecklists OffboardingChecklist[]
+
   @@index([employeeId])
   @@index([organizationId])
   @@index([departmentId])
@@ -3387,4 +3412,667 @@ model GiftVoucher {
 
   @@index([employeeId])
   @@map("gift_vouchers")
+}
+
+// ─── ENGAGEMENT MODULE ─────────────────────────────────────────────
+
+enum SurveyStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+enum SurveyQuestionType {
+  RATING
+  TEXT
+  MULTIPLE_CHOICE
+  SINGLE_CHOICE
+  NPS
+}
+
+enum PollStatus {
+  ACTIVE
+  CLOSED
+}
+
+model Survey {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      SurveyStatus @default(DRAFT)
+  isAnonymous Boolean      @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdById String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  questions SurveyQuestion[]
+  responses SurveyResponse[]
+
+  @@index([status])
+  @@map("surveys")
+}
+
+model SurveyQuestion {
+  id         String             @id @default(cuid())
+  surveyId   String
+  text       String
+  type       SurveyQuestionType @default(RATING)
+  options    Json?
+  isRequired Boolean            @default(true)
+  orderIndex Int                @default(0)
+  createdAt  DateTime           @default(now())
+
+  survey    Survey           @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  responses SurveyResponse[]
+
+  @@index([surveyId])
+  @@map("survey_questions")
+}
+
+model SurveyResponse {
+  id         String   @id @default(cuid())
+  surveyId   String
+  questionId String
+  employeeId String
+  answer     String
+  rating     Int?
+  createdAt  DateTime @default(now())
+
+  survey   Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  question SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  employee Employee       @relation(fields: [employeeId], references: [id])
+
+  @@unique([surveyId, questionId, employeeId])
+  @@index([surveyId])
+  @@index([employeeId])
+  @@map("survey_responses")
+}
+
+model Poll {
+  id          String     @id @default(cuid())
+  question    String
+  description String?
+  status      PollStatus @default(ACTIVE)
+  isAnonymous Boolean    @default(false)
+  expiresAt   DateTime?
+  createdById String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  options PollOption[]
+  votes   PollVote[]
+
+  @@index([status])
+  @@map("polls")
+}
+
+model PollOption {
+  id     String @id @default(cuid())
+  pollId String
+  text   String
+
+  poll  Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes PollVote[]
+
+  @@index([pollId])
+  @@map("poll_options")
+}
+
+model PollVote {
+  id         String   @id @default(cuid())
+  pollId     String
+  optionId   String
+  employeeId String
+  createdAt  DateTime @default(now())
+
+  poll     Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option   PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  employee Employee   @relation(fields: [employeeId], references: [id])
+
+  @@unique([pollId, employeeId])
+  @@index([pollId])
+  @@map("poll_votes")
+}
+
+model EngagementScore {
+  id           String   @id @default(cuid())
+  employeeId   String
+  month        Int
+  year         Int
+  npsScore     Float?
+  pulseScore   Float?
+  overallScore Float?
+  factors      Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, month, year])
+  @@index([employeeId])
+  @@map("engagement_scores")
+}
+
+model Announcement {
+  id          String               @id @default(cuid())
+  title       String
+  content     String               @db.Text
+  priority    AnnouncementPriority @default(MEDIUM)
+  targetRole  UserRole?
+  department  String?
+  isPinned    Boolean              @default(false)
+  isActive    Boolean              @default(true)
+  publishAt   DateTime             @default(now())
+  expiresAt   DateTime?
+  createdById String
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([isActive])
+  @@index([publishAt])
+  @@map("announcements")
+}
+
+// ─── D&I MODULE ────────────────────────────────────────────────────
+
+model DIMetric {
+  id           String   @id @default(cuid())
+  department   String?
+  category     String
+  subcategory  String?
+  value        Float
+  total        Float?
+  percentage   Float?
+  year         Int
+  quarter      Int?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([department, year])
+  @@index([category])
+  @@map("di_metrics")
+}
+
+model DIGoal {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  category     String
+  targetValue  Float
+  currentValue Float    @default(0)
+  unit         String?
+  startDate    DateTime
+  endDate      DateTime
+  department   String?
+  status       String   @default("IN_PROGRESS")
+  createdById  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([status])
+  @@map("di_goals")
+}
+
+model DIReport {
+  id           String   @id @default(cuid())
+  title        String
+  department   String?
+  year         Int
+  quarter      Int?
+  data         Json
+  inclusionIndex Float?
+  payEquityGap   Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([department, year])
+  @@map("di_reports")
+}
+
+// ─── COMPLIANCE MODULE ─────────────────────────────────────────────
+
+enum CompliancePolicyStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum ComplianceTrainingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+model CompliancePolicy {
+  id            String                 @id @default(cuid())
+  title         String
+  description   String?                @db.Text
+  content       String?                @db.Text
+  category      String
+  version       String                 @default("1.0")
+  status        CompliancePolicyStatus @default(DRAFT)
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  isRequired    Boolean                @default(true)
+  createdById   String
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  acknowledgements ComplianceAcknowledgement[]
+
+  @@index([status])
+  @@index([category])
+  @@map("compliance_policies")
+}
+
+model ComplianceAcknowledgement {
+  id         String    @id @default(cuid())
+  policyId   String
+  employeeId String
+  acknowledged Boolean @default(false)
+  acknowledgedAt DateTime?
+  ipAddress  String?
+  createdAt  DateTime  @default(now())
+
+  policy   CompliancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  employee Employee         @relation(fields: [employeeId], references: [id])
+
+  @@unique([policyId, employeeId])
+  @@index([employeeId])
+  @@map("compliance_acknowledgements")
+}
+
+model ComplianceTraining {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?  @db.Text
+  category     String
+  duration     Int
+  isRequired   Boolean  @default(true)
+  dueDate      DateTime?
+  contentUrl   String?
+  passingScore Int      @default(70)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  enrollments ComplianceTrainingEnrollment[]
+
+  @@index([isActive])
+  @@map("compliance_trainings")
+}
+
+model ComplianceTrainingEnrollment {
+  id           String                   @id @default(cuid())
+  trainingId   String
+  employeeId   String
+  status       ComplianceTrainingStatus @default(NOT_STARTED)
+  progress     Int                      @default(0)
+  score        Int?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  dueDate      DateTime?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+
+  training ComplianceTraining @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  employee Employee           @relation(fields: [employeeId], references: [id])
+
+  @@unique([trainingId, employeeId])
+  @@index([employeeId])
+  @@index([status])
+  @@map("compliance_training_enrollments")
+}
+
+// ─── DOCUMENT MODULE ───────────────────────────────────────────────
+
+enum DocumentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SignatureStatus {
+  PENDING
+  SIGNED
+  REJECTED
+}
+
+model DocumentCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  parentId    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent   DocumentCategory?  @relation("DocCategoryHierarchy", fields: [parentId], references: [id])
+  children DocumentCategory[] @relation("DocCategoryHierarchy")
+  documents Document[]
+
+  @@map("document_categories")
+}
+
+model Document {
+  id           String         @id @default(cuid())
+  title        String
+  description  String?
+  categoryId   String?
+  fileUrl      String
+  fileName     String
+  fileSize     Int?
+  mimeType     String?
+  status       DocumentStatus @default(PUBLISHED)
+  uploadedById String
+  tags         String[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  category   DocumentCategory? @relation(fields: [categoryId], references: [id])
+  uploadedBy Employee          @relation(fields: [uploadedById], references: [id])
+  versions   DocumentVersion[]
+  signatures DigitalSignature[]
+
+  @@index([categoryId])
+  @@index([uploadedById])
+  @@map("documents")
+}
+
+model DocumentVersion {
+  id         String   @id @default(cuid())
+  documentId String
+  version    String
+  fileUrl    String
+  fileName   String
+  fileSize   Int?
+  changeNote String?
+  createdById String
+  createdAt  DateTime @default(now())
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("document_versions")
+}
+
+model DigitalSignature {
+  id           String          @id @default(cuid())
+  documentId   String
+  employeeId   String
+  status       SignatureStatus @default(PENDING)
+  signedAt     DateTime?
+  ipAddress    String?
+  signatureData String?
+  reason       String?
+  requestedById String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([documentId, employeeId])
+  @@index([employeeId])
+  @@index([status])
+  @@map("digital_signatures")
+}
+
+// ─── TALENT MODULE ─────────────────────────────────────────────────
+
+enum TalentRating {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model TalentProfile {
+  id              String       @id @default(cuid())
+  employeeId      String       @unique
+  performanceRating TalentRating @default(MEDIUM)
+  potentialRating   TalentRating @default(MEDIUM)
+  nineBoxPosition   String?
+  readiness         String?
+  careerAspiration  String?
+  strengths         String[]
+  developmentAreas  String[]
+  riskOfLeaving     String?
+  impactOfLeaving   String?
+  lastAssessedAt    DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@map("talent_profiles")
+}
+
+model SuccessionPlan {
+  id              String   @id @default(cuid())
+  positionTitle   String
+  department      String
+  currentHolderId String?
+  successorId     String
+  readiness       String
+  priority        Int      @default(1)
+  notes           String?
+  developmentPlan String?
+  targetDate      DateTime?
+  createdById     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  currentHolder Employee? @relation("PositionHolder", fields: [currentHolderId], references: [id])
+  successor     Employee  @relation("SuccessorEmployee", fields: [successorId], references: [id])
+
+  @@index([department])
+  @@index([successorId])
+  @@map("succession_plans")
+}
+
+model SkillMatrix {
+  id           String   @id @default(cuid())
+  employeeId   String
+  skillName    String
+  category     String
+  currentLevel Int      @default(0)
+  targetLevel  Int      @default(0)
+  department   String?
+  assessedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, skillName])
+  @@index([employeeId])
+  @@index([department])
+  @@map("skill_matrix")
+}
+
+// ─── LEARNING MODULE ───────────────────────────────────────────────
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  IN_PROGRESS
+  COMPLETED
+  DROPPED
+}
+
+model LearningCourse {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?      @db.Text
+  category     String
+  instructor   String?
+  duration     Int
+  thumbnailUrl String?
+  level        String       @default("BEGINNER")
+  status       CourseStatus @default(PUBLISHED)
+  isRequired   Boolean      @default(false)
+  tags         String[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  modules     CourseModule[]
+  enrollments LearningEnrollment[]
+  certificates Certificate[]
+
+  @@index([status])
+  @@index([category])
+  @@map("learning_courses")
+}
+
+model CourseModule {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String
+  description String?
+  contentUrl  String?
+  contentType String?
+  duration    Int      @default(0)
+  orderIndex  Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  course LearningCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@map("course_modules")
+}
+
+model LearningEnrollment {
+  id              String           @id @default(cuid())
+  courseId         String
+  employeeId       String
+  status           EnrollmentStatus @default(ENROLLED)
+  progress         Int              @default(0)
+  completedModules Json?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  course   LearningCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  employee Employee       @relation(fields: [employeeId], references: [id])
+
+  @@unique([courseId, employeeId])
+  @@index([employeeId])
+  @@index([status])
+  @@map("learning_enrollments")
+}
+
+model Certificate {
+  id           String   @id @default(cuid())
+  employeeId   String
+  courseId      String
+  certificateNumber String @unique
+  issuedAt     DateTime @default(now())
+  expiresAt    DateTime?
+  fileUrl      String?
+  createdAt    DateTime @default(now())
+
+  employee Employee       @relation(fields: [employeeId], references: [id])
+  course   LearningCourse @relation(fields: [courseId], references: [id])
+
+  @@index([employeeId])
+  @@map("certificates")
+}
+
+// ─── ONBOARDING MODULE ─────────────────────────────────────────────
+
+enum ChecklistStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model OnboardingChecklist {
+  id           String          @id @default(cuid())
+  employeeId   String
+  title        String          @default("Onboarding Checklist")
+  status       ChecklistStatus @default(NOT_STARTED)
+  startDate    DateTime?
+  completedAt  DateTime?
+  assignedById String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  employee Employee          @relation(fields: [employeeId], references: [id])
+  tasks    OnboardingTask[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("onboarding_checklists")
+}
+
+model OnboardingTask {
+  id           String   @id @default(cuid())
+  checklistId  String
+  title        String
+  description  String?
+  category     String
+  isCompleted  Boolean  @default(false)
+  completedAt  DateTime?
+  completedBy  String?
+  dueDate      DateTime?
+  orderIndex   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  checklist OnboardingChecklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  @@index([checklistId])
+  @@map("onboarding_tasks")
+}
+
+// ─── OFFBOARDING MODULE ────────────────────────────────────────────
+
+model OffboardingChecklist {
+  id           String          @id @default(cuid())
+  employeeId   String
+  title        String          @default("Offboarding Checklist")
+  status       ChecklistStatus @default(NOT_STARTED)
+  reason       String?
+  lastWorkingDate DateTime?
+  initiatedById String?
+  completedAt  DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  employee Employee           @relation(fields: [employeeId], references: [id])
+  tasks    OffboardingTask[]
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("offboarding_checklists")
+}
+
+model OffboardingTask {
+  id           String   @id @default(cuid())
+  checklistId  String
+  title        String
+  description  String?
+  category     String
+  isCompleted  Boolean  @default(false)
+  completedAt  DateTime?
+  completedBy  String?
+  dueDate      DateTime?
+  orderIndex   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  checklist OffboardingChecklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  @@index([checklistId])
+  @@map("offboarding_tasks")
 }

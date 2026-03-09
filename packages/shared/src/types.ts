@@ -1471,3 +1471,380 @@ export interface CompanyPolicyItem {
   effectiveFrom: string;
   effectiveTo?: string;
 }
+
+// ─── Engagement ────────────────────────────────────────────────────
+
+export type SurveyStatus = 'DRAFT' | 'ACTIVE' | 'CLOSED';
+export type SurveyQuestionType = 'RATING' | 'TEXT' | 'MULTIPLE_CHOICE' | 'SINGLE_CHOICE' | 'NPS';
+export type PollStatusType = 'ACTIVE' | 'CLOSED';
+
+export interface SurveyItem {
+  id: string;
+  title: string;
+  description?: string;
+  status: SurveyStatus;
+  isAnonymous: boolean;
+  startDate?: string;
+  endDate?: string;
+  questions: SurveyQuestionItem[];
+  _count?: { responses: number };
+  createdAt: string;
+}
+
+export interface SurveyQuestionItem {
+  id: string;
+  text: string;
+  type: SurveyQuestionType;
+  options?: unknown;
+  isRequired: boolean;
+  orderIndex: number;
+}
+
+export interface SurveyResultData {
+  survey: { id: string; title: string; status: SurveyStatus };
+  results: {
+    questionId: string;
+    text: string;
+    type: SurveyQuestionType;
+    totalResponses: number;
+    avgRating: number | null;
+    answers: { answer: string; rating?: number | null }[];
+  }[];
+}
+
+export interface PollItem {
+  id: string;
+  question: string;
+  description?: string;
+  status: PollStatusType;
+  isAnonymous: boolean;
+  expiresAt?: string;
+  options: PollOptionItem[];
+  _count?: { votes: number };
+  createdAt: string;
+}
+
+export interface PollOptionItem {
+  id: string;
+  text: string;
+  _count?: { votes: number };
+}
+
+export interface EngagementScoreItem {
+  id: string;
+  employeeId: string;
+  month: number;
+  year: number;
+  npsScore?: number;
+  pulseScore?: number;
+  overallScore?: number;
+  factors?: Record<string, unknown>;
+}
+
+export interface EngagementAnalytics {
+  totalSurveys: number;
+  activeSurveys: number;
+  totalPolls: number;
+  avgNPS: number | null;
+  avgPulse: number | null;
+  avgOverall: number | null;
+  departmentScores: { department: string; avg_score: number }[];
+}
+
+// ─── D&I ───────────────────────────────────────────────────────────
+
+export interface DIMetricItem {
+  id: string;
+  department?: string;
+  category: string;
+  subcategory?: string;
+  value: number;
+  total?: number;
+  percentage?: number;
+  year: number;
+  quarter?: number;
+}
+
+export interface DIGoalItem {
+  id: string;
+  title: string;
+  description?: string;
+  category: string;
+  targetValue: number;
+  currentValue: number;
+  unit?: string;
+  startDate: string;
+  endDate: string;
+  department?: string;
+  status: string;
+}
+
+export interface DIReportItem {
+  id: string;
+  title: string;
+  department?: string;
+  year: number;
+  quarter?: number;
+  data: Record<string, unknown>;
+  inclusionIndex?: number;
+  payEquityGap?: number;
+}
+
+// ─── Compliance ────────────────────────────────────────────────────
+
+export type CompliancePolicyStatusType = 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
+export type ComplianceTrainingStatusType = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'OVERDUE';
+
+export interface CompliancePolicyItem {
+  id: string;
+  title: string;
+  description?: string;
+  content?: string;
+  category: string;
+  version: string;
+  status: CompliancePolicyStatusType;
+  effectiveFrom: string;
+  effectiveTo?: string;
+  isRequired: boolean;
+  _count?: { acknowledgements: number };
+}
+
+export interface ComplianceAcknowledgementItem {
+  id: string;
+  policyId: string;
+  acknowledged: boolean;
+  acknowledgedAt?: string;
+  policy?: { id: string; title: string; category: string; version: string };
+}
+
+export interface ComplianceTrainingItem {
+  id: string;
+  title: string;
+  description?: string;
+  category: string;
+  duration: number;
+  isRequired: boolean;
+  dueDate?: string;
+  passingScore: number;
+  _count?: { enrollments: number };
+}
+
+export interface ComplianceTrainingEnrollmentItem {
+  id: string;
+  trainingId: string;
+  status: ComplianceTrainingStatusType;
+  progress: number;
+  score?: number;
+  startedAt?: string;
+  completedAt?: string;
+  training?: { id: string; title: string; category: string; duration: number };
+}
+
+export interface ComplianceStatusData {
+  acknowledgements: ComplianceAcknowledgementItem[];
+  trainings: ComplianceTrainingEnrollmentItem[];
+  complianceRate: number;
+}
+
+// ─── Documents ─────────────────────────────────────────────────────
+
+export type DocumentStatusType = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type SignatureStatusType = 'PENDING' | 'SIGNED' | 'REJECTED';
+
+export interface DocumentCategoryItem {
+  id: string;
+  name: string;
+  description?: string;
+  parentId?: string;
+}
+
+export interface DocumentItem {
+  id: string;
+  title: string;
+  description?: string;
+  categoryId?: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize?: number;
+  mimeType?: string;
+  status: DocumentStatusType;
+  tags: string[];
+  category?: DocumentCategoryItem;
+  uploadedBy?: { firstName: string; lastName: string };
+  _count?: { versions: number; signatures: number };
+  createdAt: string;
+}
+
+export interface DocumentVersionItem {
+  id: string;
+  documentId: string;
+  version: string;
+  fileUrl: string;
+  fileName: string;
+  changeNote?: string;
+  createdAt: string;
+}
+
+export interface DigitalSignatureItem {
+  id: string;
+  documentId: string;
+  employeeId: string;
+  status: SignatureStatusType;
+  signedAt?: string;
+  reason?: string;
+  document?: { id: string; title: string; fileName: string; fileUrl: string };
+}
+
+// ─── Talent ────────────────────────────────────────────────────────
+
+export type TalentRatingType = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export interface TalentProfileItem {
+  id: string;
+  employeeId: string;
+  performanceRating: TalentRatingType;
+  potentialRating: TalentRatingType;
+  nineBoxPosition?: string;
+  readiness?: string;
+  careerAspiration?: string;
+  strengths: string[];
+  developmentAreas: string[];
+  riskOfLeaving?: string;
+  impactOfLeaving?: string;
+  employee?: {
+    firstName: string;
+    lastName: string;
+    employeeId: string;
+    department?: { name: string };
+    designation?: { name: string };
+  };
+  skills?: SkillMatrixItem[];
+}
+
+export interface SuccessionPlanItem {
+  id: string;
+  positionTitle: string;
+  department: string;
+  readiness: string;
+  priority: number;
+  notes?: string;
+  developmentPlan?: string;
+  targetDate?: string;
+  successor?: { firstName: string; lastName: string; employeeId: string };
+  currentHolder?: { firstName: string; lastName: string; employeeId: string };
+}
+
+export interface SkillMatrixItem {
+  id: string;
+  employeeId: string;
+  skillName: string;
+  category: string;
+  currentLevel: number;
+  targetLevel: number;
+  department?: string;
+  employee?: { firstName: string; lastName: string; employeeId: string };
+}
+
+// ─── Learning ──────────────────────────────────────────────────────
+
+export type CourseStatusType = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type EnrollmentStatusType = 'ENROLLED' | 'IN_PROGRESS' | 'COMPLETED' | 'DROPPED';
+
+export interface LearningCourseItem {
+  id: string;
+  title: string;
+  description?: string;
+  category: string;
+  instructor?: string;
+  duration: number;
+  thumbnailUrl?: string;
+  level: string;
+  status: CourseStatusType;
+  isRequired: boolean;
+  tags: string[];
+  _count?: { modules: number; enrollments: number };
+  modules?: CourseModuleItem[];
+  enrollment?: LearningEnrollmentItem | null;
+}
+
+export interface CourseModuleItem {
+  id: string;
+  courseId: string;
+  title: string;
+  description?: string;
+  contentUrl?: string;
+  contentType?: string;
+  duration: number;
+  orderIndex: number;
+}
+
+export interface LearningEnrollmentItem {
+  id: string;
+  courseId: string;
+  status: EnrollmentStatusType;
+  progress: number;
+  completedModules?: string[];
+  startedAt?: string;
+  completedAt?: string;
+  course?: LearningCourseItem;
+}
+
+export interface CertificateItem {
+  id: string;
+  employeeId: string;
+  courseId: string;
+  certificateNumber: string;
+  issuedAt: string;
+  expiresAt?: string;
+  fileUrl?: string;
+}
+
+// ─── Onboarding / Offboarding ──────────────────────────────────────
+
+export type ChecklistStatusType = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+
+export interface OnboardingChecklistItem {
+  id: string;
+  employeeId: string;
+  title: string;
+  status: ChecklistStatusType;
+  startDate?: string;
+  completedAt?: string;
+  tasks: OnboardingTaskItem[];
+  employee?: { firstName: string; lastName: string; employeeId: string; dateOfJoining: string };
+}
+
+export interface OnboardingTaskItem {
+  id: string;
+  checklistId: string;
+  title: string;
+  description?: string;
+  category: string;
+  isCompleted: boolean;
+  completedAt?: string;
+  dueDate?: string;
+  orderIndex: number;
+}
+
+export interface OffboardingChecklistItem {
+  id: string;
+  employeeId: string;
+  title: string;
+  status: ChecklistStatusType;
+  reason?: string;
+  lastWorkingDate?: string;
+  completedAt?: string;
+  tasks: OffboardingTaskItem[];
+  employee?: { firstName: string; lastName: string; employeeId: string };
+}
+
+export interface OffboardingTaskItem {
+  id: string;
+  checklistId: string;
+  title: string;
+  description?: string;
+  category: string;
+  isCompleted: boolean;
+  completedAt?: string;
+  orderIndex: number;
+}
