@@ -186,6 +186,7 @@ SarvePratibha/
 | 7 | feat/recruitment-ats | ATS, multi-platform sourcing |
 | 8 | feat/security-it | Security, IT services, compliance |
 | 9 | feat/engagement-comms | Engagement, announcements, notifications |
+| 10 | feat/ai-voice-assistant | AI Voice screening, interviews, onboarding |
 
 ## API Keys Required
 
@@ -195,6 +196,35 @@ SarvePratibha/
 - TWILIO_SID + AUTH_TOKEN (SMS)
 - CLOUDFLARE_R2 credentials (Storage)
 - RAPIDAPI_KEY (Job board APIs)
+- - VAPI_API_KEY (Voice AI orchestration)
+- ELEVENLABS_API_KEY (Premium voice synthesis)
+- SARVAM_API_KEY (Indian language voice AI)
+- RETELL_API_KEY (Cost-effective voice agent)
+- BLAND_API_KEY (High-volume outbound calls)
+- DEEPGRAM_API_KEY (Speech-to-text)
+
+## AI Voice Assistant Module
+
+### Recommended Providers & Pricing
+| Provider | Best For | Cost/min | Languages |
+|----------|----------|----------|-----------|
+| Vapi.ai | Orchestration layer | $0.05 + provider | 40+ |
+| ElevenLabs | Premium voice quality | $0.07-0.08 | 70+ |
+| Sarvam AI | Indian languages (cheapest) | ~$0.006 | 10+ Indian |
+| Retell AI | All-in-one voice agent | $0.07-0.15 | 30+ |
+| Bland AI | High-volume outbound | $0.11-0.14 | 20+ |
+| Deepgram | Speech-to-text (STT) | $0.01 | 36 |
+
+### AI Screening Pipeline
+1. Recruiter posts job -> ATS creates candidate list
+2. AI Voice Agent calls candidates (Vapi/Bland/Retell)
+3. Preliminary screening: experience, availability, salary expectations
+4. Sarvam AI for regional language candidates (Hindi/Telugu/Tamil/etc.)
+5. AI scores & auto-pushes qualified candidates to shortlist
+6. ElevenLabs premium voice for technical screening rounds
+7. AI generates interview summary + scorecard + bias-aware report
+8. Manager reviews & approves for human interview
+9. Onboarding AI virtual assistant guides new hires
 
 ## License
 
