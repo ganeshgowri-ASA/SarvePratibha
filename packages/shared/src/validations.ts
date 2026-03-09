@@ -65,6 +65,75 @@ export const goalSchema = z.object({
   targetDate: z.string().or(z.date()).optional(),
 });
 
+// ─── AI Screening Validations ──────────────────────────────────────
+
+export const initiateScreeningSchema = z.object({
+  applicationId: z.string().min(1, 'Application ID is required'),
+  jobPostingId: z.string().min(1, 'Job Posting ID is required'),
+  candidateName: z.string().min(1, 'Candidate name is required'),
+  candidateEmail: z.string().email('Valid email is required'),
+  candidatePhone: z.string().optional(),
+  templateId: z.string().optional(),
+  language: z.string().default('en'),
+});
+
+export const evaluateScreeningSchema = z.object({
+  sessionId: z.string().min(1, 'Session ID is required'),
+  responses: z.array(z.object({
+    questionId: z.string().min(1),
+    responseText: z.string().optional(),
+    audioUrl: z.string().optional(),
+    duration: z.number().optional(),
+  })),
+});
+
+export const initiateVoiceCallSchema = z.object({
+  sessionId: z.string().optional(),
+  candidateName: z.string().min(1, 'Candidate name is required'),
+  candidatePhone: z.string().min(1, 'Phone number is required'),
+  provider: z.enum(['VAPI', 'RETELL', 'ELEVENLABS', 'SARVAM']).default('VAPI'),
+});
+
+export const aiAssistantConfigSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  voiceProvider: z.enum(['VAPI', 'RETELL', 'ELEVENLABS', 'SARVAM']).default('VAPI'),
+  voiceId: z.string().optional(),
+  personality: z.string().optional(),
+  companyContext: z.string().optional(),
+  language: z.string().default('en'),
+  supportedLanguages: z.array(z.string()).default(['en', 'hi']),
+  maxCallDuration: z.number().min(60).max(3600).default(900),
+  evaluationCriteria: z.record(z.unknown()).optional(),
+  isActive: z.boolean().default(true),
+});
+
+export const screeningTemplateSchema = z.object({
+  name: z.string().min(1, 'Template name is required'),
+  description: z.string().optional(),
+  roleTitle: z.string().optional(),
+  department: z.string().optional(),
+  questions: z.array(z.object({
+    text: z.string().min(1, 'Question text is required'),
+    type: z.enum(['TECHNICAL', 'BEHAVIORAL', 'SITUATIONAL', 'CULTURAL_FIT', 'COMMUNICATION']).default('TECHNICAL'),
+    difficulty: z.enum(['EASY', 'MEDIUM', 'HARD', 'EXPERT']).default('MEDIUM'),
+    expectedAnswer: z.string().optional(),
+    maxScore: z.number().min(1).default(10),
+  })).min(1, 'At least one question is required'),
+});
+
+export const resumeParseSchema = z.object({
+  resumeUrl: z.string().optional(),
+  resumeText: z.string().optional(),
+  jobPostingId: z.string().optional(),
+}).refine(data => data.resumeUrl || data.resumeText, {
+  message: 'Either resumeUrl or resumeText is required',
+});
+
+export const candidateRankSchema = z.object({
+  jobPostingId: z.string().min(1, 'Job Posting ID is required'),
+  applicationIds: z.array(z.string()).min(1, 'At least one application is required'),
+});
+
 // ─── Type exports ───────────────────────────────────────────────────
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -73,3 +142,10 @@ export type EmployeeCreateInput = z.infer<typeof employeeCreateSchema>;
 export type LeaveRequestInput = z.infer<typeof leaveRequestSchema>;
 export type ClaimInput = z.infer<typeof claimSchema>;
 export type GoalInput = z.infer<typeof goalSchema>;
+export type InitiateScreeningInput = z.infer<typeof initiateScreeningSchema>;
+export type EvaluateScreeningInput = z.infer<typeof evaluateScreeningSchema>;
+export type InitiateVoiceCallInput = z.infer<typeof initiateVoiceCallSchema>;
+export type AIAssistantConfigInput = z.infer<typeof aiAssistantConfigSchema>;
+export type ScreeningTemplateInput = z.infer<typeof screeningTemplateSchema>;
+export type ResumeParseInput = z.infer<typeof resumeParseSchema>;
+export type CandidateRankInput = z.infer<typeof candidateRankSchema>;

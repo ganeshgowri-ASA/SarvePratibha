@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import { authRouter } from './routes/auth';
 import { employeeRouter } from './routes/employee';
 import { adminRouter } from './routes/admin';
+import { aiScreeningRouter } from './routes/ai-screening';
+import { aiVoiceRouter } from './routes/ai-voice';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -29,6 +31,8 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api/employees', employeeRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/ai', aiScreeningRouter);
+app.use('/api/ai', aiVoiceRouter);
 
 // Error handler
 app.use(errorHandler);
