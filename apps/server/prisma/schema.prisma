@@ -1,0 +1,1021 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ──────────────────────────────────────────────────────────
+
+enum UserRole {
+  EMPLOYEE
+  MANAGER
+  SECTION_HEAD
+  IT_ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum EmploymentStatus {
+  ACTIVE
+  ON_NOTICE
+  RESIGNED
+  TERMINATED
+  RETIRED
+  ON_LEAVE
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+  CONSULTANT
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  ON_LEAVE
+  HOLIDAY
+  WEEKEND
+  WORK_FROM_HOME
+}
+
+enum PunchType {
+  PUNCH_IN
+  PUNCH_OUT
+}
+
+enum PayFrequency {
+  MONTHLY
+  BI_WEEKLY
+  WEEKLY
+}
+
+enum PayslipStatus {
+  DRAFT
+  GENERATED
+  PUBLISHED
+  PAID
+}
+
+enum ClaimStatus {
+  DRAFT
+  SUBMITTED
+  MANAGER_APPROVED
+  FINANCE_APPROVED
+  REJECTED
+  PAID
+}
+
+enum LoanStatus {
+  APPLIED
+  APPROVED
+  ACTIVE
+  CLOSED
+  REJECTED
+}
+
+enum GoalStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  DEFERRED
+}
+
+enum ReviewStatus {
+  SELF_REVIEW
+  MANAGER_REVIEW
+  CALIBRATION
+  COMPLETED
+}
+
+enum ReviewCycle {
+  QUARTERLY
+  HALF_YEARLY
+  ANNUAL
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW_SCHEDULED
+  INTERVIEWED
+  OFFERED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum InterviewResult {
+  PENDING
+  SELECTED
+  REJECTED
+  ON_HOLD
+}
+
+enum PassType {
+  EMPLOYEE
+  VISITOR
+  CONTRACTOR
+  TEMPORARY
+}
+
+enum PassStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  SUSPENDED
+}
+
+enum VisitorStatus {
+  EXPECTED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+enum AssetRequestStatus {
+  REQUESTED
+  APPROVED
+  PROVISIONED
+  RETURNED
+  REJECTED
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ACTION_REQUIRED
+  APPROVAL
+  SYSTEM
+}
+
+enum AnnouncementPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ─── USER & AUTHENTICATION ─────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String?
+  name          String
+  image         String?
+  role          UserRole  @default(EMPLOYEE)
+  isActive      Boolean   @default(true)
+  emailVerified DateTime?
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // OAuth accounts
+  accounts Account[]
+  sessions Session[]
+
+  // Employee profile
+  employee Employee?
+
+  // Notifications
+  notifications Notification[]
+
+  // Audit trail
+  auditLogs AuditLog[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── ROLE & PERMISSION ──────────────────────────────────────────────
+
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  module      String
+  action      String
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@index([module])
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String   @id @default(cuid())
+  role         UserRole
+  permissionId String
+  createdAt    DateTime @default(now())
+
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+  @@map("role_permissions")
+}
+
+// ─── ORGANIZATION STRUCTURE ─────────────────────────────────────────
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  logo        String?
+  website     String?
+  address     String?
+  city        String?
+  state       String?
+  country     String?
+  pincode     String?
+  phone       String?
+  email       String?
+  taxId       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  departments Department[]
+  employees   Employee[]
+
+  @@map("organizations")
+}
+
+model Department {
+  id             String   @id @default(cuid())
+  name           String
+  code           String   @unique
+  description    String?
+  organizationId String
+  parentId       String?
+  headId         String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  parent       Department?   @relation("DepartmentHierarchy", fields: [parentId], references: [id])
+  children     Department[]  @relation("DepartmentHierarchy")
+  employees    Employee[]
+  jobPostings  JobPosting[]
+
+  @@index([organizationId])
+  @@index([parentId])
+  @@map("departments")
+}
+
+model Designation {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  level     Int      @default(0)
+  band      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  employees Employee[]
+
+  @@map("designations")
+}
+
+// ─── EMPLOYEE ───────────────────────────────────────────────────────
+
+model Employee {
+  id               String           @id @default(cuid())
+  employeeId       String           @unique
+  userId           String           @unique
+  organizationId   String
+  departmentId     String
+  designationId    String
+  managerId        String?
+  firstName        String
+  lastName         String
+  middleName       String?
+  dateOfBirth      DateTime?
+  gender           Gender?
+  maritalStatus    MaritalStatus?
+  phone            String?
+  personalEmail    String?
+  address          String?
+  city             String?
+  state            String?
+  country          String?
+  pincode          String?
+  dateOfJoining    DateTime
+  dateOfLeaving    DateTime?
+  probationEndDate DateTime?
+  employmentStatus EmploymentStatus @default(ACTIVE)
+  employmentType   EmploymentType   @default(FULL_TIME)
+  panNumber        String?
+  aadharNumber     String?
+  bankAccountNo    String?
+  bankName         String?
+  ifscCode         String?
+  pfNumber         String?
+  uanNumber        String?
+  esiNumber        String?
+  emergencyContact String?
+  emergencyPhone   String?
+  bloodGroup       String?
+  profilePhoto     String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
+  department   Department   @relation(fields: [departmentId], references: [id])
+  designation  Designation  @relation(fields: [designationId], references: [id])
+
+  // Self-referential manager relationship
+  manager       Employee?  @relation("ManagerReports", fields: [managerId], references: [id])
+  directReports Employee[] @relation("ManagerReports")
+
+  // Leave
+  leaveRequests LeaveRequest[]
+  leaveBalances LeaveBalance[]
+
+  // Attendance
+  attendances  Attendance[]
+  punchRecords PunchRecord[]
+
+  // Shift
+  shiftSchedules ShiftSchedule[]
+
+  // Payroll
+  payrollStructure PayrollStructure?
+  payslips         Payslip[]
+  taxDeclarations  TaxDeclaration[]
+
+  // Claims & Loans
+  claims Claim[]
+  loans  Loan[]
+
+  // Performance
+  performanceGoals PerformanceGoal[]
+  reviewsAsReviewee Review[]          @relation("ReviewReviewee")
+  reviewsAsReviewer Review[]          @relation("ReviewReviewer")
+
+  // Talent
+  applications     Application[]
+  interviewsAsInterviewer InterviewSchedule[] @relation("Interviewer")
+
+  // Security & Services
+  securityPasses SecurityPass[]
+  visitorLogs    VisitorLog[]
+  assetRequests  ITAssetRequest[]
+
+  @@index([employeeId])
+  @@index([organizationId])
+  @@index([departmentId])
+  @@index([managerId])
+  @@index([employmentStatus])
+  @@map("employees")
+}
+
+// ─── LEAVE MANAGEMENT ───────────────────────────────────────────────
+
+model LeaveType {
+  id                String   @id @default(cuid())
+  name              String
+  code              String   @unique
+  description       String?
+  defaultDays       Float    @default(0)
+  carryForwardLimit Float    @default(0)
+  isEncashable      Boolean  @default(false)
+  isPaidLeave       Boolean  @default(true)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  leaveRequests LeaveRequest[]
+  leaveBalances LeaveBalance[]
+
+  @@map("leave_types")
+}
+
+model LeaveRequest {
+  id          String      @id @default(cuid())
+  employeeId  String
+  leaveTypeId String
+  startDate   DateTime
+  endDate     DateTime
+  days        Float
+  reason      String?
+  status      LeaveStatus @default(PENDING)
+  approvedBy  String?
+  approvedAt  DateTime?
+  remarks     String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  employee  Employee  @relation(fields: [employeeId], references: [id])
+  leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([startDate, endDate])
+  @@map("leave_requests")
+}
+
+model LeaveBalance {
+  id           String   @id @default(cuid())
+  employeeId   String
+  leaveTypeId  String
+  year         Int
+  allocated    Float    @default(0)
+  used         Float    @default(0)
+  carried      Float    @default(0)
+  balance      Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  employee  Employee  @relation(fields: [employeeId], references: [id])
+  leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  @@unique([employeeId, leaveTypeId, year])
+  @@map("leave_balances")
+}
+
+// ─── ATTENDANCE ─────────────────────────────────────────────────────
+
+model Attendance {
+  id           String           @id @default(cuid())
+  employeeId   String
+  date         DateTime         @db.Date
+  status       AttendanceStatus @default(PRESENT)
+  firstPunchIn DateTime?
+  lastPunchOut DateTime?
+  totalHours   Float?
+  overtime     Float?
+  remarks      String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, date])
+  @@index([date])
+  @@index([status])
+  @@map("attendances")
+}
+
+model PunchRecord {
+  id         String    @id @default(cuid())
+  employeeId String
+  punchTime  DateTime  @default(now())
+  punchType  PunchType
+  location   String?
+  ipAddress  String?
+  deviceInfo String?
+  createdAt  DateTime  @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId, punchTime])
+  @@map("punch_records")
+}
+
+model ShiftSchedule {
+  id         String   @id @default(cuid())
+  employeeId String
+  name       String
+  startTime  String
+  endTime    String
+  breakMins  Int      @default(60)
+  effectFrom DateTime
+  effectTo   DateTime?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@map("shift_schedules")
+}
+
+// ─── PAYROLL ────────────────────────────────────────────────────────
+
+model PayrollStructure {
+  id             String       @id @default(cuid())
+  employeeId     String       @unique
+  basicSalary    Float
+  hra            Float        @default(0)
+  conveyance     Float        @default(0)
+  medicalAllow   Float        @default(0)
+  specialAllow   Float        @default(0)
+  otherAllow     Float        @default(0)
+  pfContribution Float        @default(0)
+  esiContribution Float       @default(0)
+  professionalTax Float       @default(0)
+  tds            Float        @default(0)
+  grossSalary    Float
+  netSalary      Float
+  payFrequency   PayFrequency @default(MONTHLY)
+  effectiveFrom  DateTime
+  effectiveTo    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@map("payroll_structures")
+}
+
+model Payslip {
+  id             String        @id @default(cuid())
+  employeeId     String
+  month          Int
+  year           Int
+  basicSalary    Float
+  hra            Float         @default(0)
+  conveyance     Float         @default(0)
+  medicalAllow   Float         @default(0)
+  specialAllow   Float         @default(0)
+  otherAllow     Float         @default(0)
+  otherEarnings  Float         @default(0)
+  pfDeduction    Float         @default(0)
+  esiDeduction   Float         @default(0)
+  profTax        Float         @default(0)
+  tds            Float         @default(0)
+  otherDeductions Float        @default(0)
+  lop            Float         @default(0)
+  lopDays        Int           @default(0)
+  grossEarnings  Float
+  totalDeductions Float
+  netPay         Float
+  status         PayslipStatus @default(DRAFT)
+  generatedAt    DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, month, year])
+  @@index([month, year])
+  @@map("payslips")
+}
+
+model TaxDeclaration {
+  id              String   @id @default(cuid())
+  employeeId      String
+  financialYear   String
+  regime          String   @default("NEW")
+  section80C      Float    @default(0)
+  section80D      Float    @default(0)
+  section80G      Float    @default(0)
+  section24       Float    @default(0)
+  hra             Float    @default(0)
+  lta             Float    @default(0)
+  otherDeductions Float    @default(0)
+  totalDeclared   Float    @default(0)
+  isProofSubmitted Boolean @default(false)
+  isVerified       Boolean @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, financialYear])
+  @@map("tax_declarations")
+}
+
+// ─── CLAIMS & REIMBURSEMENTS ────────────────────────────────────────
+
+model ClaimType {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  description String?
+  maxAmount   Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  claims Claim[]
+
+  @@map("claim_types")
+}
+
+model Claim {
+  id           String      @id @default(cuid())
+  employeeId   String
+  claimTypeId  String
+  amount       Float
+  description  String?
+  receiptUrl   String?
+  incurredDate DateTime
+  status       ClaimStatus @default(DRAFT)
+  approvedBy   String?
+  approvedAt   DateTime?
+  paidAt       DateTime?
+  remarks      String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  employee  Employee  @relation(fields: [employeeId], references: [id])
+  claimType ClaimType @relation(fields: [claimTypeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("claims")
+}
+
+// ─── LOANS ──────────────────────────────────────────────────────────
+
+model LoanType {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  description String?
+  maxAmount   Float?
+  maxTenure   Int?
+  interestRate Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  loans Loan[]
+
+  @@map("loan_types")
+}
+
+model Loan {
+  id             String     @id @default(cuid())
+  employeeId     String
+  loanTypeId     String
+  amount         Float
+  tenure         Int
+  emiAmount      Float
+  interestRate   Float
+  disbursedAt    DateTime?
+  startDate      DateTime?
+  endDate        DateTime?
+  outstandingAmt Float      @default(0)
+  status         LoanStatus @default(APPLIED)
+  approvedBy     String?
+  approvedAt     DateTime?
+  remarks        String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  loanType LoanType @relation(fields: [loanTypeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("loans")
+}
+
+// ─── PERFORMANCE MANAGEMENT ─────────────────────────────────────────
+
+model CompetencyFramework {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  level       Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("competency_frameworks")
+}
+
+model PerformanceGoal {
+  id          String     @id @default(cuid())
+  employeeId  String
+  title       String
+  description String?
+  weightage   Float      @default(0)
+  targetDate  DateTime?
+  status      GoalStatus @default(NOT_STARTED)
+  progress    Int        @default(0)
+  selfRating  Float?
+  mgrRating   Float?
+  cycle       ReviewCycle @default(ANNUAL)
+  year        Int
+  remarks     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([cycle, year])
+  @@map("performance_goals")
+}
+
+model Review {
+  id              String       @id @default(cuid())
+  revieweeId      String
+  reviewerId      String
+  cycle           ReviewCycle
+  year            Int
+  overallRating   Float?
+  selfRating      Float?
+  managerRating   Float?
+  status          ReviewStatus @default(SELF_REVIEW)
+  selfComments    String?
+  managerComments String?
+  promotionRec    Boolean      @default(false)
+  completedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  reviewee Employee @relation("ReviewReviewee", fields: [revieweeId], references: [id])
+  reviewer Employee @relation("ReviewReviewer", fields: [reviewerId], references: [id])
+
+  @@unique([revieweeId, cycle, year])
+  @@index([reviewerId])
+  @@map("reviews")
+}
+
+// ─── TALENT MANAGEMENT / RECRUITMENT ────────────────────────────────
+
+model JobPosting {
+  id           String   @id @default(cuid())
+  title        String
+  departmentId String
+  description  String
+  requirements String?
+  location     String?
+  positions    Int      @default(1)
+  minExp       Float?
+  maxExp       Float?
+  minSalary    Float?
+  maxSalary    Float?
+  isActive     Boolean  @default(true)
+  postedAt     DateTime @default(now())
+  closingDate  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  department   Department    @relation(fields: [departmentId], references: [id])
+  applications Application[]
+
+  @@index([departmentId])
+  @@index([isActive])
+  @@map("job_postings")
+}
+
+model Application {
+  id           String            @id @default(cuid())
+  jobPostingId String
+  candidateName String
+  email        String
+  phone        String?
+  resumeUrl    String?
+  coverLetter  String?
+  status       ApplicationStatus @default(APPLIED)
+  referredById String?
+  source       String?
+  remarks      String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  jobPosting  JobPosting          @relation(fields: [jobPostingId], references: [id])
+  referredBy  Employee?           @relation(fields: [referredById], references: [id])
+  interviews  InterviewSchedule[]
+
+  @@index([jobPostingId])
+  @@index([status])
+  @@map("applications")
+}
+
+model InterviewSchedule {
+  id            String          @id @default(cuid())
+  applicationId String
+  interviewerId String
+  scheduledAt   DateTime
+  duration      Int             @default(60)
+  round         Int             @default(1)
+  mode          String          @default("IN_PERSON")
+  location      String?
+  meetingLink   String?
+  feedback      String?
+  rating        Float?
+  result        InterviewResult @default(PENDING)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id])
+  interviewer Employee    @relation("Interviewer", fields: [interviewerId], references: [id])
+
+  @@index([applicationId])
+  @@index([interviewerId])
+  @@map("interview_schedules")
+}
+
+// ─── SECURITY SERVICES ──────────────────────────────────────────────
+
+model SecurityPass {
+  id          String     @id @default(cuid())
+  employeeId  String
+  passNumber  String     @unique
+  passType    PassType   @default(EMPLOYEE)
+  status      PassStatus @default(ACTIVE)
+  issuedAt    DateTime   @default(now())
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  remarks     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([passNumber])
+  @@map("security_passes")
+}
+
+model VisitorLog {
+  id            String        @id @default(cuid())
+  hostId        String
+  visitorName   String
+  visitorOrg    String?
+  visitorPhone  String?
+  visitorEmail  String?
+  purpose       String
+  passNumber    String?
+  checkInTime   DateTime?
+  checkOutTime  DateTime?
+  status        VisitorStatus @default(EXPECTED)
+  expectedAt    DateTime?
+  remarks       String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  host Employee @relation(fields: [hostId], references: [id])
+
+  @@index([hostId])
+  @@index([status])
+  @@map("visitor_logs")
+}
+
+model ITAssetRequest {
+  id            String             @id @default(cuid())
+  employeeId    String
+  assetType     String
+  description   String?
+  justification String?
+  status        AssetRequestStatus @default(REQUESTED)
+  approvedBy    String?
+  approvedAt    DateTime?
+  assetTag      String?
+  serialNumber  String?
+  issuedAt      DateTime?
+  returnedAt    DateTime?
+  remarks       String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+  @@index([status])
+  @@map("it_asset_requests")
+}
+
+// ─── NOTIFICATIONS & ANNOUNCEMENTS ──────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  link      String?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model Announcement {
+  id         String               @id @default(cuid())
+  title      String
+  content    String
+  priority   AnnouncementPriority @default(MEDIUM)
+  targetRole UserRole?
+  isActive   Boolean              @default(true)
+  publishAt  DateTime             @default(now())
+  expiresAt  DateTime?
+  createdBy  String?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  @@index([isActive, publishAt])
+  @@map("announcements")
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  imageUrl  String
+  link      String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  startDate DateTime @default(now())
+  endDate   DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, startDate])
+  @@map("banners")
+}
+
+// ─── AUDIT LOG ──────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  entity     String
+  entityId   String?
+  oldData    Json?
+  newData    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

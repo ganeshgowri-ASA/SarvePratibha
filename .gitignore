@@ -137,3 +137,12 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Turborepo
+.turbo
+
+# Prisma
+apps/server/prisma/migrations/
+
+# Uploads
+uploads/
