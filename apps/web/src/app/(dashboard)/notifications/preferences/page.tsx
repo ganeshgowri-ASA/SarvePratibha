@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { apiFetch } from '@/lib/api';
 import { NOTIFICATION_CATEGORIES, NOTIFICATION_CATEGORY_LABELS } from '@sarve-pratibha/shared';
@@ -235,14 +235,13 @@ export default function NotificationPreferencesPage() {
                 <span className="text-sm font-medium text-gray-900">
                   {NOTIFICATION_CATEGORY_LABELS[pref.category]}
                 </span>
-                <Select
-                  value={pref.frequency}
-                  onChange={(e) => handleFrequencyChange(pref.category, e.target.value as NotificationFrequency)}
-                  className="w-40"
-                >
-                  {FREQUENCY_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
+                <Select value={pref.frequency} onValueChange={(value) => handleFrequencyChange(pref.category, value as NotificationFrequency)}>
+                  <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {FREQUENCY_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
             ))}
