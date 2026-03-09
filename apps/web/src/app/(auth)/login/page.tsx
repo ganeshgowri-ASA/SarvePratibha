@@ -17,6 +17,13 @@ export default function LoginPage() {
   );
 }
 
+const DEMO_ACCOUNTS = [
+  { email: 'admin@sarvepratibha.com', password: 'admin123', role: 'IT Admin', color: 'bg-red-100 text-red-700 border-red-200' },
+  { email: 'sectionhead@sarvepratibha.com', password: 'sectionhead123', role: 'Section Head', color: 'bg-purple-100 text-purple-700 border-purple-200' },
+  { email: 'manager@sarvepratibha.com', password: 'manager123', role: 'Manager', color: 'bg-blue-100 text-blue-700 border-blue-200' },
+  { email: 'employee@sarvepratibha.com', password: 'employee123', role: 'Employee', color: 'bg-green-100 text-green-700 border-green-200' },
+];
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -132,13 +139,38 @@ function LoginForm() {
           </Button>
         </CardContent>
       </form>
-      <CardFooter className="justify-center">
+      <CardFooter className="flex-col gap-4">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
           <Link href="/register" className="text-teal-600 hover:underline font-medium">
             Sign up
           </Link>
         </p>
+        <div className="w-full">
+          <div className="relative mb-3">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Demo Accounts</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {DEMO_ACCOUNTS.map((account) => (
+              <button
+                key={account.email}
+                type="button"
+                className={`rounded-lg border p-2 text-left text-xs font-medium transition-colors hover:opacity-80 ${account.color}`}
+                onClick={() => {
+                  setEmail(account.email);
+                  setPassword(account.password);
+                }}
+              >
+                {account.role}
+              </button>
+            ))}
+          </div>
+        </div>
       </CardFooter>
     </Card>
   );
