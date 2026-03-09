@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { apiFetch } from '@/lib/api';
 import type { EmailLogItem, SMSLogItem, ApiResponse, PaginatedResponse } from '@sarve-pratibha/shared';
@@ -160,16 +160,15 @@ export default function NotificationLogsPage() {
             </div>
             <div>
               <Label className="text-xs text-gray-500">Status</Label>
-              <Select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-36"
-              >
-                <option value="">All</option>
-                <option value="QUEUED">Queued</option>
-                <option value="SENT">Sent</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="FAILED">Failed</option>
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
+                <SelectTrigger className="w-36"><SelectValue placeholder="All" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All</SelectItem>
+                  <SelectItem value="QUEUED">Queued</SelectItem>
+                  <SelectItem value="SENT">Sent</SelectItem>
+                  <SelectItem value="DELIVERED">Delivered</SelectItem>
+                  <SelectItem value="FAILED">Failed</SelectItem>
+                </SelectContent>
               </Select>
             </div>
           </div>

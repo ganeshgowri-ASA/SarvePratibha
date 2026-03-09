@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -193,24 +193,24 @@ export default function AdminNotificationsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Type</Label>
-                  <Select
-                    value={singleForm.type}
-                    onChange={(e) => setSingleForm((p) => ({ ...p, type: e.target.value }))}
-                  >
-                    {TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
-                    ))}
+                  <Select value={singleForm.type} onValueChange={(value) => setSingleForm((p) => ({ ...p, type: value }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {TYPES.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label>Category</Label>
-                  <Select
-                    value={singleForm.category}
-                    onChange={(e) => setSingleForm((p) => ({ ...p, category: e.target.value }))}
-                  >
-                    {CATEGORIES.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
-                    ))}
+                  <Select value={singleForm.category} onValueChange={(value) => setSingleForm((p) => ({ ...p, category: value }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -262,24 +262,24 @@ export default function AdminNotificationsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Type</Label>
-                  <Select
-                    value={bulkForm.type}
-                    onChange={(e) => setBulkForm((p) => ({ ...p, type: e.target.value }))}
-                  >
-                    {TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
-                    ))}
+                  <Select value={bulkForm.type} onValueChange={(value) => setBulkForm((p) => ({ ...p, type: value }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {TYPES.map((t) => (
+                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label>Category</Label>
-                  <Select
-                    value={bulkForm.category}
-                    onChange={(e) => setBulkForm((p) => ({ ...p, category: e.target.value }))}
-                  >
-                    {CATEGORIES.map((c) => (
-                      <option key={c.value} value={c.value}>{c.label}</option>
-                    ))}
+                  <Select value={bulkForm.category} onValueChange={(value) => setBulkForm((p) => ({ ...p, category: value }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
