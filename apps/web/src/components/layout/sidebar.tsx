@@ -29,6 +29,7 @@ import {
   Car,
   Bell,
   ShieldCheck,
+  CreditCard,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -72,6 +73,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   FileText,
   UserCheck,
   UserMinus,
+  CreditCard,
 };
 
 interface SidebarItem {
@@ -94,6 +96,7 @@ const MENU_ITEMS: SidebarItem[] = [
   { id: 'diversity', label: 'D&I', icon: 'Heart', href: '/diversity-inclusion' },
   { id: 'self-services', label: 'Self Services', icon: 'Settings', href: '/self-services' },
   { id: 'corporate', label: 'Corporate Services', icon: 'Building2', href: '/services' },
+  { id: 'corporate-ext', label: 'Cards & Trips', icon: 'CreditCard', href: '/corporate-services' },
   { id: 'security', label: 'Security Services', icon: 'Shield', href: '/security-services' },
   { id: 'performance', label: 'Performance Management', icon: 'TrendingUp', href: '/performance' },
   { id: 'travel', label: 'Travel & Guest House', icon: 'Plane', href: '/travel' },
