@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Plus, Filter, ExternalLink, Mail, Phone } from 'lucide-react';
+import { Search, Plus, ExternalLink, Mail, Phone, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ interface Candidate {
   source: string;
   skills: string[];
   location?: string;
+  matchScore?: number;
   _count: { applications: number };
   tags: { tag: string }[];
   createdAt: string;
@@ -34,26 +35,30 @@ const MOCK_CANDIDATES: Candidate[] = [
   {
     id: '1', firstName: 'Arjun', lastName: 'Mehta', email: 'arjun.mehta@email.com', phone: '+91-9876543210',
     currentCompany: 'TCS', currentTitle: 'Senior Software Engineer', totalExp: 5, source: 'LINKEDIN',
-    skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL'], location: 'Bangalore',
-    _count: { applications: 2 }, tags: [{ tag: 'frontend' }, { tag: 'fullstack' }], createdAt: '2026-02-20T00:00:00Z',
+    skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS', 'Docker'], location: 'Bangalore',
+    matchScore: 85,
+    _count: { applications: 1 }, tags: [{ tag: 'frontend' }, { tag: 'fullstack' }, { tag: 'top-talent' }], createdAt: '2026-02-20T00:00:00Z',
   },
   {
-    id: '2', firstName: 'Meera', lastName: 'Krishnan', email: 'meera.k@email.com', phone: '+91-9876543211',
-    currentCompany: 'Infosys', currentTitle: 'Product Manager', totalExp: 7, source: 'NAUKRI',
-    skills: ['Product Strategy', 'Agile', 'User Research', 'SQL'], location: 'Mumbai',
-    _count: { applications: 1 }, tags: [{ tag: 'product' }], createdAt: '2026-03-01T00:00:00Z',
+    id: '2', firstName: 'Priya', lastName: 'Sharma', email: 'priya.sharma@email.com', phone: '+91-9876543220',
+    currentCompany: 'Flipkart', currentTitle: 'Software Engineer II', totalExp: 6, source: 'NAUKRI',
+    skills: ['React', 'Node.js', 'TypeScript', 'GraphQL', 'Redis', 'Docker'], location: 'Bangalore',
+    matchScore: 72,
+    _count: { applications: 1 }, tags: [{ tag: 'fullstack' }, { tag: 'frontend' }], createdAt: '2026-02-25T00:00:00Z',
   },
   {
-    id: '3', firstName: 'Rohit', lastName: 'Verma', email: 'rohit.v@email.com',
-    currentCompany: 'Wipro', currentTitle: 'DevOps Engineer', totalExp: 4, source: 'INDEED',
-    skills: ['AWS', 'Docker', 'Kubernetes', 'Terraform'], location: 'Hyderabad',
-    _count: { applications: 1 }, tags: [{ tag: 'devops' }, { tag: 'cloud' }], createdAt: '2026-02-25T00:00:00Z',
+    id: '3', firstName: 'Vikram', lastName: 'Desai', email: 'vikram.desai@email.com', phone: '+91-9876543230',
+    currentCompany: 'Amazon', currentTitle: 'SDE-2', totalExp: 8, source: 'LINKEDIN',
+    skills: ['Java', 'Spring Boot', 'Node.js', 'PostgreSQL', 'AWS', 'Kubernetes'], location: 'Hyderabad',
+    matchScore: 55,
+    _count: { applications: 1 }, tags: [{ tag: 'backend' }, { tag: 'cloud' }], createdAt: '2026-02-18T00:00:00Z',
   },
   {
-    id: '4', firstName: 'Ananya', lastName: 'Iyer', email: 'ananya.i@email.com', phone: '+91-9876543213',
-    currentCompany: 'Accenture', currentTitle: 'UI/UX Designer', totalExp: 3, source: 'REFERRAL',
-    skills: ['Figma', 'Sketch', 'Design Systems', 'Prototyping'], location: 'Chennai',
-    _count: { applications: 1 }, tags: [{ tag: 'design' }], createdAt: '2026-03-05T00:00:00Z',
+    id: '4', firstName: 'Sneha', lastName: 'Patel', email: 'sneha.patel@email.com', phone: '+91-9876543240',
+    currentCompany: 'Razorpay', currentTitle: 'ML Engineer', totalExp: 3, source: 'CAREER_PAGE',
+    skills: ['Python', 'Django', 'TensorFlow', 'Machine Learning', 'REST APIs'], location: 'Pune',
+    matchScore: 42,
+    _count: { applications: 1 }, tags: [{ tag: 'ml-engineer' }], createdAt: '2026-03-01T00:00:00Z',
   },
   {
     id: '5', firstName: 'Karthik', lastName: 'Reddy', email: 'karthik.r@email.com', phone: '+91-9876543214',
@@ -62,6 +67,12 @@ const MOCK_CANDIDATES: Candidate[] = [
     _count: { applications: 3 }, tags: [{ tag: 'backend' }, { tag: 'fullstack' }], createdAt: '2026-01-15T00:00:00Z',
   },
 ];
+
+function getMatchScoreColor(score: number) {
+  if (score >= 80) return 'bg-green-100 text-green-800';
+  if (score >= 60) return 'bg-yellow-100 text-yellow-800';
+  return 'bg-red-100 text-red-800';
+}
 
 export default function CandidatesPage() {
   const [search, setSearch] = useState('');
@@ -141,6 +152,12 @@ export default function CandidatesPage() {
                     {candidate._count.applications > 0 && (
                       <Badge variant="secondary" className="text-xs">
                         {candidate._count.applications} application{candidate._count.applications > 1 ? 's' : ''}
+                      </Badge>
+                    )}
+                    {candidate.matchScore !== undefined && (
+                      <Badge className={`text-xs ${getMatchScoreColor(candidate.matchScore)}`}>
+                        <Target className="h-3 w-3 mr-1" />
+                        {candidate.matchScore}% Match
                       </Badge>
                     )}
                   </div>

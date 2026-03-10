@@ -10,19 +10,33 @@ import {
   Briefcase,
   Calendar,
   Star,
-  FileText,
   ExternalLink,
   Tag,
   Plus,
+  Target,
+  FileText,
+  BarChart3,
+  MessageSquare,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { SOURCE_LABELS, RECOMMENDATION_LABELS } from '@sarve-pratibha/shared';
+import { ProfileMatchScore } from '@/components/recruitment/profile-match-score';
+import { RadarChart } from '@/components/recruitment/radar-chart';
+import { ResumeHighlightsPanel } from '@/components/recruitment/resume-highlights';
+import { InterviewVsJD } from '@/components/recruitment/interview-vs-jd';
+import {
+  SENIOR_SWE_JD,
+  getCandidateComparisonData,
+} from '@/components/recruitment/jd-comparison-data';
 
-// Mock candidate data
-const MOCK_CANDIDATE = {
+// ─── Mock Candidates ──────────────────────────────────────────────
+
+const MOCK_CANDIDATES: Record<string, typeof MOCK_CANDIDATE_1> = {};
+
+const MOCK_CANDIDATE_1 = {
   id: '1',
   firstName: 'Arjun',
   lastName: 'Mehta',
@@ -35,7 +49,7 @@ const MOCK_CANDIDATE = {
   expectedSalary: 1800000,
   source: 'LINKEDIN',
   linkedinUrl: 'https://linkedin.com/in/arjunmehta',
-  skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS', 'Docker'],
+  skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS', 'Docker', 'MongoDB', 'Python', 'REST APIs', 'Git'],
   location: 'Bangalore',
   notes: 'Strong candidate with excellent communication skills. Previously worked on large-scale distributed systems.',
   tags: [{ id: '1', tag: 'frontend' }, { id: '2', tag: 'fullstack' }, { id: '3', tag: 'top-talent' }],
@@ -79,30 +93,53 @@ const MOCK_CANDIDATE = {
       ],
       offer: null,
     },
+  ],
+  talentPools: [{ talentPool: { id: 'tp1', name: 'Engineering Talent' } }],
+};
+MOCK_CANDIDATES['1'] = MOCK_CANDIDATE_1;
+
+MOCK_CANDIDATES['2'] = {
+  id: '2',
+  firstName: 'Priya',
+  lastName: 'Sharma',
+  email: 'priya.sharma@email.com',
+  phone: '+91-9876543220',
+  currentCompany: 'Flipkart',
+  currentTitle: 'Software Engineer II',
+  totalExp: 6,
+  currentSalary: 1500000,
+  expectedSalary: 2200000,
+  source: 'NAUKRI',
+  linkedinUrl: 'https://linkedin.com/in/priyasharma',
+  skills: ['React', 'Node.js', 'TypeScript', 'MySQL', 'GraphQL', 'Redis', 'Docker', 'Angular', 'REST APIs', 'Git', 'CI/CD'],
+  location: 'Bangalore',
+  notes: 'Solid full-stack developer with good GraphQL experience. Strong frontend focus.',
+  tags: [{ id: '4', tag: 'fullstack' }, { id: '5', tag: 'frontend' }],
+  applications: [
     {
-      id: 'app2',
-      stage: 'REJECTED',
-      status: 'REJECTED',
-      createdAt: '2026-01-10T00:00:00Z',
-      jobPosting: { id: 'jp2', title: 'Lead Engineer', department: { name: 'Engineering' } },
+      id: 'app3',
+      stage: 'INTERVIEW',
+      status: 'INTERVIEW_SCHEDULED',
+      createdAt: '2026-02-25T00:00:00Z',
+      jobPosting: { id: 'jp1', title: 'Senior Software Engineer', department: { name: 'Engineering' } },
       interviews: [
         {
-          id: 'int3',
-          scheduledAt: '2026-01-20T10:00:00Z',
+          id: 'int4',
+          scheduledAt: '2026-03-07T11:00:00Z',
           round: 1,
           mode: 'VIDEO',
-          result: 'REJECTED',
-          interviewer: { firstName: 'Rajesh', lastName: 'Kumar' },
+          result: 'SELECTED',
+          interviewer: { firstName: 'Vikram', lastName: 'Singh' },
           feedbacks: [
             {
-              technicalRating: 3,
+              technicalRating: 4,
               communicationRating: 4,
-              cultureFitRating: 4,
-              overallRating: 3.5,
-              recommendation: 'NO_HIRE',
-              strengths: 'Good communication skills',
-              weaknesses: 'Not enough experience for lead role',
-              comments: 'Good fit for senior role but not lead.',
+              cultureFitRating: 3,
+              overallRating: 3.7,
+              recommendation: 'HIRE',
+              strengths: 'Good React and frontend skills, GraphQL experience',
+              weaknesses: 'Needs improvement in system design and SQL databases',
+              comments: 'Solid candidate, can grow into the role.',
             },
           ],
         },
@@ -110,8 +147,114 @@ const MOCK_CANDIDATE = {
       offer: null,
     },
   ],
-  talentPools: [{ talentPool: { id: 'tp1', name: 'Engineering Talent' } }],
+  talentPools: [],
 };
+
+MOCK_CANDIDATES['3'] = {
+  id: '3',
+  firstName: 'Vikram',
+  lastName: 'Desai',
+  email: 'vikram.desai@email.com',
+  phone: '+91-9876543230',
+  currentCompany: 'Amazon',
+  currentTitle: 'SDE-2',
+  totalExp: 8,
+  currentSalary: 2500000,
+  expectedSalary: 3500000,
+  source: 'LINKEDIN',
+  linkedinUrl: 'https://linkedin.com/in/vikramdesai',
+  skills: ['Java', 'Spring Boot', 'Node.js', 'PostgreSQL', 'AWS', 'Docker', 'Kubernetes', 'Kafka', 'Redis', 'REST APIs', 'Git', 'CI/CD'],
+  location: 'Hyderabad',
+  notes: 'Backend-heavy profile but extremely strong in distributed systems and cloud infra.',
+  tags: [{ id: '6', tag: 'backend' }, { id: '7', tag: 'cloud' }],
+  applications: [
+    {
+      id: 'app4',
+      stage: 'INTERVIEW',
+      status: 'INTERVIEW_COMPLETED',
+      createdAt: '2026-02-18T00:00:00Z',
+      jobPosting: { id: 'jp1', title: 'Senior Software Engineer', department: { name: 'Engineering' } },
+      interviews: [
+        {
+          id: 'int5',
+          scheduledAt: '2026-03-01T10:00:00Z',
+          round: 1,
+          mode: 'VIDEO',
+          result: 'SELECTED',
+          interviewer: { firstName: 'Rajesh', lastName: 'Kumar' },
+          feedbacks: [
+            {
+              technicalRating: 4,
+              communicationRating: 3,
+              cultureFitRating: 3,
+              overallRating: 3.5,
+              recommendation: 'HIRE',
+              strengths: 'Excellent backend and system design skills, strong AWS knowledge',
+              weaknesses: 'No frontend (React) experience, communication could be better',
+              comments: 'Great for backend role but this position needs full-stack.',
+            },
+          ],
+        },
+      ],
+      offer: null,
+    },
+  ],
+  talentPools: [{ talentPool: { id: 'tp2', name: 'Backend Specialists' } }],
+};
+
+MOCK_CANDIDATES['4'] = {
+  id: '4',
+  firstName: 'Sneha',
+  lastName: 'Patel',
+  email: 'sneha.patel@email.com',
+  phone: '+91-9876543240',
+  currentCompany: 'Razorpay',
+  currentTitle: 'ML Engineer',
+  totalExp: 3,
+  currentSalary: 1800000,
+  expectedSalary: 2400000,
+  source: 'CAREER_PAGE',
+  linkedinUrl: 'https://linkedin.com/in/snehapatel',
+  skills: ['Python', 'Django', 'TensorFlow', 'PyTorch', 'Machine Learning', 'REST APIs', 'SQL', 'Git', 'Pandas', 'NumPy'],
+  location: 'Pune',
+  notes: 'ML background with strong academics. Misaligned with SWE role requirements.',
+  tags: [{ id: '8', tag: 'ml-engineer' }],
+  applications: [
+    {
+      id: 'app5',
+      stage: 'INTERVIEW',
+      status: 'INTERVIEW_COMPLETED',
+      createdAt: '2026-03-01T00:00:00Z',
+      jobPosting: { id: 'jp1', title: 'Senior Software Engineer', department: { name: 'Engineering' } },
+      interviews: [
+        {
+          id: 'int6',
+          scheduledAt: '2026-03-08T14:00:00Z',
+          round: 1,
+          mode: 'VIDEO',
+          result: 'REJECTED',
+          interviewer: { firstName: 'Vikram', lastName: 'Singh' },
+          feedbacks: [
+            {
+              technicalRating: 2,
+              communicationRating: 4,
+              cultureFitRating: 4,
+              overallRating: 3.0,
+              recommendation: 'NO_HIRE',
+              strengths: 'Excellent academics, strong problem-solving ability, good communication',
+              weaknesses: 'No React/Node.js/TypeScript experience, insufficient web dev background',
+              comments: 'Not suitable for this SWE role. Would be great for ML Engineer position.',
+            },
+          ],
+        },
+      ],
+      offer: null,
+    },
+  ],
+  talentPools: [],
+};
+
+// ─── Helper Components ────────────────────────────────────────────
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -139,8 +282,13 @@ function getStageBadgeColor(stage: string) {
   return map[stage] || 'bg-gray-100 text-gray-800';
 }
 
-export default function CandidateProfilePage() {
-  const candidate = MOCK_CANDIDATE;
+// ─── Main Page ────────────────────────────────────────────────────
+
+export default function CandidateProfilePage({ params }: { params: { id: string } }) {
+  const candidateId = params.id;
+  const candidate = MOCK_CANDIDATES[candidateId] || MOCK_CANDIDATES['1'];
+  const comparisonData = getCandidateComparisonData(candidateId);
+  const [activeTab, setActiveTab] = useState('profile-match');
 
   return (
     <div className="space-y-6">
@@ -152,6 +300,18 @@ export default function CandidateProfilePage() {
             Back
           </Button>
         </Link>
+        <div className="flex-1" />
+        {/* Quick Match Badge */}
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
+          comparisonData.comparison.overallMatchScore >= 80
+            ? 'bg-green-100 text-green-800'
+            : comparisonData.comparison.overallMatchScore >= 60
+            ? 'bg-yellow-100 text-yellow-800'
+            : 'bg-red-100 text-red-800'
+        }`}>
+          <Target className="h-4 w-4" />
+          {comparisonData.comparison.overallMatchScore}% JD Match
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -208,12 +368,12 @@ export default function CandidateProfilePage() {
                 <div className="border-t mt-4 pt-4 grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-xs text-gray-400">Current CTC</p>
-                    <p className="font-medium">₹{(candidate.currentSalary / 100000).toFixed(1)}L</p>
+                    <p className="font-medium">&#8377;{(candidate.currentSalary / 100000).toFixed(1)}L</p>
                   </div>
                   {candidate.expectedSalary && (
                     <div>
                       <p className="text-xs text-gray-400">Expected CTC</p>
-                      <p className="font-medium">₹{(candidate.expectedSalary / 100000).toFixed(1)}L</p>
+                      <p className="font-medium">&#8377;{(candidate.expectedSalary / 100000).toFixed(1)}L</p>
                     </div>
                   )}
                 </div>
@@ -228,12 +388,25 @@ export default function CandidateProfilePage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-1.5">
-                {candidate.skills.map((skill) => (
-                  <span key={skill} className="px-2.5 py-1 rounded-full text-xs bg-teal-50 text-teal-700 border border-teal-200">
-                    {skill}
-                  </span>
-                ))}
+                {candidate.skills.map((skill) => {
+                  const isJDMatch = comparisonData.resume.jdMatchedKeywords.some(
+                    (k) => k.toLowerCase() === skill.toLowerCase()
+                  );
+                  return (
+                    <span
+                      key={skill}
+                      className={`px-2.5 py-1 rounded-full text-xs border ${
+                        isJDMatch
+                          ? 'bg-teal-50 text-teal-700 border-teal-200 font-medium'
+                          : 'bg-gray-50 text-gray-600 border-gray-200'
+                      }`}
+                    >
+                      {skill}
+                    </span>
+                  );
+                })}
               </div>
+              <p className="text-[10px] text-gray-400 mt-2">Highlighted skills match JD requirements</p>
             </CardContent>
           </Card>
 
@@ -274,14 +447,53 @@ export default function CandidateProfilePage() {
           )}
         </div>
 
-        {/* Right: Applications & Interview History */}
+        {/* Right: Tabbed Content */}
         <div className="lg:col-span-2">
-          <Tabs defaultValue="applications">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="bg-gray-100">
-              <TabsTrigger value="applications">Applications ({candidate.applications.length})</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
+              <TabsTrigger value="profile-match" className="text-xs sm:text-sm">
+                <Target className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+                Profile Match
+              </TabsTrigger>
+              <TabsTrigger value="resume" className="text-xs sm:text-sm">
+                <FileText className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+                Resume
+              </TabsTrigger>
+              <TabsTrigger value="interview-jd" className="text-xs sm:text-sm">
+                <BarChart3 className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+                Interview vs JD
+              </TabsTrigger>
+              <TabsTrigger value="applications" className="text-xs sm:text-sm">
+                <MessageSquare className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+                Applications ({candidate.applications.length})
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="text-xs sm:text-sm">
+                Notes
+              </TabsTrigger>
             </TabsList>
 
+            {/* Profile Match Tab */}
+            <TabsContent value="profile-match" className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <ProfileMatchScore jd={SENIOR_SWE_JD} comparison={comparisonData.comparison} />
+                <RadarChart data={comparisonData.comparison.radarData} />
+              </div>
+            </TabsContent>
+
+            {/* Resume Highlights Tab */}
+            <TabsContent value="resume" className="mt-4">
+              <ResumeHighlightsPanel resume={comparisonData.resume} />
+            </TabsContent>
+
+            {/* Interview vs JD Tab */}
+            <TabsContent value="interview-jd" className="mt-4">
+              <InterviewVsJD
+                assessments={comparisonData.interviewVsJD}
+                recommendation={comparisonData.recommendation}
+              />
+            </TabsContent>
+
+            {/* Applications Tab */}
             <TabsContent value="applications" className="space-y-4 mt-4">
               {candidate.applications.map((app) => (
                 <Card key={app.id}>
