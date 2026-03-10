@@ -32,53 +32,23 @@ import {
   Video,
   Plus,
   Clock,
-  CheckCircle,
   Users,
-  Eye,
-  CalendarDays,
+  History,
+  UserCheck,
+  LogOut,
 } from 'lucide-react';
-
-const VISITORS = [
-  { id: '1', name: 'Amit Verma', company: 'TCS', host: 'Rajesh Kumar', purpose: 'Business Meeting', checkIn: '10 Mar 2026, 09:30', checkOut: '10 Mar 2026, 11:00', status: 'CHECKED_OUT', badge: 'V-1042' },
-  { id: '2', name: 'Sneha Reddy', company: 'Infosys', host: 'Priya Patel', purpose: 'Interview', checkIn: '10 Mar 2026, 10:00', checkOut: null, status: 'CHECKED_IN', badge: 'V-1043' },
-  { id: '3', name: 'Ravi Shankar', company: 'Wipro', host: 'Suresh Menon', purpose: 'Vendor Discussion', checkIn: '10 Mar 2026, 14:00', checkOut: null, status: 'EXPECTED', badge: 'V-1044' },
-  { id: '4', name: 'Deepa Nair', company: 'HCL', host: 'Anita Singh', purpose: 'Training', checkIn: '9 Mar 2026, 09:00', checkOut: '9 Mar 2026, 17:30', status: 'CHECKED_OUT', badge: 'V-1041' },
-];
-
-const ACCESS_CARDS = [
-  { id: '1', employee: 'You', cardNumber: 'AC-5678', zones: ['Main Building', 'Lab', 'Parking'], status: 'ACTIVE', validUntil: '31 Dec 2026' },
-];
-
-const PARKING_SLOTS = [
-  { id: '1', slot: 'P-234', zone: 'Basement 1', vehicle: 'KA-01-AB-1234', type: 'Car', status: 'ALLOCATED', validUntil: '31 Mar 2026' },
-];
-
-const EMERGENCY_CONTACTS = [
-  { id: '1', name: 'Security Control Room', phone: '080-1234-5678', ext: '100', available: '24/7' },
-  { id: '2', name: 'Fire Emergency', phone: '101', ext: '101', available: '24/7' },
-  { id: '3', name: 'Medical Emergency', phone: '108', ext: '108', available: '24/7' },
-  { id: '4', name: 'Police', phone: '100', ext: null, available: '24/7' },
-  { id: '5', name: 'Facility Manager', phone: '080-1234-5680', ext: '200', available: '9 AM - 6 PM' },
-  { id: '6', name: 'IT Helpdesk', phone: '080-1234-5681', ext: '300', available: '9 AM - 9 PM' },
-];
-
-const INCIDENTS = [
-  { id: '1', type: 'Unauthorized Access', location: 'Server Room - Block B', reportedBy: 'Security Team', date: '8 Mar 2026', status: 'INVESTIGATING', priority: 'HIGH' },
-  { id: '2', type: 'Fire Alarm Drill', location: 'Main Building', reportedBy: 'Admin', date: '5 Mar 2026', status: 'RESOLVED', priority: 'MEDIUM' },
-  { id: '3', type: 'Tailgating Incident', location: 'Main Entrance', reportedBy: 'Guard', date: '3 Mar 2026', status: 'RESOLVED', priority: 'LOW' },
-];
-
-const CCTV_REQUESTS = [
-  { id: '1', location: 'Parking Lot - Gate 2', dateRange: '5 Mar - 5 Mar 2026', reason: 'Vehicle damage investigation', status: 'APPROVED', requestedBy: 'You' },
-  { id: '2', location: 'Floor 3 - Corridor', dateRange: '7 Mar - 7 Mar 2026', reason: 'Lost property', status: 'PENDING', requestedBy: 'You' },
-];
-
-const VISITOR_STATUS_STYLES: Record<string, string> = {
-  CHECKED_IN: 'bg-green-100 text-green-700',
-  CHECKED_OUT: 'bg-gray-100 text-gray-700',
-  EXPECTED: 'bg-blue-100 text-blue-700',
-  CANCELLED: 'bg-red-100 text-red-700',
-};
+import { VisitorRegistrationForm } from './components/visitor-registration-form';
+import { IdCardIssuance } from './components/id-card-issuance';
+import { VisitorLogDashboard } from './components/visitor-log-dashboard';
+import { GatePassHistory } from './components/gate-pass-history';
+import {
+  ACCESS_CARDS,
+  PARKING_SLOTS,
+  EMERGENCY_CONTACTS,
+  INCIDENTS,
+  CCTV_REQUESTS,
+  VISITORS_DATA,
+} from './components/demo-data';
 
 const INCIDENT_STATUS_STYLES: Record<string, string> = {
   REPORTED: 'bg-blue-100 text-blue-700',
@@ -99,20 +69,25 @@ export default function SecurityServicesPage() {
   const [incidentDialogOpen, setIncidentDialogOpen] = useState(false);
   const [cctvDialogOpen, setCctvDialogOpen] = useState(false);
 
+  const currentlyIn = VISITORS_DATA.filter((v) => v.status === 'CHECKED_IN').length;
+  const totalToday = VISITORS_DATA.filter((v) => v.createdAt.includes('10 Mar 2026')).length;
+  const expected = VISITORS_DATA.filter((v) => v.status === 'EXPECTED').length;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Security Services</h1>
-          <p className="text-sm text-gray-500">Visitor management, access control, and security operations</p>
+          <p className="text-sm text-gray-500">Visitor management, entry passes, access control, and security operations</p>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {[
-          { label: 'Visitors Today', value: '3', icon: Users, color: 'text-teal-600 bg-teal-50' },
-          { label: 'Active Access Cards', value: '1', icon: CreditCard, color: 'text-blue-600 bg-blue-50' },
+          { label: 'Currently In', value: String(currentlyIn), icon: UserCheck, color: 'text-green-600 bg-green-50' },
+          { label: 'Total Today', value: String(totalToday), icon: Users, color: 'text-teal-600 bg-teal-50' },
+          { label: 'Expected', value: String(expected), icon: Clock, color: 'text-blue-600 bg-blue-50' },
           { label: 'Open Incidents', value: '1', icon: AlertTriangle, color: 'text-orange-600 bg-orange-50' },
           { label: 'CCTV Requests', value: '1', icon: Video, color: 'text-purple-600 bg-purple-50' },
         ].map((stat) => (
@@ -132,123 +107,120 @@ export default function SecurityServicesPage() {
         ))}
       </div>
 
-      <Tabs defaultValue="visitors">
-        <TabsList>
-          <TabsTrigger value="visitors">Visitor Management</TabsTrigger>
+      <Tabs defaultValue="visitor-pass">
+        <TabsList className="flex-wrap">
+          <TabsTrigger value="visitor-pass">
+            <UserPlus size={14} className="mr-1.5" /> Visitor Entry Pass
+          </TabsTrigger>
+          <TabsTrigger value="id-cards">
+            <CreditCard size={14} className="mr-1.5" /> ID Card Issuance
+          </TabsTrigger>
+          <TabsTrigger value="visitor-log">
+            <Users size={14} className="mr-1.5" /> Visitor Log
+          </TabsTrigger>
+          <TabsTrigger value="gate-history">
+            <History size={14} className="mr-1.5" /> Gate Pass History
+          </TabsTrigger>
           <TabsTrigger value="access">Access Cards</TabsTrigger>
           <TabsTrigger value="parking">Parking</TabsTrigger>
-          <TabsTrigger value="emergency">Emergency Contacts</TabsTrigger>
+          <TabsTrigger value="emergency">Emergency</TabsTrigger>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="cctv">CCTV Access</TabsTrigger>
+          <TabsTrigger value="cctv">CCTV</TabsTrigger>
         </TabsList>
 
-        {/* Visitors Tab */}
-        <TabsContent value="visitors">
+        {/* Visitor Entry Pass Tab */}
+        <TabsContent value="visitor-pass">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base flex items-center gap-2">
                   <UserPlus size={18} className="text-teal-600" />
-                  Visitor Log
+                  Visitor Entry Pass Registration
                 </CardTitle>
-                <Dialog open={visitorDialogOpen} onOpenChange={setVisitorDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-teal-600 hover:bg-teal-700">
-                      <Plus size={16} className="mr-2" /> Register Visitor
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Register Visitor</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Visitor Name</Label>
-                          <Input placeholder="Full name" />
-                        </div>
-                        <div>
-                          <Label>Company</Label>
-                          <Input placeholder="Company name" />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Phone</Label>
-                          <Input placeholder="Mobile number" />
-                        </div>
-                        <div>
-                          <Label>Email</Label>
-                          <Input type="email" placeholder="Email address" />
-                        </div>
-                      </div>
-                      <div>
-                        <Label>Purpose of Visit</Label>
-                        <Select>
-                          <SelectTrigger><SelectValue placeholder="Select purpose" /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="meeting">Business Meeting</SelectItem>
-                            <SelectItem value="interview">Interview</SelectItem>
-                            <SelectItem value="vendor">Vendor Visit</SelectItem>
-                            <SelectItem value="delivery">Delivery</SelectItem>
-                            <SelectItem value="personal">Personal</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label>Expected Date</Label>
-                          <Input type="date" />
-                        </div>
-                        <div>
-                          <Label>Expected Time</Label>
-                          <Input type="time" />
-                        </div>
-                      </div>
-                      <div>
-                        <Label>Additional Notes</Label>
-                        <Textarea placeholder="Any special requirements or notes..." />
-                      </div>
-                      <Button className="w-full bg-teal-600 hover:bg-teal-700">Register Visitor</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <VisitorRegistrationForm open={visitorDialogOpen} onOpenChange={setVisitorDialogOpen} />
               </div>
+              <p className="text-sm text-gray-500 mt-1">
+                Register new visitors with comprehensive details including ID verification, material declaration, and area access.
+              </p>
             </CardHeader>
             <CardContent>
-              <div className="divide-y">
-                {VISITORS.map((visitor) => (
-                  <div key={visitor.id} className="flex items-center justify-between py-4">
+              {/* Quick overview of recent registrations */}
+              <div className="space-y-3">
+                {VISITORS_DATA.slice(0, 4).map((visitor) => (
+                  <div key={visitor.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-start gap-3">
-                      <div className={`p-1.5 rounded-full ${
-                        visitor.status === 'CHECKED_IN' ? 'bg-green-100' :
-                        visitor.status === 'EXPECTED' ? 'bg-blue-100' : 'bg-gray-100'
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        visitor.visitorType === 'relative' ? 'bg-blue-100' : 'bg-red-100'
                       }`}>
-                        <Eye size={16} className={
-                          visitor.status === 'CHECKED_IN' ? 'text-green-600' :
-                          visitor.status === 'EXPECTED' ? 'text-blue-600' : 'text-gray-600'
+                        <UserPlus size={16} className={
+                          visitor.visitorType === 'relative' ? 'text-blue-600' : 'text-red-600'
                         } />
                       </div>
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900">{visitor.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-gray-900">{visitor.name}</p>
+                          <Badge className={visitor.visitorType === 'relative' ? 'bg-blue-100 text-blue-700 text-[10px]' : 'bg-red-100 text-red-700 text-[10px]'}>
+                            {visitor.visitorType === 'relative' ? 'Relative' : 'External'}
+                          </Badge>
+                        </div>
                         <p className="text-xs text-gray-500">
-                          {visitor.company} &middot; Host: {visitor.host} &middot; {visitor.purpose}
+                          {visitor.company} &middot; Purpose: {visitor.purpose} &middot; Host: {visitor.hostEmployee}
                         </p>
                         <p className="text-xs text-gray-500">
-                          Badge: {visitor.badge} &middot; In: {visitor.checkIn}
-                          {visitor.checkOut && <> &middot; Out: {visitor.checkOut}</>}
+                          Pass: <span className="font-mono font-medium text-teal-700">{visitor.passId}</span> &middot;
+                          Area: {visitor.area.building}, {visitor.area.floor} Floor, Wing {visitor.area.wing}
                         </p>
+                        {visitor.materials.length > 0 && (
+                          <p className="text-xs text-gray-400">
+                            Materials: {visitor.materials.map((m) => m.type).join(', ')}
+                          </p>
+                        )}
+                        {visitor.vehicle && (
+                          <p className="text-xs text-gray-400">
+                            Vehicle: {visitor.vehicle.type} — {visitor.vehicle.number}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    <Badge className={VISITOR_STATUS_STYLES[visitor.status] || ''}>
-                      {visitor.status.replace(/_/g, ' ')}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge className={
+                        visitor.approvalStatus === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                        visitor.approvalStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
+                      }>
+                        {visitor.approvalStatus}
+                      </Badge>
+                      <Badge className={
+                        visitor.status === 'CHECKED_IN' ? 'bg-green-100 text-green-700' :
+                        visitor.status === 'EXPECTED' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700'
+                      }>
+                        {visitor.status.replace(/_/g, ' ')}
+                      </Badge>
+                      <span className="text-[10px] text-gray-400">
+                        Registered: {visitor.createdAt}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ID Card Issuance Tab */}
+        <TabsContent value="id-cards">
+          <IdCardIssuance />
+        </TabsContent>
+
+        {/* Visitor Log Dashboard Tab */}
+        <TabsContent value="visitor-log">
+          <VisitorLogDashboard />
+        </TabsContent>
+
+        {/* Gate Pass History Tab */}
+        <TabsContent value="gate-history">
+          <GatePassHistory />
         </TabsContent>
 
         {/* Access Cards Tab */}
