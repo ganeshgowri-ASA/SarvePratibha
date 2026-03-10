@@ -19,6 +19,8 @@ import {
   CheckCircle2,
   Clock,
   ArrowLeft,
+  Heart,
+  Award,
 } from 'lucide-react';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -32,6 +34,16 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   BUSINESS: Briefcase,
   LEARNING: BookOpen,
   DEVELOPMENT: Lightbulb,
+  BEHAVIOURAL: Heart,
+  COMPETENCY: Award,
+};
+
+const CATEGORY_BADGE_STYLES: Record<string, string> = {
+  BUSINESS: 'bg-green-100 text-green-700 border-green-200',
+  LEARNING: 'bg-purple-100 text-purple-700 border-purple-200',
+  DEVELOPMENT: 'bg-teal-100 text-teal-700 border-teal-200',
+  BEHAVIOURAL: 'bg-orange-100 text-orange-700 border-orange-200',
+  COMPETENCY: 'bg-blue-100 text-blue-700 border-blue-200',
 };
 
 const SAMPLE_GOALS = [
@@ -40,6 +52,10 @@ const SAMPLE_GOALS = [
   { id: '3', title: 'Reduce deployment time by 40%', description: 'Optimize CI/CD pipeline', category: 'BUSINESS', weightage: 25, progress: 100, status: 'COMPLETED', targetDate: '2025-12-31', isApproved: true, kpis: [{ title: 'Deploy time', target: '< 10min', actual: '8min', unit: 'minutes' }] },
   { id: '4', title: 'Complete AWS certification', description: 'AWS Solutions Architect Associate', category: 'LEARNING', weightage: 15, progress: 20, status: 'IN_PROGRESS', targetDate: '2026-06-30', isApproved: false, kpis: [] },
   { id: '5', title: 'Improve test coverage to 80%', description: 'Add unit and integration tests', category: 'BUSINESS', weightage: 10, progress: 0, status: 'NOT_STARTED', targetDate: '2026-03-31', isApproved: true, kpis: [{ title: 'Coverage', target: '80%', actual: '62%', unit: '%' }] },
+  { id: '6', title: 'Improve cross-team collaboration', description: 'Enhance communication and teamwork across departments through regular sync-ups and shared documentation', category: 'BEHAVIOURAL', weightage: 15, progress: 60, status: 'IN_PROGRESS', targetDate: '2026-06-30', isApproved: true, kpis: [{ title: 'Cross-team projects', target: '4', actual: '2', unit: 'projects' }] },
+  { id: '7', title: 'Develop leadership skills through mentoring', description: 'Mentor junior team members and lead knowledge-sharing sessions to build leadership capabilities', category: 'BEHAVIOURAL', weightage: 10, progress: 40, status: 'IN_PROGRESS', targetDate: '2026-06-30', isApproved: true, kpis: [{ title: 'Mentoring sessions', target: '12', actual: '5', unit: 'sessions' }] },
+  { id: '8', title: 'AWS Solutions Architect certification', description: 'Complete AWS Solutions Architect Professional certification to deepen cloud infrastructure expertise', category: 'COMPETENCY', weightage: 20, progress: 80, status: 'IN_PROGRESS', targetDate: '2026-04-30', isApproved: true, kpis: [{ title: 'Practice exams passed', target: '5', actual: '4', unit: 'exams' }] },
+  { id: '9', title: 'Master React performance optimization', description: 'Learn and apply advanced React patterns including memoization, code splitting, and virtual DOM optimization', category: 'COMPETENCY', weightage: 15, progress: 50, status: 'IN_PROGRESS', targetDate: '2026-06-30', isApproved: true, kpis: [{ title: 'Performance improvements', target: '10', actual: '5', unit: 'optimizations' }] },
 ];
 
 export default function GoalsPage() {
@@ -122,16 +138,19 @@ export default function GoalsPage() {
 
       {/* Filter Tabs */}
       <Tabs value={filter} onValueChange={setFilter}>
-        <TabsList>
-          <TabsTrigger value="all">All ({SAMPLE_GOALS.length})</TabsTrigger>
+        <TabsList className="flex-wrap h-auto gap-1">
+          <TabsTrigger value="all">All <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{SAMPLE_GOALS.length}</Badge></TabsTrigger>
           <TabsTrigger value="BUSINESS">
-            <Briefcase size={14} className="mr-1" /> Business
-          </TabsTrigger>
-          <TabsTrigger value="LEARNING">
-            <BookOpen size={14} className="mr-1" /> Learning
+            <Briefcase size={14} className="mr-1" /> Business <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{SAMPLE_GOALS.filter(g => g.category === 'BUSINESS').length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="DEVELOPMENT">
-            <Lightbulb size={14} className="mr-1" /> Development
+            <Lightbulb size={14} className="mr-1" /> Development <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{SAMPLE_GOALS.filter(g => g.category === 'DEVELOPMENT').length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="BEHAVIOURAL">
+            <Heart size={14} className="mr-1" /> Behavioural <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{SAMPLE_GOALS.filter(g => g.category === 'BEHAVIOURAL').length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="COMPETENCY">
+            <Award size={14} className="mr-1" /> Competency <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{SAMPLE_GOALS.filter(g => g.category === 'COMPETENCY').length}</Badge>
           </TabsTrigger>
         </TabsList>
 
@@ -159,7 +178,7 @@ export default function GoalsPage() {
                           <span className="flex items-center gap-1">
                             <Calendar size={12} /> {new Date(goal.targetDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </span>
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          <Badge className={`text-[10px] px-1.5 py-0 ${CATEGORY_BADGE_STYLES[goal.category] || ''}`}>
                             {goal.category}
                           </Badge>
                         </div>

@@ -26,12 +26,24 @@ const STATUS_STYLES: Record<string, string> = {
   DEFERRED: 'bg-yellow-100 text-yellow-700',
 };
 
+const CATEGORY_BADGE_STYLES: Record<string, string> = {
+  BUSINESS: 'bg-green-100 text-green-700 border-green-200',
+  LEARNING: 'bg-purple-100 text-purple-700 border-purple-200',
+  DEVELOPMENT: 'bg-teal-100 text-teal-700 border-teal-200',
+  BEHAVIOURAL: 'bg-orange-100 text-orange-700 border-orange-200',
+  COMPETENCY: 'bg-blue-100 text-blue-700 border-blue-200',
+};
+
 const SAMPLE_GOALS = [
   { title: 'Complete API migration', weightage: 30, progress: 75, status: 'IN_PROGRESS', category: 'BUSINESS' },
   { title: 'Mentor 2 junior developers', weightage: 20, progress: 50, status: 'IN_PROGRESS', category: 'DEVELOPMENT' },
   { title: 'Reduce deployment time by 40%', weightage: 25, progress: 100, status: 'COMPLETED', category: 'BUSINESS' },
   { title: 'Complete AWS certification', weightage: 15, progress: 20, status: 'IN_PROGRESS', category: 'LEARNING' },
   { title: 'Improve test coverage to 80%', weightage: 10, progress: 0, status: 'NOT_STARTED', category: 'BUSINESS' },
+  { title: 'Improve cross-team collaboration', weightage: 15, progress: 60, status: 'IN_PROGRESS', category: 'BEHAVIOURAL' },
+  { title: 'Develop leadership skills through mentoring', weightage: 10, progress: 40, status: 'IN_PROGRESS', category: 'BEHAVIOURAL' },
+  { title: 'AWS Solutions Architect certification', weightage: 20, progress: 80, status: 'IN_PROGRESS', category: 'COMPETENCY' },
+  { title: 'Master React performance optimization', weightage: 15, progress: 50, status: 'IN_PROGRESS', category: 'COMPETENCY' },
 ];
 
 interface QuickAction {
@@ -167,7 +179,7 @@ export default function PerformancePage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-gray-900">{goal.title}</p>
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                      <Badge className={`text-[10px] px-1.5 py-0 ${CATEGORY_BADGE_STYLES[goal.category] || ''}`}>
                         {goal.category}
                       </Badge>
                     </div>

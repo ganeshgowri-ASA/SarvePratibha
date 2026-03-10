@@ -16,6 +16,9 @@ import {
   Send,
   ChevronDown,
   ChevronUp,
+  Heart,
+  Award,
+  BarChart3,
 } from 'lucide-react';
 
 const RATING_LABELS: Record<number, string> = {
@@ -75,6 +78,23 @@ export default function SelfAssessmentPage() {
   );
   const [expandedKra, setExpandedKra] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Separate assessment ratings
+  const [goalAchievementRating, setGoalAchievementRating] = useState(0);
+  const [behaviouralRating, setBehaviouralRating] = useState(0);
+  const [technicalRating, setTechnicalRating] = useState(0);
+
+  // Weighted score calculation (Goal: 50%, Behavioural: 25%, Technical: 25%)
+  const assessmentWeights = { goal: 50, behavioural: 25, technical: 25 };
+  const weightedScore =
+    goalAchievementRating > 0 && behaviouralRating > 0 && technicalRating > 0
+      ? (
+          (goalAchievementRating * assessmentWeights.goal +
+            behaviouralRating * assessmentWeights.behavioural +
+            technicalRating * assessmentWeights.technical) /
+          100
+        ).toFixed(2)
+      : null;
 
   const isFormValid =
     overallRating > 0 &&
@@ -235,6 +255,78 @@ export default function SelfAssessmentPage() {
                 />
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Assessment Rating Scales */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <BarChart3 size={18} className="text-teal-600" />
+            Assessment Rating Scales
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Goal Achievement */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Target size={16} className="text-green-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Goal Achievement</p>
+                  <p className="text-[10px] text-gray-500">Weight: {assessmentWeights.goal}%</p>
+                </div>
+              </div>
+              <RatingStars value={goalAchievementRating} onChange={setGoalAchievementRating} />
+            </div>
+
+            {/* Behavioural Competencies */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Heart size={16} className="text-orange-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Behavioural Competencies</p>
+                  <p className="text-[10px] text-gray-500">Weight: {assessmentWeights.behavioural}%</p>
+                </div>
+              </div>
+              <RatingStars value={behaviouralRating} onChange={setBehaviouralRating} />
+              <p className="text-[10px] text-gray-400">Teamwork, communication, leadership, adaptability</p>
+            </div>
+
+            {/* Technical Competencies */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Award size={16} className="text-blue-600" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Technical Competencies</p>
+                  <p className="text-[10px] text-gray-500">Weight: {assessmentWeights.technical}%</p>
+                </div>
+              </div>
+              <RatingStars value={technicalRating} onChange={setTechnicalRating} />
+              <p className="text-[10px] text-gray-400">Domain expertise, certifications, tools proficiency</p>
+            </div>
+          </div>
+
+          {/* Weighted Score */}
+          <Separator />
+          <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+            <div>
+              <p className="text-sm font-medium text-gray-900">Overall Weighted Score</p>
+              <p className="text-xs text-gray-500">
+                Goal ({assessmentWeights.goal}%) + Behavioural ({assessmentWeights.behavioural}%) + Technical ({assessmentWeights.technical}%)
+              </p>
+            </div>
+            <div className="text-right">
+              {weightedScore ? (
+                <div>
+                  <p className="text-2xl font-bold text-teal-600">{weightedScore}</p>
+                  <p className="text-xs text-gray-500">out of 5.00</p>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-400">Rate all scales to see score</p>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

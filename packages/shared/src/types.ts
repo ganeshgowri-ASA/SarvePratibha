@@ -713,7 +713,7 @@ export interface PeopleSearchResult {
 // ─── Performance Management ─────────────────────────────────────────
 
 export type GoalStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'DEFERRED';
-export type GoalCategory = 'BUSINESS' | 'LEARNING' | 'DEVELOPMENT';
+export type GoalCategory = 'BUSINESS' | 'LEARNING' | 'DEVELOPMENT' | 'BEHAVIOURAL' | 'COMPETENCY';
 export type ReviewCycleType = 'QUARTERLY' | 'HALF_YEARLY' | 'ANNUAL';
 export type ReviewStatusType = 'SELF_REVIEW' | 'MANAGER_REVIEW' | 'CALIBRATION' | 'COMPLETED';
 export type PIPStatusType = 'ACTIVE' | 'COMPLETED' | 'EXTENDED' | 'TERMINATED';

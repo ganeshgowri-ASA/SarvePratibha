@@ -170,6 +170,8 @@ enum GoalCategory {
   BUSINESS
   LEARNING
   DEVELOPMENT
+  BEHAVIOURAL
+  COMPETENCY
 }
 
 enum PIPStatus {
