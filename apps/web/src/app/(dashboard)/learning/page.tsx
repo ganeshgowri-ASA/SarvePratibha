@@ -4,47 +4,289 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { BookOpen, Award, Clock, Play, GraduationCap } from 'lucide-react';
+import {
+  BookOpen,
+  Award,
+  Clock,
+  Play,
+  GraduationCap,
+  Target,
+  ShieldCheck,
+  Trophy,
+  TrendingUp,
+  Calendar,
+  AlertTriangle,
+  Download,
+  ChevronRight,
+} from 'lucide-react';
 import Link from 'next/link';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
-const STATS = [
-  { label: 'Available Courses', value: '24', icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50' },
-  { label: 'Enrolled', value: '5', icon: Play, color: 'text-purple-600', bg: 'bg-purple-50' },
-  { label: 'Completed', value: '8', icon: Award, color: 'text-green-600', bg: 'bg-green-50' },
-  { label: 'Learning Hours', value: '42h', icon: Clock, color: 'text-teal-600', bg: 'bg-teal-50' },
+// ─── KPI Data ──────────────────────────────────────────────
+const KPI_STATS = [
+  {
+    label: 'Total Learning Hours',
+    value: '28 / 40',
+    sub: 'Planned: 40 | Achieved: 28',
+    icon: Clock,
+    color: 'text-teal-600',
+    bg: 'bg-teal-50',
+  },
+  {
+    label: 'Courses Completed',
+    value: '8 / 15',
+    sub: '5 In Progress | 2 Overdue',
+    icon: BookOpen,
+    color: 'text-blue-600',
+    bg: 'bg-blue-50',
+  },
+  {
+    label: 'Certifications Earned',
+    value: '3',
+    sub: '2 pending completion',
+    icon: Award,
+    color: 'text-purple-600',
+    bg: 'bg-purple-50',
+  },
+  {
+    label: 'Compliance Status',
+    value: '85%',
+    sub: 'Deadline: Mar 31, 2026',
+    icon: ShieldCheck,
+    color: 'text-green-600',
+    bg: 'bg-green-50',
+  },
 ];
 
-const MY_COURSES = [
-  { id: '1', title: 'Advanced React Patterns', category: 'Technical', progress: 75, status: 'IN_PROGRESS', duration: '8h', modules: 12, completed: 9 },
-  { id: '2', title: 'Leadership Fundamentals', category: 'Leadership', progress: 40, status: 'IN_PROGRESS', duration: '6h', modules: 8, completed: 3 },
-  { id: '3', title: 'AWS Cloud Practitioner', category: 'Technical', progress: 100, status: 'COMPLETED', duration: '12h', modules: 15, completed: 15 },
+// ─── Donut Chart Data ──────────────────────────────────────
+const COMPLETION_DATA = [
+  { name: 'Completed', value: 8, color: '#10B981' },
+  { name: 'In Progress', value: 5, color: '#6366F1' },
+  { name: 'Not Started', value: 2, color: '#D1D5DB' },
 ];
 
-const RECOMMENDED = [
-  { id: '4', title: 'System Design Masterclass', category: 'Technical', level: 'Advanced', duration: '16h', modules: 20, enrollments: 45 },
-  { id: '5', title: 'Data-Driven Decision Making', category: 'Business', level: 'Intermediate', duration: '4h', modules: 6, enrollments: 120 },
-  { id: '6', title: 'Effective Communication', category: 'Soft Skills', level: 'Beginner', duration: '3h', modules: 5, enrollments: 200 },
+// ─── Learning Hours Data (Last 6 Months) ──────────────────
+const LEARNING_HOURS = [
+  { month: 'Oct', planned: 40, achieved: 35 },
+  { month: 'Nov', planned: 40, achieved: 30 },
+  { month: 'Dec', planned: 40, achieved: 38 },
+  { month: 'Jan', planned: 40, achieved: 32 },
+  { month: 'Feb', planned: 40, achieved: 28 },
+  { month: 'Mar', planned: 40, achieved: 12 },
+];
+
+// ─── Category Breakdown ────────────────────────────────────
+const CATEGORY_BREAKDOWN = [
+  { category: 'Technical', total: 6, completed: 4, rate: 67 },
+  { category: 'Leadership', total: 3, completed: 2, rate: 67 },
+  { category: 'Compliance', total: 4, completed: 1, rate: 25 },
+  { category: 'Domain', total: 2, completed: 1, rate: 50 },
+];
+
+// ─── Top Learners Leaderboard ──────────────────────────────
+const TOP_LEARNERS = [
+  { rank: 1, name: 'Amit Verma', hours: 52, courses: 12 },
+  { rank: 2, name: 'Sneha Patel', hours: 48, courses: 10 },
+  { rank: 3, name: 'Rajesh Kumar', hours: 45, courses: 11 },
+  { rank: 4, name: 'Priya Sharma', hours: 42, courses: 8 },
+  { rank: 5, name: 'Deepak Rao', hours: 38, courses: 9 },
+];
+
+// ─── Course Status Data ────────────────────────────────────
+const COURSE_STATUS = {
+  completed: 8,
+  inProgress: 5,
+  assigned: 15,
+  overdue: 2,
+};
+
+// ─── My Learning Path ──────────────────────────────────────
+const LEARNING_PATH = [
+  {
+    id: '1',
+    title: 'Company Orientation',
+    platform: 'Internal',
+    mandatory: true,
+    status: 'COMPLETED',
+    progress: 100,
+    dueDate: '2026-01-15',
+    duration: '2h',
+    certificate: 'CERT-SP-001',
+  },
+  {
+    id: '2',
+    title: 'Compliance Training',
+    platform: 'Articulate 360',
+    mandatory: true,
+    status: 'COMPLETED',
+    progress: 100,
+    dueDate: '2026-01-31',
+    duration: '3h',
+    certificate: 'CERT-SP-002',
+  },
+  {
+    id: '3',
+    title: 'Safety Induction',
+    platform: 'Articulate 360',
+    mandatory: true,
+    status: 'COMPLETED',
+    progress: 100,
+    dueDate: '2026-02-15',
+    duration: '1.5h',
+    certificate: 'CERT-SP-003',
+  },
+  {
+    id: '4',
+    title: 'Leadership Foundations',
+    platform: 'LinkedIn Learning',
+    mandatory: true,
+    status: 'IN_PROGRESS',
+    progress: 65,
+    dueDate: '2026-03-15',
+    duration: '6h',
+    certificate: null,
+  },
+  {
+    id: '5',
+    title: 'Machine Learning Specialization',
+    platform: 'Coursera',
+    mandatory: false,
+    status: 'IN_PROGRESS',
+    progress: 40,
+    dueDate: '2026-04-30',
+    duration: '12h',
+    certificate: null,
+  },
+  {
+    id: '6',
+    title: 'React Complete Guide',
+    platform: 'Udemy',
+    mandatory: false,
+    status: 'NOT_STARTED',
+    progress: 0,
+    dueDate: '2026-05-31',
+    duration: '16h',
+    certificate: null,
+  },
+  {
+    id: '7',
+    title: 'Anti-Harassment Policy',
+    platform: 'Articulate 360',
+    mandatory: true,
+    status: 'NOT_STARTED',
+    progress: 0,
+    dueDate: '2026-03-01',
+    duration: '1h',
+    certificate: null,
+  },
+];
+
+// ─── Recent Course Activity ────────────────────────────────
+const RECENT_COURSES = [
+  {
+    id: '1',
+    title: 'Machine Learning Specialization',
+    platform: 'Coursera',
+    category: 'Technical',
+    instructor: 'Andrew Ng',
+    progress: 40,
+    status: 'IN_PROGRESS',
+    duration: '12h',
+    hasCertificate: true,
+  },
+  {
+    id: '2',
+    title: 'Leadership Foundations',
+    platform: 'LinkedIn Learning',
+    category: 'Leadership',
+    instructor: 'Lisa Earle McLeod',
+    progress: 65,
+    status: 'IN_PROGRESS',
+    duration: '6h',
+    hasCertificate: true,
+  },
+  {
+    id: '3',
+    title: 'Compliance Training',
+    platform: 'Articulate 360',
+    category: 'Compliance',
+    instructor: 'Internal',
+    progress: 100,
+    status: 'COMPLETED',
+    duration: '3h',
+    hasCertificate: true,
+  },
 ];
 
 const STATUS_STYLES: Record<string, string> = {
-  ENROLLED: 'bg-blue-100 text-blue-700',
+  NOT_STARTED: 'bg-gray-100 text-gray-700',
   IN_PROGRESS: 'bg-purple-100 text-purple-700',
   COMPLETED: 'bg-green-100 text-green-700',
 };
 
-const LEVEL_STYLES: Record<string, string> = {
-  Beginner: 'bg-green-100 text-green-700',
-  Intermediate: 'bg-blue-100 text-blue-700',
-  Advanced: 'bg-purple-100 text-purple-700',
+const PLATFORM_COLORS: Record<string, { bg: string; text: string }> = {
+  Coursera: { bg: 'bg-blue-100', text: 'text-blue-700' },
+  'LinkedIn Learning': { bg: 'bg-sky-100', text: 'text-sky-700' },
+  Udemy: { bg: 'bg-violet-100', text: 'text-violet-700' },
+  'Articulate 360': { bg: 'bg-orange-100', text: 'text-orange-700' },
+  Internal: { bg: 'bg-teal-100', text: 'text-teal-700' },
 };
+
+function isOverdue(dueDate: string, status: string) {
+  return status !== 'COMPLETED' && new Date(dueDate) < new Date('2026-03-10');
+}
+
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
+  if (!active || !payload) return null;
+  return (
+    <div className="bg-white border rounded-lg shadow-lg p-3 text-xs">
+      <p className="font-medium text-gray-700 mb-1">{label}</p>
+      {payload.map((entry) => (
+        <p key={entry.name} style={{ color: entry.color }}>
+          {entry.name}: {entry.value}h
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function PieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }: {
+  cx: number; cy: number; midAngle: number; innerRadius: number; outerRadius: number; percent: number;
+}) {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  if (percent < 0.05) return null;
+  return (
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="bold">
+      {(percent * 100).toFixed(0)}%
+    </text>
+  );
+}
 
 export default function LearningPage() {
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Learning</h1>
-          <p className="text-sm text-gray-500">Courses, certifications, and skill development</p>
+          <p className="text-sm text-gray-500">
+            Courses, certifications, and skill development
+          </p>
         </div>
         <div className="flex gap-2">
           <Link href="/learning/my-courses">
@@ -58,9 +300,9 @@ export default function LearningPage() {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {STATS.map((stat) => (
+        {KPI_STATS.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -70,6 +312,7 @@ export default function LearningPage() {
                 <div>
                   <p className="text-sm text-gray-500">{stat.label}</p>
                   <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{stat.sub}</p>
                 </div>
               </div>
             </CardContent>
@@ -77,66 +320,314 @@ export default function LearningPage() {
         ))}
       </div>
 
-      {/* My Active Courses */}
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Donut Chart - Completion Rate */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Target size={18} className="text-teal-600" />
+              Overall Completion Rate
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={COMPLETION_DATA}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={85}
+                    paddingAngle={3}
+                    dataKey="value"
+                    labelLine={false}
+                    label={PieLabel}
+                  >
+                    {COMPLETION_DATA.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number, name: string) => [`${value} courses`, name]}
+                    contentStyle={{ fontSize: '12px', borderRadius: '8px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex justify-center gap-4 mt-2">
+              {COMPLETION_DATA.map((entry) => (
+                <div key={entry.name} className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                  {entry.name} ({entry.value})
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bar Chart - Learning Hours */}
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp size={18} className="text-teal-600" />
+              Learning Hours (Last 6 Months)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[220px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={LEARNING_HOURS} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6B7280' }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }} />
+                  <Bar dataKey="planned" name="Planned" fill="#D1D5DB" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="achieved" name="Achieved" fill="#0D9488" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Course Status + Category + Leaderboard */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Course Status Summary */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BookOpen size={18} className="text-blue-600" />
+              Course Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Completed</span>
+              <span className="text-sm font-bold text-green-600">{COURSE_STATUS.completed}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">In Progress</span>
+              <span className="text-sm font-bold text-purple-600">{COURSE_STATUS.inProgress}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Assigned</span>
+              <span className="text-sm font-bold text-blue-600">{COURSE_STATUS.assigned}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Overdue</span>
+              <span className="text-sm font-bold text-red-600">{COURSE_STATUS.overdue}</span>
+            </div>
+            <div className="pt-2 border-t">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-gray-500">Compliance Training</span>
+                <span className="text-xs font-semibold text-green-600">85%</span>
+              </div>
+              <Progress value={85} className="h-2" />
+              <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                <Calendar size={10} /> Deadline: Mar 31, 2026
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Category Breakdown */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <GraduationCap size={18} className="text-purple-600" />
+              Category Breakdown
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {CATEGORY_BREAKDOWN.map((cat) => (
+              <div key={cat.category}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-gray-700">{cat.category}</span>
+                  <span className="text-xs text-gray-500">{cat.completed}/{cat.total} ({cat.rate}%)</span>
+                </div>
+                <Progress value={cat.rate} className="h-1.5" />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Leaderboard */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Trophy size={18} className="text-yellow-500" />
+              Top Learners
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {TOP_LEARNERS.map((learner) => (
+              <div key={learner.rank} className="flex items-center justify-between py-1.5">
+                <div className="flex items-center gap-2.5">
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    learner.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
+                    learner.rank === 2 ? 'bg-gray-100 text-gray-600' :
+                    learner.rank === 3 ? 'bg-orange-100 text-orange-700' :
+                    'bg-gray-50 text-gray-500'
+                  }`}>
+                    {learner.rank}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{learner.name}</p>
+                    <p className="text-xs text-gray-400">{learner.courses} courses</p>
+                  </div>
+                </div>
+                <span className="text-sm font-semibold text-teal-600">{learner.hours}h</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* My Learning Path */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="text-base">My Active Courses</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Target size={18} className="text-teal-600" />
+            My Learning Path
+          </CardTitle>
           <Link href="/learning/my-courses">
-            <Button variant="ghost" size="sm">View All</Button>
+            <Button variant="ghost" size="sm">View All <ChevronRight size={14} className="ml-1" /></Button>
           </Link>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {MY_COURSES.map((course) => (
-            <div key={course.id} className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3 flex-1">
-                <div className="p-2 bg-blue-50 rounded-lg">
-                  <BookOpen size={18} className="text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-gray-900">{course.title}</p>
-                    <Badge className={STATUS_STYLES[course.status]}>{course.status.replace('_', ' ')}</Badge>
+        <CardContent className="space-y-2">
+          {LEARNING_PATH.map((course, idx) => {
+            const overdue = isOverdue(course.dueDate, course.status);
+            const platformStyle = PLATFORM_COLORS[course.platform] || PLATFORM_COLORS.Internal;
+            return (
+              <div
+                key={course.id}
+                className={`flex items-center justify-between p-3 border rounded-lg ${
+                  overdue ? 'border-red-200 bg-red-50/50' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                      course.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+                      course.status === 'IN_PROGRESS' ? 'bg-purple-100 text-purple-700' :
+                      'bg-gray-100 text-gray-500'
+                    }`}>
+                      {idx + 1}
+                    </span>
+                    {idx < LEARNING_PATH.length - 1 && (
+                      <div className="w-px h-3 bg-gray-200" />
+                    )}
                   </div>
-                  <p className="text-xs text-gray-500">{course.category} | {course.duration} | {course.completed}/{course.modules} modules</p>
-                  <Progress value={course.progress} className="h-1.5 mt-1" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-medium text-gray-900">{course.title}</p>
+                      <Badge className={`${platformStyle.bg} ${platformStyle.text} text-[10px]`}>
+                        {course.platform}
+                      </Badge>
+                      {course.mandatory && (
+                        <Badge className="bg-red-100 text-red-700 text-[10px]">Mandatory</Badge>
+                      )}
+                      <Badge className={STATUS_STYLES[course.status] + ' text-[10px]'}>
+                        {course.status.replace(/_/g, ' ')}
+                      </Badge>
+                      {overdue && (
+                        <Badge className="bg-red-100 text-red-700 text-[10px]">
+                          <AlertTriangle size={10} className="mr-0.5" /> Overdue
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                      <span><Clock size={10} className="inline mr-0.5" />{course.duration}</span>
+                      <span>Due: {course.dueDate}</span>
+                    </div>
+                    {course.status === 'IN_PROGRESS' && (
+                      <Progress value={course.progress} className="h-1.5 mt-1.5 max-w-xs" />
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 ml-3">
+                  {course.certificate && (
+                    <Button size="sm" variant="outline" className="text-xs">
+                      <Download size={12} className="mr-1" /> Certificate
+                    </Button>
+                  )}
+                  {course.status === 'IN_PROGRESS' && (
+                    <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs">
+                      <Play size={12} className="mr-1" /> Resume
+                    </Button>
+                  )}
+                  {course.status === 'NOT_STARTED' && (
+                    <Button size="sm" variant="outline" className="text-xs">
+                      Start
+                    </Button>
+                  )}
                 </div>
               </div>
-              <Link href={`/learning/course/${course.id}`}>
-                <Button size="sm" variant="outline">
-                  {course.status === 'COMPLETED' ? 'Review' : 'Continue'}
-                </Button>
-              </Link>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
       </Card>
 
-      {/* Recommended */}
+      {/* Recent Course Activity */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Recommended for You</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <CardTitle className="text-base">Recent Courses</CardTitle>
+          <Link href="/learning/courses">
+            <Button variant="ghost" size="sm">Browse All <ChevronRight size={14} className="ml-1" /></Button>
+          </Link>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {RECOMMENDED.map((course) => (
-              <Card key={course.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-4 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Badge className={LEVEL_STYLES[course.level]}>{course.level}</Badge>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {RECENT_COURSES.map((course) => {
+              const platformStyle = PLATFORM_COLORS[course.platform] || PLATFORM_COLORS.Internal;
+              return (
+                <Card key={course.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="pt-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <Badge className={`${platformStyle.bg} ${platformStyle.text} text-xs`}>
+                        {course.platform}
+                      </Badge>
+                      {course.hasCertificate && (
+                        <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-300">
+                          <Award size={10} className="mr-0.5" /> Certificate
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm font-semibold text-gray-900">{course.title}</p>
                     <Badge variant="outline" className="text-xs">{course.category}</Badge>
-                  </div>
-                  <p className="text-sm font-medium text-gray-900">{course.title}</p>
-                  <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span className="flex items-center gap-0.5"><Clock size={12} /> {course.duration}</span>
-                    <span>{course.modules} modules</span>
-                    <span>{course.enrollments} enrolled</span>
-                  </div>
-                  <Link href={`/learning/course/${course.id}`}>
-                    <Button size="sm" className="w-full bg-teal-600 hover:bg-teal-700 mt-1">Enroll</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <span className="flex items-center gap-0.5"><Clock size={12} /> {course.duration}</span>
+                      <span>By {course.instructor}</span>
+                    </div>
+                    {course.status !== 'NOT_STARTED' && (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <Badge className={STATUS_STYLES[course.status] + ' text-[10px]'}>
+                            {course.status.replace(/_/g, ' ')}
+                          </Badge>
+                          <span className="text-xs font-medium">{course.progress}%</span>
+                        </div>
+                        <Progress value={course.progress} className="h-1.5" />
+                      </div>
+                    )}
+                    <Button
+                      size="sm"
+                      className={`w-full mt-1 ${
+                        course.status === 'COMPLETED'
+                          ? 'bg-green-600 hover:bg-green-700'
+                          : 'bg-teal-600 hover:bg-teal-700'
+                      }`}
+                    >
+                      {course.status === 'COMPLETED' ? 'Review' :
+                       course.status === 'IN_PROGRESS' ? 'Resume' : 'Start'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
