@@ -24,9 +24,9 @@ function formatUptime(seconds: number) {
 }
 
 export default function SystemHealthPage() {
-  const { data, isLoading } = useQuery<{ data: SystemHealthData }>({
+  const { data, isLoading } = useQuery({
     queryKey: ['admin', 'health'],
-    queryFn: () => api.get('/api/admin/system/health'),
+    queryFn: () => api.get<SystemHealthData>('/api/admin/system/health'),
     refetchInterval: 30000,
   });
 

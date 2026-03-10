@@ -74,7 +74,7 @@ export default function NotificationLogsPage() {
       if (dateTo) params.set('to', dateTo);
       if (statusFilter) params.set('status', statusFilter);
 
-      const data = await apiFetch<PaginatedResponse<EmailLogItem>>(
+      const data = await apiFetch<EmailLogItem[]>(
         `/api/notifications/logs/email?${params}`,
         { token },
       );
@@ -96,7 +96,7 @@ export default function NotificationLogsPage() {
       if (dateTo) params.set('to', dateTo);
       if (statusFilter) params.set('status', statusFilter);
 
-      const data = await apiFetch<PaginatedResponse<SMSLogItem>>(
+      const data = await apiFetch<SMSLogItem[]>(
         `/api/notifications/logs/sms?${params}`,
         { token },
       );

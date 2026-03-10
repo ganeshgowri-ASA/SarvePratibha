@@ -87,8 +87,8 @@ export function NotificationBell() {
         `/api/notifications/${userId}?limit=5`,
         { token },
       );
-      setNotifications(data.data || []);
-      setUnreadCount(data.unreadCount || 0);
+      setNotifications(data.data?.data || []);
+      setUnreadCount(data.data?.unreadCount || 0);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     } finally {

@@ -106,7 +106,7 @@ export default function LeaveHistoryPage() {
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {years.map((y) => (
-                  <SelectItem key={y} value={y}>{y}</SelectItem>
+                  <SelectItem key={y} value={String(y)}>{y}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

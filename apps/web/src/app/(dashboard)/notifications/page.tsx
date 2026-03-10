@@ -123,8 +123,8 @@ export default function NotificationsPage() {
         `/api/notifications/${userId}?${params}`,
         { token },
       );
-      setNotifications(data.data || []);
-      setUnreadCount(data.unreadCount || 0);
+      setNotifications(data.data?.data || []);
+      setUnreadCount(data.data?.unreadCount || 0);
       setTotalPages(data.pagination?.totalPages || 1);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);

@@ -103,7 +103,7 @@ const ALL_AMENITIES = ['WiFi', 'Pool', 'Gym', 'Restaurant', 'Parking', 'AC', 'Sp
 
 export function HotelBooking() {
   const [searched, setSearched] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 20000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]);
   const [minStars, setMinStars] = useState('0');
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [corporateOnly, setCorporateOnly] = useState(false);
@@ -177,14 +177,14 @@ export function HotelBooking() {
             {/* Price range */}
             <div>
               <Label className="text-xs mb-2 block">
-                Price Range: ₹{priceRange[0].toLocaleString()} – ₹{priceRange[1].toLocaleString()}
+                Max Price: ₹{priceRange[1].toLocaleString()}
               </Label>
               <Slider
                 min={0}
                 max={20000}
                 step={500}
-                value={priceRange}
-                onValueChange={setPriceRange}
+                value={priceRange[1]}
+                onValueChange={(v) => setPriceRange([priceRange[0], v])}
                 className="mt-2"
               />
             </div>

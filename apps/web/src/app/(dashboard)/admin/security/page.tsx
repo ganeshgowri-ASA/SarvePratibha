@@ -28,7 +28,7 @@ export default function SecurityPage() {
 
   useEffect(() => {
     if (data?.data) {
-      const p = data.data;
+      const p = data.data as any;
       form.reset({
         minPasswordLength: p.minPasswordLength,
         requireUppercase: p.requireUppercase,

@@ -55,7 +55,7 @@ export default function NotificationPreferencesPage() {
     if (!token || !userId) return;
     try {
       setLoading(true);
-      const data = await apiFetch<ApiResponse<PreferencesData>>(
+      const data = await apiFetch<PreferencesData>(
         `/api/notifications/preferences/${userId}`,
         { token },
       );
