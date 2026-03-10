@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CalendarDays, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CalendarDays, AlertCircle, Upload, X, FileText, Info } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
 interface LeaveType {
@@ -33,6 +33,19 @@ interface LeaveBalance {
   balance: number;
 }
 
+const LEAVE_TYPE_INFO: Record<string, { description: string; requiresAttachment?: boolean }> = {
+  CL: { description: 'For personal matters, short absences. Max 3 consecutive days.' },
+  SL: { description: 'For illness/medical reasons. Attachment required for 2+ days.', requiresAttachment: true },
+  EL: { description: 'Pre-planned leave. Apply at least 15 days in advance. Encashable.' },
+  CO: { description: 'Leave earned for working on holidays/weekends.' },
+  ML: { description: 'Maternity leave as per the Maternity Benefit Act. Up to 26 weeks.', requiresAttachment: true },
+  PL: { description: 'Paternity leave for new fathers. Up to 15 days.' },
+  LOP: { description: 'Leave without pay. Applied when other balances are exhausted.' },
+  MRL: { description: 'Marriage leave for the employee\'s own marriage. Once in service.' },
+  BL: { description: 'In case of death of an immediate family member.' },
+  WFH: { description: 'Work from home. Regular working hours apply.' },
+};
+
 export default function ApplyLeavePage() {
   const router = useRouter();
   const { data: session } = useSession();
@@ -50,6 +63,7 @@ export default function ApplyLeavePage() {
   const [endDayType, setEndDayType] = useState('FULL');
   const [reason, setReason] = useState('');
   const [isHalfDay, setIsHalfDay] = useState(false);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
 
   const token = (session?.user as any)?.accessToken;
   const employeeId = (session?.user as any)?.employeeId;
@@ -93,13 +107,30 @@ export default function ApplyLeavePage() {
     return Math.max(0, days);
   };
 
-  const selectedBalance = balances.find((b) => {
-    const selectedType = leaveTypes.find((t) => t.id === leaveTypeId);
-    return selectedType && b.code === selectedType.code;
-  });
+  const selectedType = leaveTypes.find((t) => t.id === leaveTypeId);
+  const selectedBalance = balances.find((b) => selectedType && b.code === selectedType.code);
+  const typeInfo = selectedType ? LEAVE_TYPE_INFO[selectedType.code] : null;
+  const showAttachment = typeInfo?.requiresAttachment || (selectedType?.code === 'SL');
 
   const estimatedDays = calcDays();
-  const hasInsufficientBalance = selectedBalance && estimatedDays > selectedBalance.balance;
+  const hasInsufficientBalance = selectedBalance && selectedType?.code !== 'LOP' && estimatedDays > selectedBalance.balance;
+
+  function getBalanceForType(code: string): LeaveBalance | undefined {
+    return balances.find((b) => b.code === code);
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Max 5MB
+      if (file.size > 5 * 1024 * 1024) {
+        setError('File size must be less than 5MB');
+        return;
+      }
+      setAttachmentFile(file);
+      setError('');
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -117,6 +148,7 @@ export default function ApplyLeavePage() {
           startDayType: isHalfDay ? startDayType : 'FULL',
           endDayType: isHalfDay ? endDayType : 'FULL',
           reason,
+          attachmentUrl: attachmentFile ? attachmentFile.name : undefined,
         }),
       });
 
@@ -155,6 +187,49 @@ export default function ApplyLeavePage() {
         </div>
       )}
 
+      {/* Leave Balance Summary */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-gray-700">Leave Balance Summary</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {balances.map((b) => (
+              <div
+                key={b.id}
+                className={`rounded-lg border px-3 py-2 text-center cursor-pointer transition-colors ${
+                  selectedType?.code === b.code ? 'border-teal-500 bg-teal-50' : 'hover:bg-gray-50'
+                }`}
+                onClick={() => {
+                  const lt = leaveTypes.find((t) => t.code === b.code);
+                  if (lt) setLeaveTypeId(lt.id);
+                }}
+              >
+                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">{b.code}</p>
+                <p className="text-lg font-bold text-gray-900">{b.balance}</p>
+                <p className="text-[10px] text-gray-400">{b.used}/{b.allocated} used</p>
+              </div>
+            ))}
+            {/* LOP always available */}
+            {!balances.find((b) => b.code === 'LOP') && (
+              <div
+                className={`rounded-lg border px-3 py-2 text-center cursor-pointer transition-colors ${
+                  selectedType?.code === 'LOP' ? 'border-teal-500 bg-teal-50' : 'hover:bg-gray-50'
+                }`}
+                onClick={() => {
+                  const lt = leaveTypes.find((t) => t.code === 'LOP');
+                  if (lt) setLeaveTypeId(lt.id);
+                }}
+              >
+                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">LOP</p>
+                <p className="text-lg font-bold text-gray-900">&infin;</p>
+                <p className="text-[10px] text-gray-400">Unpaid</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
@@ -170,19 +245,45 @@ export default function ApplyLeavePage() {
               <Select value={leaveTypeId} onValueChange={(value) => setLeaveTypeId(value)}>
                 <SelectTrigger id="leaveType"><SelectValue placeholder="Select leave type" /></SelectTrigger>
                 <SelectContent>
-                  {leaveTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.id}>
-                      {type.name} ({type.code})
-                      {!type.isPaidLeave ? ' - Unpaid' : ''}
-                    </SelectItem>
-                  ))}
+                  {leaveTypes.map((type) => {
+                    const bal = getBalanceForType(type.code);
+                    return (
+                      <SelectItem key={type.id} value={type.id}>
+                        <span className="flex items-center gap-2">
+                          {type.name} ({type.code})
+                          {!type.isPaidLeave ? (
+                            <span className="text-red-500 text-[10px]">Unpaid</span>
+                          ) : null}
+                          {bal ? (
+                            <span className="text-gray-400 text-[10px]">
+                              Bal: {bal.balance}
+                            </span>
+                          ) : type.code === 'LOP' ? (
+                            <span className="text-gray-400 text-[10px]">No limit</span>
+                          ) : null}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
-              {selectedBalance && (
-                <p className="text-xs text-gray-500">
-                  Available balance: <span className="font-semibold text-teal-600">{selectedBalance.balance} days</span>
-                  {' '}(Used: {selectedBalance.used} / {selectedBalance.allocated})
-                </p>
+
+              {/* Type description & balance */}
+              {selectedType && (
+                <div className="space-y-1">
+                  {typeInfo && (
+                    <p className="text-xs text-gray-500 flex items-start gap-1">
+                      <Info size={12} className="mt-0.5 shrink-0 text-gray-400" />
+                      {typeInfo.description}
+                    </p>
+                  )}
+                  {selectedBalance && (
+                    <p className="text-xs text-gray-500">
+                      Available balance: <span className="font-semibold text-teal-600">{selectedBalance.balance} days</span>
+                      {' '}(Used: {selectedBalance.used} / {selectedBalance.allocated})
+                    </p>
+                  )}
+                </div>
               )}
             </div>
 
@@ -259,7 +360,7 @@ export default function ApplyLeavePage() {
             {hasInsufficientBalance && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-xs flex items-center gap-2">
                 <AlertCircle size={14} />
-                Insufficient balance. Available: {selectedBalance?.balance} days
+                Insufficient balance. Available: {selectedBalance?.balance} days. Consider applying for LOP instead.
               </div>
             )}
 
@@ -277,6 +378,48 @@ export default function ApplyLeavePage() {
               />
               <p className="text-xs text-gray-400">{reason.length}/500</p>
             </div>
+
+            {/* File Attachment */}
+            {showAttachment && (
+              <div className="space-y-2">
+                <Label>
+                  Attachment {selectedType?.code === 'SL' && estimatedDays >= 2 ? '*' : '(Optional)'}
+                </Label>
+                <p className="text-xs text-gray-500">
+                  {selectedType?.code === 'SL'
+                    ? 'Medical certificate required for 2 or more days of sick leave.'
+                    : 'Upload supporting documents (medical certificate, etc.)'}
+                </p>
+
+                {!attachmentFile ? (
+                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <Upload size={20} className="text-gray-400 mb-1" />
+                    <span className="text-xs text-gray-500">Click to upload (PDF, JPG, PNG — max 5MB)</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                ) : (
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2 border">
+                    <FileText size={18} className="text-teal-600" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-700 truncate">{attachmentFile.name}</p>
+                      <p className="text-xs text-gray-400">{(attachmentFile.size / 1024).toFixed(1)} KB</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAttachmentFile(null)}
+                      className="text-gray-400 hover:text-red-500"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Submit */}
             <div className="flex gap-3 pt-2">
