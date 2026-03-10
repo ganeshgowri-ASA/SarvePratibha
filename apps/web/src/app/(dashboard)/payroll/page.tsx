@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -23,8 +24,18 @@ import {
   ChevronRight,
   BarChart3,
   Eye,
+  Scale,
+  Shield,
+  Trophy,
+  Landmark,
+  Wallet,
 } from 'lucide-react';
 import Link from 'next/link';
+import TaxRegimeTab from './components/tax-regime-tab';
+import InvestmentDeclarationTab from './components/investment-declaration-tab';
+import VPBTab from './components/vpb-tab';
+import TaxFilingTab from './components/tax-filing-tab';
+import FinancialWellnessTab from './components/financial-wellness-tab';
 import {
   BarChart,
   Bar,
@@ -385,7 +396,7 @@ export default function PayrollPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Payroll</h1>
-          <p className="text-sm text-gray-500">View your salary details, payslips, and tax information</p>
+          <p className="text-sm text-gray-500">View your salary details, payslips, tax management, and financial wellness</p>
         </div>
       </div>
 
@@ -409,6 +420,32 @@ export default function PayrollPage() {
           </Link>
         ))}
       </div>
+
+      {/* Main Tabs */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="flex-wrap h-auto gap-1">
+          <TabsTrigger value="overview" className="flex items-center gap-1.5">
+            <Wallet size={14} /> Overview
+          </TabsTrigger>
+          <TabsTrigger value="tax-regime" className="flex items-center gap-1.5">
+            <Scale size={14} /> Tax Regime
+          </TabsTrigger>
+          <TabsTrigger value="investments" className="flex items-center gap-1.5">
+            <Shield size={14} /> Investments
+          </TabsTrigger>
+          <TabsTrigger value="vpb" className="flex items-center gap-1.5">
+            <Trophy size={14} /> VPB
+          </TabsTrigger>
+          <TabsTrigger value="tax-filing" className="flex items-center gap-1.5">
+            <FileText size={14} /> Tax Filing
+          </TabsTrigger>
+          <TabsTrigger value="wellness" className="flex items-center gap-1.5">
+            <Landmark size={14} /> Financial Wellness
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab (existing content) */}
+        <TabsContent value="overview" className="space-y-6">
 
       {/* Salary Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -738,6 +775,33 @@ export default function PayrollPage() {
           )}
         </DialogContent>
       </Dialog>
+        </TabsContent>
+
+        {/* Tax Regime Tab */}
+        <TabsContent value="tax-regime">
+          <TaxRegimeTab />
+        </TabsContent>
+
+        {/* Investment Declaration Tab */}
+        <TabsContent value="investments">
+          <InvestmentDeclarationTab />
+        </TabsContent>
+
+        {/* VPB Tab */}
+        <TabsContent value="vpb">
+          <VPBTab />
+        </TabsContent>
+
+        {/* Tax Filing Assistant Tab */}
+        <TabsContent value="tax-filing">
+          <TaxFilingTab />
+        </TabsContent>
+
+        {/* Financial Wellness Tab */}
+        <TabsContent value="wellness">
+          <FinancialWellnessTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
