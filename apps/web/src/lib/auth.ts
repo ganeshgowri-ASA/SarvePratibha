@@ -2,12 +2,87 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
-const DEMO_ACCOUNTS = [
-  { email: 'admin@sarvepratibha.com', password: 'admin123', id: 'demo-1', name: 'Admin User', role: 'IT_ADMIN', employeeId: 'EMP001' },
-  { email: 'manager@sarvepratibha.com', password: 'manager123', id: 'demo-2', name: 'Manager User', role: 'MANAGER', employeeId: 'EMP002' },
-  { email: 'sectionhead@sarvepratibha.com', password: 'sectionhead123', id: 'demo-3', name: 'Section Head', role: 'SECTION_HEAD', employeeId: 'EMP003' },
-  { email: 'employee@sarvepratibha.com', password: 'employee123', id: 'demo-4', name: 'Employee User', role: 'EMPLOYEE', employeeId: 'EMP004' },
+interface DemoAccount {
+  email: string;
+  password: string;
+  id: string;
+  name: string;
+  role: string;
+  employeeId: string;
+  ecCode: string;
+  domainId: string;
+}
+
+const DEMO_ACCOUNTS: DemoAccount[] = [
+  {
+    email: 'admin@sarvepratibha.com',
+    password: 'admin123',
+    id: 'demo-1',
+    name: 'Admin User',
+    role: 'IT_ADMIN',
+    employeeId: 'EMP001',
+    ecCode: 'EC10001',
+    domainId: 'admin.sp',
+  },
+  {
+    email: 'manager@sarvepratibha.com',
+    password: 'manager123',
+    id: 'demo-2',
+    name: 'Manager User',
+    role: 'MANAGER',
+    employeeId: 'EMP002',
+    ecCode: 'EC10003',
+    domainId: 'manager.sp',
+  },
+  {
+    email: 'sectionhead@sarvepratibha.com',
+    password: 'sectionhead123',
+    id: 'demo-3',
+    name: 'Section Head',
+    role: 'SECTION_HEAD',
+    employeeId: 'EMP003',
+    ecCode: 'EC10002',
+    domainId: 'sectionhead.sp',
+  },
+  {
+    email: 'employee@sarvepratibha.com',
+    password: 'employee123',
+    id: 'demo-4',
+    name: 'Employee User',
+    role: 'EMPLOYEE',
+    employeeId: 'EMP004',
+    ecCode: 'EC10004',
+    domainId: 'employee.sp',
+  },
 ];
+
+/**
+ * Resolve a demo account by email, EC code, or domain ID.
+ * loginMode comes from the credentials payload set by the login form.
+ */
+function findDemoAccount(identifier: string, password: string, loginMode?: string): DemoAccount | null {
+  const id = identifier.trim().toLowerCase();
+
+  let account: DemoAccount | undefined;
+
+  if (loginMode === 'eccode') {
+    account = DEMO_ACCOUNTS.find(
+      (a) => a.ecCode.toLowerCase() === id && a.password === password,
+    );
+  } else if (loginMode === 'domainid') {
+    account = DEMO_ACCOUNTS.find(
+      (a) => a.domainId.toLowerCase() === id && a.password === password,
+    );
+  } else {
+    // Default: email login — also try EC code and domain ID as fallback
+    account =
+      DEMO_ACCOUNTS.find((a) => a.email.toLowerCase() === id && a.password === password) ??
+      DEMO_ACCOUNTS.find((a) => a.ecCode.toLowerCase() === id && a.password === password) ??
+      DEMO_ACCOUNTS.find((a) => a.domainId.toLowerCase() === id && a.password === password);
+  }
+
+  return account ?? null;
+}
 
 // In production, this would use Prisma client.
 // For now, we define the auth options that connect to the Express API.
@@ -16,17 +91,20 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        email: { label: 'Email / EC Code / Domain ID', type: 'text' },
         password: { label: 'Password', type: 'password' },
+        loginMode: { label: 'Login Mode', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password are required');
+          throw new Error('Identifier and password are required');
         }
 
         // Demo account check — allows login without a backend server
-        const demo = DEMO_ACCOUNTS.find(
-          (a) => a.email === credentials.email && a.password === credentials.password,
+        const demo = findDemoAccount(
+          credentials.email,
+          credentials.password,
+          credentials.loginMode,
         );
         if (demo) {
           return {
@@ -35,6 +113,8 @@ export const authOptions: NextAuthOptions = {
             name: demo.name,
             role: demo.role,
             employeeId: demo.employeeId,
+            ecCode: demo.ecCode,
+            domainId: demo.domainId,
           };
         }
 
@@ -45,6 +125,7 @@ export const authOptions: NextAuthOptions = {
             body: JSON.stringify({
               email: credentials.email,
               password: credentials.password,
+              loginMode: credentials.loginMode ?? 'email',
             }),
           });
 
@@ -61,6 +142,8 @@ export const authOptions: NextAuthOptions = {
             role: data.data.user.role,
             image: data.data.user.image,
             employeeId: data.data.user.employeeId,
+            ecCode: data.data.user.ecCode,
+            domainId: data.data.user.domainId,
             accessToken: data.data.token,
           };
         } catch (error) {
@@ -87,6 +170,8 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role;
         token.employeeId = (user as any).employeeId;
+        token.ecCode = (user as any).ecCode;
+        token.domainId = (user as any).domainId;
         token.accessToken = (user as any).accessToken;
       }
       return token;
@@ -96,6 +181,8 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.sub;
         (session.user as any).role = token.role;
         (session.user as any).employeeId = token.employeeId;
+        (session.user as any).ecCode = token.ecCode;
+        (session.user as any).domainId = token.domainId;
         (session.user as any).accessToken = token.accessToken;
       }
       return session;
