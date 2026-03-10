@@ -212,6 +212,8 @@ export const JD_FIT_COLORS: Record<string, string> = {
   good_fit: 'bg-blue-100 text-blue-800',
   partial_fit: 'bg-yellow-100 text-yellow-800',
   poor_fit: 'bg-red-100 text-red-800',
+};
+
 // ─── Assessment Scorecard Constants ──────────────────────────────
 
 export const SCORE_ANCHORS: Record<number, string> = {
