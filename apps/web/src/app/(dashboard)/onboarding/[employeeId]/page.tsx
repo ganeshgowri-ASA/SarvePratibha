@@ -12,6 +12,7 @@ import {
   Home, Plane, Laptop, Users, MapPin, Hotel, Car,
   Wifi, CreditCard, Mail, Shield, Phone, Clock,
   Star, Coffee, UtensilsCrossed, BedDouble,
+  Key, Copy, Eye, EyeOff, CheckCircle, AlertCircle,
 } from 'lucide-react';
 
 // --- Demo Data ---
@@ -201,9 +202,62 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+// --- Auto-Generated Account Data ---
+// In production this would be fetched from the server after onboarding completion
+
+const AUTO_ACCOUNT = {
+  ecCode: 'EC2026045',
+  domainId: 'arjun.reddy',
+  email: 'arjun.reddy@sarvepratibha.com',
+  tempPassword: 'Welcome@2026!',
+  createdAt: '2026-03-01 09:00 AM',
+  status: 'ACTIVE' as 'ACTIVE' | 'PENDING',
+  systems: [
+    { name: 'HRMS Portal', url: 'hrms.sarvepratibha.com', credentials: 'EC Code / Domain ID + password', icon: Shield },
+    { name: 'Corporate Email', url: 'mail.sarvepratibha.com', credentials: 'arjun.reddy@sarvepratibha.com', icon: Mail },
+    { name: 'VPN / Remote Access', url: 'vpn.sarvepratibha.com', credentials: 'Domain ID + password', icon: Wifi },
+    { name: 'Jira / Project Mgmt', url: 'jira.sarvepratibha.com', credentials: 'arjun.reddy@sarvepratibha.com', icon: Laptop },
+  ],
+  passwordPolicy: [
+    'Minimum 8 characters',
+    'At least one uppercase letter',
+    'At least one number',
+    'At least one special character',
+    'Change required on first login',
+    'Password expires every 90 days',
+  ],
+};
+
+// --- Copy to Clipboard Helper ---
+function CopyableField({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(value).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <div className="flex items-center justify-between py-2 border-b last:border-0">
+      <div>
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className="text-sm font-mono font-medium text-gray-900 mt-0.5">{value}</p>
+      </div>
+      <button
+        onClick={copy}
+        className="p-1.5 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-teal-600"
+        title="Copy to clipboard"
+      >
+        {copied ? <CheckCircle size={15} className="text-green-500" /> : <Copy size={15} />}
+      </button>
+    </div>
+  );
+}
+
 // --- Main Page ---
 
 export default function OnboardingDetailPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [accountCreated, setAccountCreated] = useState(true); // Pre-set as created for demo
   const completed = TASKS.filter((t) => t.isCompleted).length;
   const progress = Math.round((completed / TASKS.length) * 100);
 
@@ -243,8 +297,14 @@ export default function OnboardingDetailPage() {
 
       {/* Tabbed Sections */}
       <Tabs defaultValue="checklist" className="w-full">
-        <TabsList className="w-full grid grid-cols-4 md:grid-cols-7">
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="checklist">Checklist</TabsTrigger>
+          <TabsTrigger value="account" className="gap-1">
+            <Key size={13} /> Account
+            {accountCreated && (
+              <span className="w-2 h-2 rounded-full bg-green-500 ml-0.5" />
+            )}
+          </TabsTrigger>
           <TabsTrigger value="relocation">Relocation</TabsTrigger>
           <TabsTrigger value="guesthouse">Guest House</TabsTrigger>
           <TabsTrigger value="travel">Travel</TabsTrigger>
@@ -290,6 +350,169 @@ export default function OnboardingDetailPage() {
               </Card>
             );
           })}
+        </TabsContent>
+
+        {/* Auto-Created Account Credentials Tab */}
+        <TabsContent value="account" className="space-y-4">
+          {/* Status banner */}
+          {accountCreated ? (
+            <Card className="border-green-300 bg-green-50">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center gap-3">
+                  <CheckCircle size={24} className="text-green-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-green-800">
+                      Account Auto-Created Successfully
+                    </p>
+                    <p className="text-xs text-green-700 mt-0.5">
+                      System account created on {AUTO_ACCOUNT.createdAt} · Credentials sent to registered email
+                    </p>
+                  </div>
+                  <Badge className="bg-green-100 text-green-700">{AUTO_ACCOUNT.status}</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-yellow-300 bg-yellow-50">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center gap-3">
+                  <AlertCircle size={24} className="text-yellow-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-yellow-800">Account Not Yet Created</p>
+                    <p className="text-xs text-yellow-700 mt-0.5">
+                      Complete all mandatory onboarding tasks to trigger auto account creation
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="bg-teal-600 hover:bg-teal-700"
+                    onClick={() => setAccountCreated(true)}
+                  >
+                    Create Account Now
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {accountCreated && (
+            <>
+              {/* Primary credentials */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Key size={18} className="text-teal-600" />
+                    System Credentials
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-4">
+                    <p className="text-xs text-teal-700 font-medium mb-3">
+                      Use any of the following identifiers to log into SarvePratibha HRMS:
+                    </p>
+                    <CopyableField value={AUTO_ACCOUNT.ecCode} label="EC Code (Employee Code)" />
+                    <CopyableField value={AUTO_ACCOUNT.domainId} label="Domain ID (Windows Login)" />
+                    <CopyableField value={AUTO_ACCOUNT.email} label="Corporate Email" />
+                    <div className="flex items-center justify-between py-2">
+                      <div>
+                        <p className="text-xs text-gray-500">Temporary Password</p>
+                        <p className="text-sm font-mono font-medium text-gray-900 mt-0.5">
+                          {showPassword ? AUTO_ACCOUNT.tempPassword : '••••••••••••'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="p-1.5 rounded-md hover:bg-gray-100 transition-colors text-gray-400"
+                        >
+                          {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                        </button>
+                        {showPassword && (
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(AUTO_ACCOUNT.tempPassword).catch(() => {});
+                            }}
+                            className="p-1.5 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-teal-600"
+                          >
+                            <Copy size={15} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-start gap-2">
+                    <AlertCircle size={16} className="text-orange-500 mt-0.5 shrink-0" />
+                    <p className="text-xs text-orange-800">
+                      <span className="font-semibold">Important:</span> You must change your temporary password on first login.
+                      Temporary password expires in <span className="font-semibold">7 days</span>.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* System access */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Shield size={18} className="text-teal-600" />
+                    System Access
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {AUTO_ACCOUNT.systems.map((sys) => {
+                    const Icon = sys.icon;
+                    return (
+                      <div
+                        key={sys.name}
+                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-teal-50 rounded-lg">
+                            <Icon size={16} className="text-teal-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{sys.name}</p>
+                            <p className="text-xs text-gray-500">{sys.credentials}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-400 font-mono">{sys.url}</p>
+                          <Badge className="bg-green-100 text-green-700 text-xs mt-1">Active</Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+
+              {/* Password policy */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Shield size={18} className="text-teal-600" />
+                    Password Policy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {AUTO_ACCOUNT.passwordPolicy.map((rule) => (
+                      <div key={rule} className="flex items-center gap-2 text-xs text-gray-700">
+                        <CheckCircle2 size={14} className="text-green-500 shrink-0" />
+                        {rule}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 pt-3 border-t">
+                    <Button size="sm" className="bg-teal-600 hover:bg-teal-700">
+                      <Key size={13} className="mr-1.5" />
+                      Send Credentials to Employee Email
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </TabsContent>
 
         {/* Relocation Assistance Tab */}
