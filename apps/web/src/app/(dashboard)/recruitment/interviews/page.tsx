@@ -19,6 +19,8 @@ import {
   Users,
   CheckCircle,
   XCircle,
+  ClipboardCheck,
+  Eye,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -29,7 +31,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { INTERVIEW_MODE_LABELS } from '@sarve-pratibha/shared';
+import {
+  INTERVIEW_MODE_LABELS,
+  ASSESSMENT_CATEGORIES,
+  SCORE_ANCHORS,
+  ASSESSMENT_RECOMMENDATION_LABELS,
+} from '@sarve-pratibha/shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,6 +46,8 @@ interface Interview {
   jobTitle: string;
   department: string;
   interviewerName: string;
+  interviewerDesignation: string;
+  interviewerDepartment: string;
   scheduledAt: string;
   duration: number;
   round: number;
@@ -49,6 +58,20 @@ interface Interview {
   pipelineStage: string;
   overallScore?: number;
   recommendation?: string;
+  assessment?: AssessmentData;
+}
+
+interface CriterionScore {
+  score: number;
+  notes: string;
+}
+
+interface AssessmentData {
+  [key: string]: CriterionScore | string | undefined;
+  recommendation: string;
+  strengths: string;
+  areasOfConcern: string;
+  finalComments: string;
 }
 
 // ── Mock Data ────────────────────────────────────────────────────────────────
@@ -56,66 +79,150 @@ interface Interview {
 const MOCK_INTERVIEWS: Interview[] = [
   {
     id: '1', candidateName: 'Arjun Mehta', jobTitle: 'Senior Software Engineer', department: 'Engineering',
-    interviewerName: 'Priya Sharma', scheduledAt: '2026-03-10T10:00:00Z', duration: 60,
+    interviewerName: 'Priya Sharma', interviewerDesignation: 'Engineering Lead', interviewerDepartment: 'Engineering',
+    scheduledAt: '2026-03-10T10:00:00Z', duration: 60,
     round: 2, mode: 'IN_PERSON', location: 'Conference Room A', result: 'PENDING', pipelineStage: 'ROUND_2',
   },
   {
     id: '2', candidateName: 'Lakshmi Rao', jobTitle: 'Senior Software Engineer', department: 'Engineering',
-    interviewerName: 'Vikram Singh', scheduledAt: '2026-03-10T14:00:00Z', duration: 45,
+    interviewerName: 'Vikram Singh', interviewerDesignation: 'Tech Architect', interviewerDepartment: 'Engineering',
+    scheduledAt: '2026-03-10T14:00:00Z', duration: 45,
     round: 1, mode: 'VIDEO', meetingLink: 'https://meet.google.com/abc-xyz', result: 'PENDING', pipelineStage: 'SCREENING',
   },
   {
     id: '3', candidateName: 'Meera Krishnan', jobTitle: 'Product Manager', department: 'Product',
-    interviewerName: 'Rajesh Kumar', scheduledAt: '2026-03-11T11:00:00Z', duration: 60,
+    interviewerName: 'Rajesh Kumar', interviewerDesignation: 'Section Head', interviewerDepartment: 'Product',
+    scheduledAt: '2026-03-11T11:00:00Z', duration: 60,
     round: 1, mode: 'VIDEO', meetingLink: 'https://meet.google.com/def-ghi', result: 'PENDING', pipelineStage: 'SCREENING',
   },
   {
     id: '4', candidateName: 'Pooja Shah', jobTitle: 'Senior Software Engineer', department: 'Engineering',
-    interviewerName: 'Priya Sharma', scheduledAt: '2026-03-12T10:30:00Z', duration: 45,
+    interviewerName: 'Priya Sharma', interviewerDesignation: 'Engineering Lead', interviewerDepartment: 'Engineering',
+    scheduledAt: '2026-03-12T10:30:00Z', duration: 45,
     round: 1, mode: 'PHONE', result: 'PENDING', pipelineStage: 'SCREENING',
   },
   {
     id: '5', candidateName: 'Vivek Gupta', jobTitle: 'Senior Software Engineer', department: 'Engineering',
-    interviewerName: 'Vikram Singh', scheduledAt: '2026-03-08T15:00:00Z', duration: 60,
+    interviewerName: 'Vikram Singh', interviewerDesignation: 'Tech Architect', interviewerDepartment: 'Engineering',
+    scheduledAt: '2026-03-08T15:00:00Z', duration: 60,
     round: 3, mode: 'IN_PERSON', location: 'Board Room', result: 'SELECTED', pipelineStage: 'OFFER',
     overallScore: 4.4, recommendation: 'STRONG_HIRE',
+    assessment: {
+      domainKnowledge: { score: 5, notes: 'Excellent understanding of distributed systems and microservices architecture.' },
+      problemSolving: { score: 4, notes: 'Strong analytical approach, solved the system design problem efficiently.' },
+      codingAbility: { score: 5, notes: 'Clean code, good use of design patterns. Very proficient in TypeScript.' },
+      verbalClarity: { score: 4, notes: 'Communicates technical concepts clearly to both technical and non-technical audiences.' },
+      articulation: { score: 4, notes: 'Well-structured responses with clear examples.' },
+      activeListening: { score: 5, notes: 'Listened carefully and asked clarifying questions before answering.' },
+      presentation: { score: 4, notes: 'Confident presentation skills during the whiteboard session.' },
+      valuesAlignment: { score: 5, notes: 'Strong alignment with our engineering culture and values.' },
+      teamCompatibility: { score: 4, notes: 'Collaborative mindset, experience working with cross-functional teams.' },
+      attitude: { score: 5, notes: 'Positive attitude, eager to learn and contribute.' },
+      workEthic: { score: 4, notes: 'Strong work ethic, demonstrated ownership in past projects.' },
+      pastExperience: { score: 5, notes: '8 years in similar full-stack roles at product companies.' },
+      projectDepth: { score: 4, notes: 'Led migration from monolith to microservices at previous company.' },
+      industryKnowledge: { score: 4, notes: 'Good understanding of SaaS and HRMS domain.' },
+      initiative: { score: 4, notes: 'Self-starter, initiated several process improvements at previous org.' },
+      decisionMaking: { score: 4, notes: 'Data-driven decision making approach.' },
+      mentoringAbility: { score: 3, notes: 'Some experience mentoring juniors, room for growth.' },
+      vision: { score: 4, notes: 'Clear career goals aligned with senior engineering leadership track.' },
+      recommendation: 'STRONG_HIRE',
+      strengths: 'Exceptional technical depth, strong communication, excellent cultural fit. Has experience leading migrations and building scalable systems.',
+      areasOfConcern: 'Mentoring experience could be deeper. May need support in stakeholder management at senior levels.',
+      finalComments: 'Vivek is a strong candidate for the Senior SE role. His technical expertise and collaborative nature make him a great fit. Recommend moving to offer stage.',
+    },
   },
   {
     id: '6', candidateName: 'Rohit Verma', jobTitle: 'DevOps Engineer', department: 'Infrastructure',
-    interviewerName: 'Rajesh Kumar', scheduledAt: '2026-03-07T11:00:00Z', duration: 45,
+    interviewerName: 'Rajesh Kumar', interviewerDesignation: 'Section Head', interviewerDepartment: 'Infrastructure',
+    scheduledAt: '2026-03-07T11:00:00Z', duration: 45,
     round: 1, mode: 'VIDEO', result: 'REJECTED', pipelineStage: 'SCREENING',
     overallScore: 2.2, recommendation: 'NO_HIRE',
+    assessment: {
+      domainKnowledge: { score: 2, notes: 'Limited knowledge of container orchestration and CI/CD best practices.' },
+      problemSolving: { score: 2, notes: 'Struggled with the troubleshooting scenario.' },
+      codingAbility: { score: 2, notes: 'Basic scripting skills, not comfortable with IaC tools.' },
+      verbalClarity: { score: 3, notes: 'Adequate verbal skills but lacked depth in technical explanations.' },
+      articulation: { score: 2, notes: 'Difficulty articulating past project contributions.' },
+      activeListening: { score: 3, notes: 'Listened but sometimes missed the core question.' },
+      presentation: { score: 2, notes: 'Needed improvement in structuring responses.' },
+      valuesAlignment: { score: 3, notes: 'Adequate alignment but not strongly demonstrated.' },
+      teamCompatibility: { score: 2, notes: 'Prefers working alone, limited cross-team experience.' },
+      attitude: { score: 3, notes: 'Open to feedback but lacked enthusiasm.' },
+      workEthic: { score: 2, notes: 'Inconsistent work patterns described in past roles.' },
+      pastExperience: { score: 2, notes: '3 years experience but mostly in support roles, not engineering.' },
+      projectDepth: { score: 2, notes: 'Surface-level involvement in most projects.' },
+      industryKnowledge: { score: 2, notes: 'Limited awareness of cloud-native practices.' },
+      initiative: { score: 2, notes: 'Rarely took initiative in previous roles.' },
+      decisionMaking: { score: 2, notes: 'Depends heavily on direction from others.' },
+      mentoringAbility: { score: 1, notes: 'No mentoring experience.' },
+      vision: { score: 2, notes: 'Unclear career goals.' },
+      recommendation: 'NO_HIRE',
+      strengths: 'Basic understanding of Linux systems and networking fundamentals.',
+      areasOfConcern: 'Significant gaps in container orchestration, IaC, and CI/CD skills. Limited initiative and unclear career trajectory. Not a good fit for the current DevOps role requirements.',
+      finalComments: 'Rohit does not meet the minimum requirements for this DevOps Engineer position. Recommend rejection.',
+    },
   },
   {
     id: '7', candidateName: 'Ananya Desai', jobTitle: 'UX Designer', department: 'Design',
-    interviewerName: 'Priya Sharma', scheduledAt: '2026-03-09T09:30:00Z', duration: 90,
+    interviewerName: 'Priya Sharma', interviewerDesignation: 'Engineering Lead', interviewerDepartment: 'Engineering',
+    scheduledAt: '2026-03-09T09:30:00Z', duration: 90,
     round: 2, mode: 'IN_PERSON', location: 'Design Lab', result: 'SELECTED', pipelineStage: 'HR_ROUND',
     overallScore: 4.3, recommendation: 'HIRE',
+    assessment: {
+      domainKnowledge: { score: 5, notes: 'Deep expertise in user research, interaction design, and design systems.' },
+      problemSolving: { score: 4, notes: 'Creative approach to design challenges with user-centric solutions.' },
+      codingAbility: { score: 3, notes: 'Good prototyping skills in Figma, basic CSS/HTML knowledge.' },
+      verbalClarity: { score: 5, notes: 'Excellent communicator, presents design rationale clearly.' },
+      articulation: { score: 5, notes: 'Outstanding portfolio presentation with clear narrative.' },
+      activeListening: { score: 4, notes: 'Asks thoughtful follow-up questions.' },
+      presentation: { score: 5, notes: 'Portfolio walkthrough was exceptional.' },
+      valuesAlignment: { score: 4, notes: 'Passionate about user-centric design aligned with our philosophy.' },
+      teamCompatibility: { score: 5, notes: 'Has worked closely with engineering teams, great collaborator.' },
+      attitude: { score: 5, notes: 'Enthusiastic, growth-oriented, and open to feedback.' },
+      workEthic: { score: 4, notes: 'Consistent delivery in past roles with attention to detail.' },
+      pastExperience: { score: 4, notes: '6 years in UX across B2B SaaS products.' },
+      projectDepth: { score: 4, notes: 'Led redesign of entire product suite at previous company.' },
+      industryKnowledge: { score: 4, notes: 'Good understanding of enterprise UX patterns.' },
+      initiative: { score: 4, notes: 'Created design system from scratch at previous org.' },
+      decisionMaking: { score: 4, notes: 'Data-informed design decisions using user testing.' },
+      mentoringAbility: { score: 3, notes: 'Mentored 2 junior designers in past role.' },
+      vision: { score: 4, notes: 'Clear vision for elevating design maturity in organizations.' },
+      recommendation: 'HIRE',
+      strengths: 'Exceptional design skills and portfolio. Strong communication and collaboration abilities. Great cultural fit with proven experience in B2B SaaS.',
+      areasOfConcern: 'Technical coding skills are basic (CSS/HTML). May need engineering support for implementation details.',
+      finalComments: 'Ananya is a strong candidate for UX Designer. Recommend advancing to HR round and offer stage.',
+    },
   },
   {
     id: '8', candidateName: 'Karthik Nair', jobTitle: 'Data Analyst', department: 'Analytics',
-    interviewerName: 'Vikram Singh', scheduledAt: '2026-03-13T16:00:00Z', duration: 60,
+    interviewerName: 'Vikram Singh', interviewerDesignation: 'Tech Architect', interviewerDepartment: 'Engineering',
+    scheduledAt: '2026-03-13T16:00:00Z', duration: 60,
     round: 1, mode: 'VIDEO', meetingLink: 'https://meet.google.com/jkl-mno', result: 'PENDING', pipelineStage: 'ROUND_1',
   },
   {
     id: '9', candidateName: 'Sneha Patil', jobTitle: 'Senior Software Engineer', department: 'Engineering',
-    interviewerName: 'Priya Sharma', scheduledAt: '2026-03-14T10:00:00Z', duration: 60,
+    interviewerName: 'Priya Sharma', interviewerDesignation: 'Engineering Lead', interviewerDepartment: 'Engineering',
+    scheduledAt: '2026-03-14T10:00:00Z', duration: 60,
     round: 2, mode: 'VIDEO', meetingLink: 'https://meet.google.com/pqr-stu', result: 'PENDING', pipelineStage: 'ROUND_2',
   },
   {
     id: '10', candidateName: 'Amit Joshi', jobTitle: 'Product Manager', department: 'Product',
-    interviewerName: 'Rajesh Kumar', scheduledAt: '2026-03-06T14:00:00Z', duration: 60,
+    interviewerName: 'Rajesh Kumar', interviewerDesignation: 'Section Head', interviewerDepartment: 'Product',
+    scheduledAt: '2026-03-06T14:00:00Z', duration: 60,
     round: 3, mode: 'IN_PERSON', location: 'Board Room', result: 'SELECTED', pipelineStage: 'FINAL',
     overallScore: 3.8, recommendation: 'HIRE',
   },
   {
     id: '11', candidateName: 'Divya Reddy', jobTitle: 'QA Engineer', department: 'Engineering',
-    interviewerName: 'Vikram Singh', scheduledAt: '2026-03-15T11:30:00Z', duration: 45,
+    interviewerName: 'Vikram Singh', interviewerDesignation: 'Tech Architect', interviewerDepartment: 'Engineering',
+    scheduledAt: '2026-03-15T11:30:00Z', duration: 45,
     round: 1, mode: 'PHONE', result: 'PENDING', pipelineStage: 'SCREENING',
   },
   {
     id: '12', candidateName: 'Rahul Menon', jobTitle: 'DevOps Engineer', department: 'Infrastructure',
-    interviewerName: 'Rajesh Kumar', scheduledAt: '2026-03-05T09:00:00Z', duration: 60,
+    interviewerName: 'Rajesh Kumar', interviewerDesignation: 'Section Head', interviewerDepartment: 'Infrastructure',
+    scheduledAt: '2026-03-05T09:00:00Z', duration: 60,
     round: 2, mode: 'IN_PERSON', location: 'Conference Room B', result: 'ON_HOLD', pipelineStage: 'ROUND_2',
     overallScore: 3.1, recommendation: 'MAYBE',
   },
@@ -195,11 +302,407 @@ function getRecommendationBadge(rec?: string) {
   return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${styles[rec] || ''}`}>{labels[rec] || rec}</span>;
 }
 
+function computeSectionScore(assessment: AssessmentData, criteriaKeys: readonly { key: string }[]): number {
+  let total = 0;
+  let count = 0;
+  for (const c of criteriaKeys) {
+    const val = assessment[c.key];
+    if (val && typeof val === 'object' && 'score' in val) {
+      total += val.score;
+      count++;
+    }
+  }
+  return count > 0 ? total / count : 0;
+}
+
+function computeWeightedScore(assessment: AssessmentData): number {
+  let weighted = 0;
+  for (const cat of ASSESSMENT_CATEGORIES) {
+    const sectionAvg = computeSectionScore(assessment, cat.criteria);
+    weighted += sectionAvg * cat.weight;
+  }
+  return weighted;
+}
+
+// ── Score Input Component ────────────────────────────────────────────────────
+
+function ScoreRadioGroup({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n)}
+          className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
+            value === n
+              ? n <= 2
+                ? 'bg-red-500 text-white shadow-sm'
+                : n === 3
+                  ? 'bg-amber-500 text-white shadow-sm'
+                  : 'bg-green-500 text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+          title={SCORE_ANCHORS[n]}
+        >
+          {n}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Assessment Scorecard Dialog ──────────────────────────────────────────────
+
+function AssessmentScorecardDialog({
+  interview,
+  open,
+  onOpenChange,
+  readOnly,
+}: {
+  interview: Interview;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  readOnly?: boolean;
+}) {
+  const existingAssessment = interview.assessment;
+
+  const getInitialScores = () => {
+    const scores: Record<string, CriterionScore> = {};
+    for (const cat of ASSESSMENT_CATEGORIES) {
+      for (const c of cat.criteria) {
+        const existing = existingAssessment?.[c.key];
+        if (existing && typeof existing === 'object' && 'score' in existing) {
+          scores[c.key] = existing;
+        } else {
+          scores[c.key] = { score: 0, notes: '' };
+        }
+      }
+    }
+    return scores;
+  };
+
+  const [scores, setScores] = useState<Record<string, CriterionScore>>(getInitialScores);
+  const [recommendation, setRecommendation] = useState(
+    (existingAssessment?.recommendation as string) || ''
+  );
+  const [strengths, setStrengths] = useState(
+    (existingAssessment?.strengths as string) || ''
+  );
+  const [areasOfConcern, setAreasOfConcern] = useState(
+    (existingAssessment?.areasOfConcern as string) || ''
+  );
+  const [finalComments, setFinalComments] = useState(
+    (existingAssessment?.finalComments as string) || ''
+  );
+
+  const updateScore = (key: string, score: number) => {
+    setScores((prev) => ({ ...prev, [key]: { ...prev[key], score } }));
+  };
+
+  const updateNotes = (key: string, notes: string) => {
+    setScores((prev) => ({ ...prev, [key]: { ...prev[key], notes } }));
+  };
+
+  const mockAssessment: AssessmentData = {
+    ...scores,
+    recommendation,
+    strengths,
+    areasOfConcern,
+    finalComments,
+  };
+
+  const sectionScores = ASSESSMENT_CATEGORIES.map((cat) => ({
+    ...cat,
+    avg: computeSectionScore(mockAssessment, cat.criteria),
+  }));
+
+  const overallWeightedScore = computeWeightedScore(mockAssessment);
+  const allScored = Object.values(scores).every((s) => s.score > 0);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-lg">
+            {readOnly ? 'Assessment Review' : 'Interview Assessment Scorecard'}
+          </DialogTitle>
+        </DialogHeader>
+
+        {/* Candidate & Interviewer Header */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Candidate</p>
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-semibold text-lg">
+                {interview.candidateName.split(' ').map((n) => n[0]).join('')}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">{interview.candidateName}</p>
+                <p className="text-sm text-gray-600">{interview.jobTitle} · {interview.department}</p>
+                <p className="text-xs text-gray-500">Round {interview.round} · {new Date(interview.scheduledAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} {new Date(interview.scheduledAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Interviewer</p>
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold text-lg">
+                {interview.interviewerName.split(' ').map((n) => n[0]).join('')}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">{interview.interviewerName}</p>
+                <p className="text-sm text-gray-600">{interview.interviewerDesignation}</p>
+                <p className="text-xs text-gray-500">{interview.interviewerDepartment}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Score Legend */}
+        <div className="flex items-center gap-4 text-xs text-gray-500 px-1">
+          <span className="font-medium text-gray-700">Scale:</span>
+          {Object.entries(SCORE_ANCHORS).map(([n, label]) => (
+            <span key={n} className="flex items-center gap-1">
+              <span className="font-medium">{n}</span> = {label}
+            </span>
+          ))}
+        </div>
+
+        {/* Scoring Rubric */}
+        <div className="space-y-6">
+          {ASSESSMENT_CATEGORIES.map((cat, catIdx) => {
+            const sectionAvg = sectionScores[catIdx].avg;
+            return (
+              <div key={cat.key} className="border rounded-lg overflow-hidden">
+                <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-b">
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{cat.label}</h3>
+                    <p className="text-xs text-gray-500">Weight: {(cat.weight * 100).toFixed(0)}%</p>
+                  </div>
+                  {sectionAvg > 0 && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">Section Avg:</span>
+                      <span className={`text-sm font-bold px-2 py-0.5 rounded ${
+                        sectionAvg >= 4 ? 'bg-green-100 text-green-800' :
+                        sectionAvg >= 3 ? 'bg-amber-100 text-amber-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {sectionAvg.toFixed(1)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="divide-y">
+                  {cat.criteria.map((criterion) => {
+                    const val = scores[criterion.key] || { score: 0, notes: '' };
+                    return (
+                      <div key={criterion.key} className="px-4 py-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <Label className="text-sm font-medium text-gray-700">{criterion.label}</Label>
+                          {readOnly ? (
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <div
+                                  key={n}
+                                  className={`w-8 h-8 rounded-lg text-sm font-medium flex items-center justify-center ${
+                                    val.score === n
+                                      ? n <= 2
+                                        ? 'bg-red-500 text-white'
+                                        : n === 3
+                                          ? 'bg-amber-500 text-white'
+                                          : 'bg-green-500 text-white'
+                                      : 'bg-gray-100 text-gray-400'
+                                  }`}
+                                >
+                                  {n}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <ScoreRadioGroup
+                              value={val.score}
+                              onChange={(v) => updateScore(criterion.key, v)}
+                            />
+                          )}
+                        </div>
+                        {readOnly ? (
+                          val.notes && (
+                            <p className="text-sm text-gray-600 bg-gray-50 rounded px-3 py-2">{val.notes}</p>
+                          )
+                        ) : (
+                          <Textarea
+                            value={val.notes}
+                            onChange={(e) => updateNotes(criterion.key, e.target.value)}
+                            placeholder="Notes (optional)"
+                            rows={1}
+                            className="text-sm"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Weighted Overall Score */}
+        {allScored && (
+          <Card className="border-2 border-teal-200 bg-teal-50">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-teal-800">Overall Weighted Score</p>
+                  <p className="text-xs text-teal-600">Auto-calculated from section scores and weights</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-teal-700">{overallWeightedScore.toFixed(2)}</p>
+                  <p className="text-xs text-teal-600">out of 5.0</p>
+                </div>
+              </div>
+              <div className="mt-3 w-full bg-teal-200 rounded-full h-3">
+                <div
+                  className="bg-teal-600 h-3 rounded-full transition-all"
+                  style={{ width: `${(overallWeightedScore / 5) * 100}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Section Score Breakdown */}
+        {allScored && (
+          <div className="grid grid-cols-5 gap-2">
+            {sectionScores.map((s) => (
+              <div key={s.key} className="text-center p-2 rounded-lg bg-gray-50">
+                <p className="text-xs text-gray-500 truncate">{s.label}</p>
+                <p className={`text-lg font-bold ${
+                  s.avg >= 4 ? 'text-green-600' :
+                  s.avg >= 3 ? 'text-amber-600' :
+                  'text-red-600'
+                }`}>{s.avg.toFixed(1)}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Overall Recommendation */}
+        <div className="border rounded-lg p-4 space-y-4">
+          <h3 className="font-semibold text-gray-900">Overall Recommendation</h3>
+          {readOnly ? (
+            <div>{getRecommendationBadge(recommendation)}</div>
+          ) : (
+            <div className="flex gap-3">
+              {Object.entries(ASSESSMENT_RECOMMENDATION_LABELS).map(([key, label]) => {
+                const isSelected = recommendation === key;
+                const colors: Record<string, string> = {
+                  STRONG_HIRE: isSelected ? 'bg-green-600 text-white border-green-600' : 'border-green-300 text-green-700 hover:bg-green-50',
+                  HIRE: isSelected ? 'bg-emerald-500 text-white border-emerald-500' : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50',
+                  MAYBE: isSelected ? 'bg-amber-500 text-white border-amber-500' : 'border-amber-300 text-amber-700 hover:bg-amber-50',
+                  NO_HIRE: isSelected ? 'bg-red-500 text-white border-red-500' : 'border-red-300 text-red-700 hover:bg-red-50',
+                };
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setRecommendation(key)}
+                    className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${colors[key]}`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Strengths & Areas of Concern */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label className="text-sm font-medium">Strengths *</Label>
+            {readOnly ? (
+              <p className="text-sm text-gray-700 bg-green-50 rounded-lg p-3 mt-1">{strengths || 'N/A'}</p>
+            ) : (
+              <Textarea
+                value={strengths}
+                onChange={(e) => setStrengths(e.target.value)}
+                placeholder="Key strengths observed during the interview..."
+                rows={3}
+                className="mt-1"
+              />
+            )}
+          </div>
+          <div>
+            <Label className="text-sm font-medium">Areas of Concern</Label>
+            {readOnly ? (
+              <p className="text-sm text-gray-700 bg-red-50 rounded-lg p-3 mt-1">{areasOfConcern || 'N/A'}</p>
+            ) : (
+              <Textarea
+                value={areasOfConcern}
+                onChange={(e) => setAreasOfConcern(e.target.value)}
+                placeholder="Any concerns or areas needing improvement..."
+                rows={3}
+                className="mt-1"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Final Comments */}
+        <div>
+          <Label className="text-sm font-medium">Final Comments</Label>
+          {readOnly ? (
+            <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 mt-1">{finalComments || 'N/A'}</p>
+          ) : (
+            <Textarea
+              value={finalComments}
+              onChange={(e) => setFinalComments(e.target.value)}
+              placeholder="Any additional comments or observations..."
+              rows={2}
+              className="mt-1"
+            />
+          )}
+        </div>
+
+        {/* Footer */}
+        {!readOnly && (
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="bg-teal-600 hover:bg-teal-700"
+              disabled={!allScored || !recommendation || !strengths}
+              onClick={() => {
+                onOpenChange(false);
+              }}
+            >
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              Submit Assessment
+            </Button>
+          </DialogFooter>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function InterviewsPage() {
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('upcoming');
+  const [assessInterview, setAssessInterview] = useState<Interview | null>(null);
+  const [viewAssessment, setViewAssessment] = useState<Interview | null>(null);
 
   const now = new Date();
   const filtered = MOCK_INTERVIEWS.filter((i) => {
@@ -279,50 +782,68 @@ export default function InterviewsPage() {
               </h3>
               <div className="space-y-3">
                 {interviews.map((interview) => (
-                  <Link key={interview.id} href={`/recruitment/interviews/${interview.id}`}>
-                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                      <CardContent className="py-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex gap-4">
-                            <div className="text-center min-w-[60px]">
-                              <p className="text-lg font-bold text-teal-600">
-                                {new Date(interview.scheduledAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
-                              </p>
-                              <p className="text-xs text-gray-400">{interview.duration} min</p>
-                            </div>
-                            <div>
-                              <p className="font-semibold">{interview.candidateName}</p>
-                              <p className="text-sm text-gray-600">{interview.jobTitle} · Round {interview.round}</p>
-                              <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
-                                <span className="flex items-center gap-1">
-                                  <User className="h-3 w-3" /> {interview.interviewerName}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  {getModeIcon(interview.mode)}
-                                  {INTERVIEW_MODE_LABELS[interview.mode]}
-                                </span>
-                                {interview.location && (
-                                  <span className="flex items-center gap-1">
-                                    <MapPin className="h-3 w-3" /> {interview.location}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
+                  <Card key={interview.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="py-4">
+                      <div className="flex items-start justify-between">
+                        <Link href={`/recruitment/interviews/${interview.id}`} className="flex gap-4 flex-1">
+                          <div className="text-center min-w-[60px]">
+                            <p className="text-lg font-bold text-teal-600">
+                              {new Date(interview.scheduledAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                            </p>
+                            <p className="text-xs text-gray-400">{interview.duration} min</p>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {interview.overallScore && (
-                              <span className="flex items-center gap-1 text-sm font-medium text-amber-600">
-                                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                                {interview.overallScore.toFixed(1)}
+                          <div>
+                            <p className="font-semibold">{interview.candidateName}</p>
+                            <p className="text-sm text-gray-600">{interview.jobTitle} · Round {interview.round}</p>
+                            <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <User className="h-3 w-3" /> {interview.interviewerName}
                               </span>
-                            )}
-                            {getResultBadge(interview.result)}
-                            <ExternalLink className="h-4 w-4 text-gray-400" />
+                              <span className="flex items-center gap-1">
+                                {getModeIcon(interview.mode)}
+                                {INTERVIEW_MODE_LABELS[interview.mode]}
+                              </span>
+                              {interview.location && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" /> {interview.location}
+                                </span>
+                              )}
+                            </div>
                           </div>
+                        </Link>
+                        <div className="flex items-center gap-2">
+                          {interview.overallScore && (
+                            <span className="flex items-center gap-1 text-sm font-medium text-amber-600">
+                              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                              {interview.overallScore.toFixed(1)}
+                            </span>
+                          )}
+                          {getResultBadge(interview.result)}
+                          {interview.assessment ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-teal-600 border-teal-300 hover:bg-teal-50"
+                              onClick={(e) => { e.preventDefault(); setViewAssessment(interview); }}
+                            >
+                              <Eye className="mr-1 h-3.5 w-3.5" />
+                              View
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-teal-600 border-teal-300 hover:bg-teal-50"
+                              onClick={(e) => { e.preventDefault(); setAssessInterview(interview); }}
+                            >
+                              <ClipboardCheck className="mr-1 h-3.5 w-3.5" />
+                              Assess
+                            </Button>
+                          )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -357,11 +878,13 @@ export default function InterviewsPage() {
                         <div className="text-center text-xs text-gray-400 py-4">No candidates</div>
                       )}
                       {stageInterviews.map((interview) => (
-                        <Link key={interview.id} href={`/recruitment/interviews/${interview.id}`}>
-                          <Card className={`border-l-4 ${getPipelineCardColor(interview.result)} hover:shadow-md transition-shadow cursor-pointer`}>
+                        <div key={interview.id}>
+                          <Card className={`border-l-4 ${getPipelineCardColor(interview.result)} hover:shadow-md transition-shadow`}>
                             <CardContent className="p-3">
                               <div className="flex items-start justify-between mb-1">
-                                <p className="font-medium text-sm">{interview.candidateName}</p>
+                                <Link href={`/recruitment/interviews/${interview.id}`} className="font-medium text-sm hover:text-teal-600">
+                                  {interview.candidateName}
+                                </Link>
                                 {getResultBadge(interview.result)}
                               </div>
                               <p className="text-xs text-gray-600 mb-2">{interview.jobTitle}</p>
@@ -394,9 +917,30 @@ export default function InterviewsPage() {
                                   {getRecommendationBadge(interview.recommendation)}
                                 </div>
                               )}
+                              <div className="mt-2 pt-2 border-t">
+                                {interview.assessment ? (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full text-xs text-teal-600 hover:bg-teal-50 h-7"
+                                    onClick={() => setViewAssessment(interview)}
+                                  >
+                                    <Eye className="mr-1 h-3 w-3" /> View Assessment
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full text-xs text-teal-600 hover:bg-teal-50 h-7"
+                                    onClick={() => setAssessInterview(interview)}
+                                  >
+                                    <ClipboardCheck className="mr-1 h-3 w-3" /> Assess
+                                  </Button>
+                                )}
+                              </div>
                             </CardContent>
                           </Card>
-                        </Link>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -636,11 +1180,21 @@ export default function InterviewsPage() {
                             })}
                           </td>
                           <td className="px-4 py-3 text-sm">
-                            <Link href={`/recruitment/interviews/${interview.id}`}>
-                              <Button variant="ghost" size="sm">
-                                <ExternalLink className="h-4 w-4" />
+                            {interview.assessment ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setViewAssessment(interview)}
+                              >
+                                <Eye className="h-4 w-4" />
                               </Button>
-                            </Link>
+                            ) : (
+                              <Link href={`/recruitment/interviews/${interview.id}`}>
+                                <Button variant="ghost" size="sm">
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -725,6 +1279,25 @@ export default function InterviewsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Assessment Scorecard Dialog - New Assessment */}
+      {assessInterview && (
+        <AssessmentScorecardDialog
+          interview={assessInterview}
+          open={!!assessInterview}
+          onOpenChange={(open) => { if (!open) setAssessInterview(null); }}
+        />
+      )}
+
+      {/* Assessment Review Dialog - View Existing */}
+      {viewAssessment && (
+        <AssessmentScorecardDialog
+          interview={viewAssessment}
+          open={!!viewAssessment}
+          onOpenChange={(open) => { if (!open) setViewAssessment(null); }}
+          readOnly
+        />
+      )}
     </div>
   );
 }

@@ -446,6 +446,45 @@ export const interviewFeedbackSchema = z.object({
   comments: z.string().optional(),
 });
 
+// ─── Interview Assessment Scorecard ─────────────────────────────────
+
+const scoreCriterionSchema = z.object({
+  score: z.number().int().min(1).max(5),
+  notes: z.string().optional(),
+});
+
+export const interviewAssessmentSchema = z.object({
+  interviewScheduleId: z.string().min(1, 'Interview schedule is required'),
+  // Technical Skills
+  domainKnowledge: scoreCriterionSchema,
+  problemSolving: scoreCriterionSchema,
+  codingAbility: scoreCriterionSchema,
+  // Communication
+  verbalClarity: scoreCriterionSchema,
+  articulation: scoreCriterionSchema,
+  activeListening: scoreCriterionSchema,
+  presentation: scoreCriterionSchema,
+  // Cultural Fit
+  valuesAlignment: scoreCriterionSchema,
+  teamCompatibility: scoreCriterionSchema,
+  attitude: scoreCriterionSchema,
+  workEthic: scoreCriterionSchema,
+  // Experience
+  pastExperience: scoreCriterionSchema,
+  projectDepth: scoreCriterionSchema,
+  industryKnowledge: scoreCriterionSchema,
+  // Leadership
+  initiative: scoreCriterionSchema,
+  decisionMaking: scoreCriterionSchema,
+  mentoringAbility: scoreCriterionSchema,
+  vision: scoreCriterionSchema,
+  // Overall
+  recommendation: z.enum(['STRONG_HIRE', 'HIRE', 'MAYBE', 'NO_HIRE']),
+  strengths: z.string().min(1, 'Strengths are required'),
+  areasOfConcern: z.string().optional(),
+  finalComments: z.string().optional(),
+});
+
 export const offerLetterSchema = z.object({
   applicationId: z.string().min(1, 'Application is required'),
   designation: z.string().min(1, 'Designation is required'),
@@ -875,6 +914,7 @@ export type CandidateInput = z.infer<typeof candidateSchema>;
 export type ApplicationMoveStageInput = z.infer<typeof applicationMoveStageSchema>;
 export type InterviewScheduleInput = z.infer<typeof interviewScheduleSchema>;
 export type InterviewFeedbackInput = z.infer<typeof interviewFeedbackSchema>;
+export type InterviewAssessmentInput = z.infer<typeof interviewAssessmentSchema>;
 export type OfferLetterInput = z.infer<typeof offerLetterSchema>;
 export type SourceImportInput = z.infer<typeof sourceImportSchema>;
 export type TalentPoolInput = z.infer<typeof talentPoolSchema>;

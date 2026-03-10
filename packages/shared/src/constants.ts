@@ -186,3 +186,76 @@ export const PRIORITY_LABELS: Record<string, string> = {
   HIGH: 'High',
   URGENT: 'Urgent',
 };
+
+// ─── Assessment Scorecard Constants ──────────────────────────────
+
+export const SCORE_ANCHORS: Record<number, string> = {
+  1: 'Poor',
+  2: 'Below Average',
+  3: 'Average',
+  4: 'Good',
+  5: 'Excellent',
+};
+
+export const ASSESSMENT_CATEGORIES = [
+  {
+    key: 'technicalSkills',
+    label: 'Technical Skills',
+    weight: 0.30,
+    criteria: [
+      { key: 'domainKnowledge', label: 'Domain Knowledge' },
+      { key: 'problemSolving', label: 'Problem Solving' },
+      { key: 'codingAbility', label: 'Coding / Technical Ability' },
+    ],
+  },
+  {
+    key: 'communication',
+    label: 'Communication',
+    weight: 0.20,
+    criteria: [
+      { key: 'verbalClarity', label: 'Verbal Clarity' },
+      { key: 'articulation', label: 'Articulation' },
+      { key: 'activeListening', label: 'Active Listening' },
+      { key: 'presentation', label: 'Presentation' },
+    ],
+  },
+  {
+    key: 'culturalFit',
+    label: 'Cultural Fit',
+    weight: 0.15,
+    criteria: [
+      { key: 'valuesAlignment', label: 'Values Alignment' },
+      { key: 'teamCompatibility', label: 'Team Compatibility' },
+      { key: 'attitude', label: 'Attitude' },
+      { key: 'workEthic', label: 'Work Ethic' },
+    ],
+  },
+  {
+    key: 'experience',
+    label: 'Experience',
+    weight: 0.20,
+    criteria: [
+      { key: 'pastExperience', label: 'Past Experience Relevance' },
+      { key: 'projectDepth', label: 'Project Depth' },
+      { key: 'industryKnowledge', label: 'Industry Knowledge' },
+    ],
+  },
+  {
+    key: 'leadership',
+    label: 'Leadership',
+    weight: 0.15,
+    criteria: [
+      { key: 'initiative', label: 'Initiative' },
+      { key: 'decisionMaking', label: 'Decision Making' },
+      { key: 'mentoringAbility', label: 'Mentoring Ability' },
+      { key: 'vision', label: 'Vision' },
+    ],
+  },
+] as const;
+
+export const ASSESSMENT_RECOMMENDATION_LABELS: Record<string, string> = {
+  STRONG_HIRE: 'Strong Hire',
+  HIRE: 'Hire',
+  MAYBE: 'Maybe',
+  NO_HIRE: 'No Hire',
+};
