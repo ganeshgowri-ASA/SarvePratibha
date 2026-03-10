@@ -1848,3 +1848,116 @@ export interface OffboardingTaskItem {
   completedAt?: string;
   orderIndex: number;
 }
+
+// ─── JD vs Candidate Comparison ────────────────────────────────────
+
+export interface JDRequirements {
+  id: string;
+  title: string;
+  department: string;
+  description: string;
+  requiredSkills: string[];
+  preferredSkills: string[];
+  minExperience: number;
+  maxExperience: number;
+  requiredEducation: string;
+  preferredEducation?: string;
+  requiredCertifications: string[];
+  preferredCertifications: string[];
+  domainKnowledge: string[];
+  responsibilities: string[];
+}
+
+export interface SkillMatchItem {
+  skill: string;
+  status: 'matched' | 'missing' | 'additional';
+  isRequired: boolean;
+}
+
+export interface ExperienceMatch {
+  requiredMin: number;
+  requiredMax: number;
+  candidateYears: number;
+  matchPercentage: number;
+}
+
+export interface EducationMatch {
+  required: string;
+  candidate: string;
+  isMatch: boolean;
+}
+
+export interface CertificationMatch {
+  certification: string;
+  status: 'matched' | 'missing' | 'additional';
+  isRequired: boolean;
+}
+
+export interface RadarChartDataPoint {
+  category: string;
+  jdScore: number;
+  candidateScore: number;
+}
+
+export interface JDCandidateComparison {
+  overallMatchScore: number;
+  skillsMatch: SkillMatchItem[];
+  experienceMatch: ExperienceMatch;
+  educationMatch: EducationMatch;
+  certificationMatch: CertificationMatch[];
+  radarData: RadarChartDataPoint[];
+  skillsScore: number;
+  experienceScore: number;
+  educationScore: number;
+  certificationScore: number;
+  domainScore: number;
+  communicationScore: number;
+}
+
+export interface ResumeHighlights {
+  summary: string;
+  workExperience: {
+    company: string;
+    role: string;
+    duration: string;
+    startDate: string;
+    endDate?: string;
+    highlights: string[];
+  }[];
+  education: {
+    degree: string;
+    institution: string;
+    year: number;
+    grade?: string;
+  }[];
+  skills: string[];
+  certifications: {
+    name: string;
+    issuer: string;
+    year: number;
+  }[];
+  projects: {
+    name: string;
+    description: string;
+    technologies: string[];
+  }[];
+  jdMatchedKeywords: string[];
+}
+
+export interface InterviewVsJDComparison {
+  jdSkill: string;
+  interviewScore: number | null;
+  maxScore: number;
+  gap: number;
+  status: 'exceeds' | 'meets' | 'below' | 'not_assessed';
+}
+
+export interface JDFitRecommendation {
+  overallFit: 'strong_fit' | 'good_fit' | 'partial_fit' | 'poor_fit';
+  jdMatchScore: number;
+  interviewScore: number;
+  combinedScore: number;
+  strengths: string[];
+  gaps: string[];
+  recommendation: string;
+}

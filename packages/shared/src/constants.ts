@@ -186,3 +186,30 @@ export const PRIORITY_LABELS: Record<string, string> = {
   HIGH: 'High',
   URGENT: 'Urgent',
 };
+
+// ─── JD Match Score Constants ─────────────────────────────────────
+
+export const MATCH_SCORE_COLORS = {
+  high: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300', fill: 'bg-green-500' },
+  medium: { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300', fill: 'bg-yellow-500' },
+  low: { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-300', fill: 'bg-red-500' },
+} as const;
+
+export const MATCH_SCORE_THRESHOLDS = {
+  high: 80,
+  medium: 60,
+} as const;
+
+export const JD_FIT_LABELS: Record<string, string> = {
+  strong_fit: 'Strong Fit',
+  good_fit: 'Good Fit',
+  partial_fit: 'Partial Fit',
+  poor_fit: 'Poor Fit',
+};
+
+export const JD_FIT_COLORS: Record<string, string> = {
+  strong_fit: 'bg-green-100 text-green-800',
+  good_fit: 'bg-blue-100 text-blue-800',
+  partial_fit: 'bg-yellow-100 text-yellow-800',
+  poor_fit: 'bg-red-100 text-red-800',
+};
