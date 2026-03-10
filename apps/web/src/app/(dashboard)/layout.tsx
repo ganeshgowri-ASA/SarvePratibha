@@ -1,5 +1,6 @@
 import { Sidebar } from '@/components/layout/sidebar';
 import { Navbar } from '@/components/layout/navbar';
+import { HrBuddy } from '@/components/hr-buddy';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -9,6 +10,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="ml-0 md:ml-64 pt-16">
         <div className="p-4 md:p-6">{children}</div>
       </main>
+      <HrBuddy />
     </div>
   );
 }
