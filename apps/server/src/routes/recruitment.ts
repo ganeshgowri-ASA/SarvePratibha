@@ -8,6 +8,7 @@ import {
   applicationMoveStageSchema,
   interviewScheduleSchema,
   interviewFeedbackSchema,
+  interviewAssessmentSchema,
   offerLetterSchema,
   sourceImportSchema,
   talentPoolSchema,
@@ -541,6 +542,122 @@ recruitmentRouter.post(
       }
 
       res.status(201).json({ success: true, data: feedback });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// Submit detailed interview assessment scorecard
+recruitmentRouter.post(
+  '/interview/assessment',
+  authorize('MANAGER'),
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const data = interviewAssessmentSchema.parse(req.body);
+      const employeeId = req.user!.employeeId;
+      if (!employeeId) throw new AppError(400, 'Employee profile required');
+
+      const schedule = await prisma.interviewSchedule.findUnique({
+        where: { id: data.interviewScheduleId },
+      });
+      if (!schedule) throw new AppError(404, 'Interview schedule not found');
+
+      // Extract scores from all criteria
+      const criteriaKeys = [
+        'domainKnowledge', 'problemSolving', 'codingAbility',
+        'verbalClarity', 'articulation', 'activeListening', 'presentation',
+        'valuesAlignment', 'teamCompatibility', 'attitude', 'workEthic',
+        'pastExperience', 'projectDepth', 'industryKnowledge',
+        'initiative', 'decisionMaking', 'mentoringAbility', 'vision',
+      ] as const;
+
+      const allScores = criteriaKeys.map((key) => data[key].score);
+      const overallRating = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+
+      // Map technical/communication/cultureFit averages
+      const technicalRating = Math.round(
+        (data.domainKnowledge.score + data.problemSolving.score + data.codingAbility.score) / 3
+      );
+      const communicationRating = Math.round(
+        (data.verbalClarity.score + data.articulation.score + data.activeListening.score + data.presentation.score) / 4
+      );
+      const cultureFitRating = Math.round(
+        (data.valuesAlignment.score + data.teamCompatibility.score + data.attitude.score + data.workEthic.score) / 4
+      );
+
+      // Map recommendation to match existing enum
+      const recMap: Record<string, string> = {
+        STRONG_HIRE: 'STRONG_HIRE',
+        HIRE: 'HIRE',
+        MAYBE: 'HIRE',
+        NO_HIRE: 'NO_HIRE',
+      };
+
+      // Create feedback record (using existing InterviewFeedback model)
+      const feedback = await prisma.interviewFeedback.create({
+        data: {
+          interviewScheduleId: data.interviewScheduleId,
+          interviewerId: employeeId,
+          technicalRating,
+          communicationRating,
+          cultureFitRating,
+          overallRating: Math.round(overallRating * 10) / 10,
+          strengths: data.strengths,
+          weaknesses: data.areasOfConcern || '',
+          recommendation: recMap[data.recommendation] as never,
+          comments: data.finalComments || '',
+        },
+      });
+
+      // Update interview result based on recommendation
+      const resultMap: Record<string, string> = {
+        STRONG_HIRE: 'SELECTED',
+        HIRE: 'SELECTED',
+        MAYBE: 'ON_HOLD',
+        NO_HIRE: 'REJECTED',
+      };
+      await prisma.interviewSchedule.update({
+        where: { id: data.interviewScheduleId },
+        data: { result: resultMap[data.recommendation] as never },
+      });
+
+      res.status(201).json({ success: true, data: feedback });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// Get assessment details for an interview
+recruitmentRouter.get(
+  '/interview/:id/assessment',
+  authorize('MANAGER'),
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const schedule = await prisma.interviewSchedule.findUnique({
+        where: { id },
+        include: {
+          application: {
+            include: {
+              candidate: { select: { firstName: true, lastName: true, email: true } },
+              jobPosting: { select: { title: true, department: { select: { name: true } } } },
+            },
+          },
+          interviewer: { select: { firstName: true, lastName: true, designation: true } },
+          feedbacks: {
+            include: {
+              interviewer: { select: { firstName: true, lastName: true } },
+            },
+          },
+        },
+      });
+
+      if (!schedule) throw new AppError(404, 'Interview schedule not found');
+
+      res.json({ success: true, data: schedule });
     } catch (err) {
       next(err);
     }
