@@ -90,6 +90,8 @@ export default function NewGoalPage() {
                     <SelectItem value="BUSINESS">Business</SelectItem>
                     <SelectItem value="LEARNING">Learning</SelectItem>
                     <SelectItem value="DEVELOPMENT">Development</SelectItem>
+                    <SelectItem value="BEHAVIOURAL">Behavioural</SelectItem>
+                    <SelectItem value="COMPETENCY">Competency</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

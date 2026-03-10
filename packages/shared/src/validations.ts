@@ -135,7 +135,7 @@ export const claimSchema = z.object({
 export const goalSchema = z.object({
   title: z.string().min(1, 'Goal title is required'),
   description: z.string().optional(),
-  category: z.enum(['BUSINESS', 'LEARNING', 'DEVELOPMENT']).default('BUSINESS'),
+  category: z.enum(['BUSINESS', 'LEARNING', 'DEVELOPMENT', 'BEHAVIOURAL', 'COMPETENCY']).default('BUSINESS'),
   weightage: z.number().min(0).max(100),
   targetDate: z.string().or(z.date()).optional(),
   cycle: z.enum(['QUARTERLY', 'HALF_YEARLY', 'ANNUAL']).default('ANNUAL'),
