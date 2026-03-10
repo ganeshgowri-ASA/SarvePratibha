@@ -95,7 +95,8 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
         loginMode: { label: 'Login Mode', type: 'text' },
       },
-      async authorize(credentials) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      async authorize(credentials): Promise<any> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Identifier and password are required');
         }

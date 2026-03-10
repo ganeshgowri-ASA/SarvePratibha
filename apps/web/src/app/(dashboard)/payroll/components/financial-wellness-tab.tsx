@@ -261,8 +261,8 @@ export default function FinancialWellnessTab() {
                   <span className="text-sm font-medium text-gray-700">{formatCurrency(emiPrincipal)}</span>
                 </div>
                 <Slider
-                  value={[emiPrincipal]}
-                  onValueChange={(v) => setEmiPrincipal(v[0])}
+                  value={emiPrincipal}
+                  onValueChange={(v) => setEmiPrincipal(v)}
                   min={100000}
                   max={10000000}
                   step={50000}
@@ -277,8 +277,8 @@ export default function FinancialWellnessTab() {
                   <span className="text-sm font-medium text-gray-700">{emiRate}%</span>
                 </div>
                 <Slider
-                  value={[emiRate]}
-                  onValueChange={(v) => setEmiRate(v[0])}
+                  value={emiRate}
+                  onValueChange={(v) => setEmiRate(v)}
                   min={5}
                   max={20}
                   step={0.5}
@@ -293,8 +293,8 @@ export default function FinancialWellnessTab() {
                   <span className="text-sm font-medium text-gray-700">{emiTenure} months ({(emiTenure / 12).toFixed(1)} years)</span>
                 </div>
                 <Slider
-                  value={[emiTenure]}
-                  onValueChange={(v) => setEmiTenure(v[0])}
+                  value={emiTenure}
+                  onValueChange={(v) => setEmiTenure(v)}
                   min={6}
                   max={360}
                   step={6}

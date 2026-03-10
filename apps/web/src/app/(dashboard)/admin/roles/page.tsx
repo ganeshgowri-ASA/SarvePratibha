@@ -48,7 +48,7 @@ export default function RolesPage() {
     },
   });
 
-  const permissions = data?.data?.permissions || [];
+  const permissions = (data as any)?.data?.permissions || [];
   const modules = [...new Set(permissions.map((p: any) => p.module))];
 
   const togglePermission = (role: string, permId: string) => {

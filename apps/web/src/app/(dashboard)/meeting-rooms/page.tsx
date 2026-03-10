@@ -498,7 +498,7 @@ function MyMeetingsSection() {
                       <h4 className="font-medium text-gray-900 truncate">{meeting.title}</h4>
                       <PlatformIcon platform={meeting.platform} size={16} />
                       {meeting.recurrence !== 'none' && (
-                        <RefreshCw size={12} className="text-gray-400" title={`Recurring: ${meeting.recurrence}`} />
+                        <RefreshCw size={12} className="text-gray-400" />
                       )}
                     </div>
                     <p className="text-xs text-gray-500 mb-2 line-clamp-1">{meeting.agenda}</p>

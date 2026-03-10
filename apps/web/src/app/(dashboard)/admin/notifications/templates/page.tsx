@@ -92,7 +92,7 @@ export default function NotificationTemplatesPage() {
     if (!token) return;
     try {
       setLoading(true);
-      const data = await apiFetch<ApiResponse<NotificationTemplateItem[]>>(
+      const data = await apiFetch<NotificationTemplateItem[]>(
         '/api/notifications/templates',
         { token },
       );
