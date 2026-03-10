@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -31,7 +31,32 @@ interface LeaveBalance {
   allocated: number;
   used: number;
   balance: number;
+  color: string;
 }
+
+const DEFAULT_LEAVE_TYPES: LeaveType[] = [
+  { id: 'lt-cl', name: 'Casual Leave', code: 'CL', description: 'For personal matters', defaultDays: 12, isPaidLeave: true },
+  { id: 'lt-sl', name: 'Sick Leave', code: 'SL', description: 'For illness/medical reasons', defaultDays: 12, isPaidLeave: true },
+  { id: 'lt-el', name: 'Earned Leave', code: 'EL', description: 'Pre-planned leave', defaultDays: 15, isPaidLeave: true },
+  { id: 'lt-co', name: 'Comp Off', code: 'CO', description: 'Compensatory off', defaultDays: 0, isPaidLeave: true },
+  { id: 'lt-ml', name: 'Maternity Leave', code: 'ML', description: 'Maternity leave', defaultDays: 90, isPaidLeave: true },
+  { id: 'lt-pl', name: 'Paternity Leave', code: 'PL', description: 'Paternity leave', defaultDays: 15, isPaidLeave: true },
+  { id: 'lt-mrl', name: 'Marriage Leave', code: 'MRL', description: 'Marriage leave', defaultDays: 15, isPaidLeave: true },
+  { id: 'lt-bl', name: 'Bereavement Leave', code: 'BL', description: 'Bereavement leave', defaultDays: 5, isPaidLeave: true },
+  { id: 'lt-wfh', name: 'Work From Home', code: 'WFH', description: 'Work from home', defaultDays: 0, isPaidLeave: true },
+  { id: 'lt-lop', name: 'Loss of Pay', code: 'LOP', description: 'Leave without pay', defaultDays: 0, isPaidLeave: false },
+];
+
+const DEFAULT_BALANCES: LeaveBalance[] = [
+  { id: 'b-cl', leaveType: 'Casual Leave', code: 'CL', allocated: 12, used: 0, balance: 12, color: 'text-teal-600 border-teal-200 bg-teal-50' },
+  { id: 'b-sl', leaveType: 'Sick Leave', code: 'SL', allocated: 12, used: 0, balance: 12, color: 'text-blue-600 border-blue-200 bg-blue-50' },
+  { id: 'b-el', leaveType: 'Earned Leave', code: 'EL', allocated: 15, used: 0, balance: 15, color: 'text-purple-600 border-purple-200 bg-purple-50' },
+  { id: 'b-co', leaveType: 'Comp Off', code: 'CO', allocated: 0, used: 0, balance: 0, color: 'text-orange-600 border-orange-200 bg-orange-50' },
+  { id: 'b-ml', leaveType: 'Maternity Leave', code: 'ML', allocated: 90, used: 0, balance: 90, color: 'text-pink-600 border-pink-200 bg-pink-50' },
+  { id: 'b-pl', leaveType: 'Paternity Leave', code: 'PL', allocated: 15, used: 0, balance: 15, color: 'text-indigo-600 border-indigo-200 bg-indigo-50' },
+  { id: 'b-mrl', leaveType: 'Marriage Leave', code: 'MRL', allocated: 15, used: 0, balance: 15, color: 'text-rose-600 border-rose-200 bg-rose-50' },
+  { id: 'b-wfh', leaveType: 'Work From Home', code: 'WFH', allocated: 0, used: 0, balance: 0, color: 'text-emerald-600 border-emerald-200 bg-emerald-50' },
+];
 
 const LEAVE_TYPE_INFO: Record<string, { description: string; requiresAttachment?: boolean }> = {
   CL: { description: 'For personal matters, short absences. Max 3 consecutive days.' },
@@ -49,8 +74,8 @@ const LEAVE_TYPE_INFO: Record<string, { description: string; requiresAttachment?
 export default function ApplyLeavePage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
-  const [balances, setBalances] = useState<LeaveBalance[]>([]);
+  const leaveTypes = DEFAULT_LEAVE_TYPES;
+  const balances = DEFAULT_BALANCES;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -66,26 +91,6 @@ export default function ApplyLeavePage() {
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
 
   const token = (session?.user as any)?.accessToken;
-  const employeeId = (session?.user as any)?.employeeId;
-
-  useEffect(() => {
-    if (!token || !employeeId) return;
-
-    async function loadData() {
-      try {
-        const [typesRes, balanceRes] = await Promise.all([
-          apiFetch<LeaveType[]>('/api/leave/types', { token }),
-          apiFetch<LeaveBalance[]>(`/api/leave/balance/${employeeId}`, { token }),
-        ]);
-        setLeaveTypes(typesRes.data || []);
-        setBalances(balanceRes.data || []);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    loadData();
-  }, [token, employeeId]);
 
   // Calculate days
   const calcDays = () => {
@@ -193,12 +198,12 @@ export default function ApplyLeavePage() {
           <CardTitle className="text-sm font-medium text-gray-700">Leave Balance Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
             {balances.map((b) => (
               <div
                 key={b.id}
                 className={`rounded-lg border px-3 py-2 text-center cursor-pointer transition-colors ${
-                  selectedType?.code === b.code ? 'border-teal-500 bg-teal-50' : 'hover:bg-gray-50'
+                  selectedType?.code === b.code ? 'border-teal-500 ring-2 ring-teal-200 bg-teal-50' : `${b.color} hover:opacity-90`
                 }`}
                 onClick={() => {
                   const lt = leaveTypes.find((t) => t.code === b.code);
@@ -206,26 +211,28 @@ export default function ApplyLeavePage() {
                 }}
               >
                 <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">{b.code}</p>
-                <p className="text-lg font-bold text-gray-900">{b.balance}</p>
-                <p className="text-[10px] text-gray-400">{b.used}/{b.allocated} used</p>
+                <p className="text-lg font-bold text-gray-900">
+                  {b.code === 'WFH' ? 'Flex' : b.balance}
+                </p>
+                <p className="text-[10px] text-gray-400">
+                  {b.code === 'WFH' ? 'Flexible' : `${b.used}/${b.allocated} used`}
+                </p>
               </div>
             ))}
             {/* LOP always available */}
-            {!balances.find((b) => b.code === 'LOP') && (
-              <div
-                className={`rounded-lg border px-3 py-2 text-center cursor-pointer transition-colors ${
-                  selectedType?.code === 'LOP' ? 'border-teal-500 bg-teal-50' : 'hover:bg-gray-50'
-                }`}
-                onClick={() => {
-                  const lt = leaveTypes.find((t) => t.code === 'LOP');
-                  if (lt) setLeaveTypeId(lt.id);
-                }}
-              >
-                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">LOP</p>
-                <p className="text-lg font-bold text-gray-900">&infin;</p>
-                <p className="text-[10px] text-gray-400">Unpaid</p>
-              </div>
-            )}
+            <div
+              className={`rounded-lg border px-3 py-2 text-center cursor-pointer transition-colors ${
+                selectedType?.code === 'LOP' ? 'border-teal-500 ring-2 ring-teal-200 bg-teal-50' : 'text-red-600 border-red-200 bg-red-50 hover:opacity-90'
+              }`}
+              onClick={() => {
+                const lt = leaveTypes.find((t) => t.code === 'LOP');
+                if (lt) setLeaveTypeId(lt.id);
+              }}
+            >
+              <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">LOP</p>
+              <p className="text-lg font-bold text-gray-900">&infin;</p>
+              <p className="text-[10px] text-gray-400">Unpaid</p>
+            </div>
           </div>
         </CardContent>
       </Card>

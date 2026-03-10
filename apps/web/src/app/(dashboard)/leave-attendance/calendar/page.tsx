@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Calendar as CalendarIcon, Sun, Star, Flag, ChevronLeft, ChevronRight, Info } from 'lucide-react';
-import { apiFetch } from '@/lib/api';
 
 interface Holiday {
   id: string;
@@ -18,6 +16,51 @@ interface Holiday {
   location?: string;
   isOptional: boolean;
 }
+
+const INDIAN_HOLIDAYS: Record<number, Holiday[]> = {
+  2025: [
+    { id: '2025-01', name: 'Republic Day', date: '2025-01-26', type: 'NATIONAL', isOptional: false },
+    { id: '2025-02', name: 'Maha Shivaratri', date: '2025-02-26', type: 'RESTRICTED', isOptional: true },
+    { id: '2025-03a', name: 'Holi', date: '2025-03-14', type: 'NATIONAL', isOptional: false },
+    { id: '2025-03b', name: 'Eid ul-Fitr', date: '2025-03-31', type: 'OPTIONAL', isOptional: true },
+    { id: '2025-04a', name: 'Ram Navami', date: '2025-04-06', type: 'RESTRICTED', isOptional: true },
+    { id: '2025-04b', name: 'Mahavir Jayanti', date: '2025-04-10', type: 'RESTRICTED', isOptional: true },
+    { id: '2025-04c', name: 'Dr Ambedkar Jayanti', date: '2025-04-14', type: 'NATIONAL', isOptional: false },
+    { id: '2025-04d', name: 'Good Friday', date: '2025-04-18', type: 'OPTIONAL', isOptional: true },
+    { id: '2025-05', name: 'Buddha Purnima', date: '2025-05-12', type: 'OPTIONAL', isOptional: true },
+    { id: '2025-06', name: 'Eid ul-Adha', date: '2025-06-07', type: 'OPTIONAL', isOptional: true },
+    { id: '2025-07', name: 'Muharram', date: '2025-07-06', type: 'OPTIONAL', isOptional: true },
+    { id: '2025-08a', name: 'Independence Day', date: '2025-08-15', type: 'NATIONAL', isOptional: false },
+    { id: '2025-08b', name: 'Janmashtami', date: '2025-08-16', type: 'RESTRICTED', isOptional: true },
+    { id: '2025-09', name: 'Milad un-Nabi', date: '2025-09-05', type: 'OPTIONAL', isOptional: true },
+    { id: '2025-10a', name: 'Mahatma Gandhi Jayanti', date: '2025-10-02', type: 'NATIONAL', isOptional: false },
+    { id: '2025-10b', name: 'Dussehra', date: '2025-10-02', type: 'NATIONAL', isOptional: false },
+    { id: '2025-10c', name: 'Diwali', date: '2025-10-20', type: 'NATIONAL', isOptional: false },
+    { id: '2025-11', name: 'Guru Nanak Jayanti', date: '2025-11-05', type: 'OPTIONAL', isOptional: true },
+    { id: '2025-12', name: 'Christmas', date: '2025-12-25', type: 'NATIONAL', isOptional: false },
+  ],
+  2026: [
+    { id: '2026-01', name: 'Republic Day', date: '2026-01-26', type: 'NATIONAL', isOptional: false },
+    { id: '2026-02', name: 'Maha Shivaratri', date: '2026-02-15', type: 'RESTRICTED', isOptional: true },
+    { id: '2026-03a', name: 'Holi', date: '2026-03-04', type: 'NATIONAL', isOptional: false },
+    { id: '2026-03b', name: 'Eid ul-Fitr', date: '2026-03-21', type: 'OPTIONAL', isOptional: true },
+    { id: '2026-03c', name: 'Ram Navami', date: '2026-03-26', type: 'RESTRICTED', isOptional: true },
+    { id: '2026-04a', name: 'Mahavir Jayanti', date: '2026-03-31', type: 'RESTRICTED', isOptional: true },
+    { id: '2026-04b', name: 'Good Friday', date: '2026-04-03', type: 'OPTIONAL', isOptional: true },
+    { id: '2026-04c', name: 'Dr Ambedkar Jayanti', date: '2026-04-14', type: 'NATIONAL', isOptional: false },
+    { id: '2026-05', name: 'Buddha Purnima', date: '2026-05-01', type: 'OPTIONAL', isOptional: true },
+    { id: '2026-05b', name: 'Eid ul-Adha', date: '2026-05-27', type: 'OPTIONAL', isOptional: true },
+    { id: '2026-06', name: 'Muharram', date: '2026-06-26', type: 'OPTIONAL', isOptional: true },
+    { id: '2026-08a', name: 'Independence Day', date: '2026-08-15', type: 'NATIONAL', isOptional: false },
+    { id: '2026-08b', name: 'Janmashtami', date: '2026-08-06', type: 'RESTRICTED', isOptional: true },
+    { id: '2026-08c', name: 'Milad un-Nabi', date: '2026-08-26', type: 'OPTIONAL', isOptional: true },
+    { id: '2026-10a', name: 'Mahatma Gandhi Jayanti', date: '2026-10-02', type: 'NATIONAL', isOptional: false },
+    { id: '2026-10b', name: 'Dussehra', date: '2026-10-19', type: 'NATIONAL', isOptional: false },
+    { id: '2026-11a', name: 'Diwali', date: '2026-11-08', type: 'NATIONAL', isOptional: false },
+    { id: '2026-11b', name: 'Guru Nanak Jayanti', date: '2026-11-24', type: 'OPTIONAL', isOptional: true },
+    { id: '2026-12', name: 'Christmas', date: '2026-12-25', type: 'NATIONAL', isOptional: false },
+  ],
+};
 
 const TYPE_STYLES: Record<string, { bg: string; dot: string; text: string; icon: typeof Sun; label: string }> = {
   NATIONAL: { bg: 'bg-red-100 text-red-700', dot: 'bg-red-500', text: 'text-red-600', icon: Flag, label: 'National Holiday' },
@@ -45,32 +88,11 @@ function formatDateKey(year: number, month: number, day: number): string {
 }
 
 export default function HolidayCalendarPage() {
-  const { data: session } = useSession();
-  const [holidays, setHolidays] = useState<Holiday[]>([]);
-  const [loading, setLoading] = useState(true);
   const [year, setYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
 
-  const token = (session?.user as any)?.accessToken;
-
-  useEffect(() => {
-    if (!token) return;
-
-    async function loadHolidays() {
-      setLoading(true);
-      try {
-        const res = await apiFetch<Holiday[]>(`/api/holidays?year=${year}`, { token });
-        setHolidays(res.data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadHolidays();
-  }, [token, year]);
+  const holidays = useMemo(() => INDIAN_HOLIDAYS[year] || [], [year]);
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 3 }, (_, i) => currentYear + i - 1);
@@ -196,9 +218,7 @@ export default function HolidayCalendarPage() {
         </CardContent>
       </Card>
 
-      {loading ? (
-        <div className="py-8 text-center text-sm text-gray-500">Loading holidays...</div>
-      ) : viewMode === 'calendar' ? (
+      {viewMode === 'calendar' ? (
         <>
           {/* Full Year Calendar Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
