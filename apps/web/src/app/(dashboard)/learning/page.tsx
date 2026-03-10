@@ -20,6 +20,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   PieChart,
   Pie,
@@ -33,8 +35,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { generateCertificate, getProgressPercent } from '@/lib/learning-service';
 
-// ─── KPI Data ──────────────────────────────────────────────
+// ─── KPI Data ──────────────────────────────────────────────────────────────
 const KPI_STATS = [
   {
     label: 'Total Learning Hours',
@@ -113,9 +116,10 @@ const COURSE_STATUS = {
 };
 
 // ─── My Learning Path ──────────────────────────────────────
+// IDs align with the course catalog so buttons route correctly
 const LEARNING_PATH = [
   {
-    id: '1',
+    id: 'i1',
     title: 'Company Orientation',
     platform: 'Internal',
     mandatory: true,
@@ -124,10 +128,12 @@ const LEARNING_PATH = [
     dueDate: '2026-01-15',
     duration: '2h',
     certificate: 'CERT-SP-001',
+    instructor: 'HR Team',
+    completedAt: '2026-01-14',
   },
   {
-    id: '2',
-    title: 'Compliance Training',
+    id: 'a1',
+    title: 'Annual Compliance Training',
     platform: 'Articulate 360',
     mandatory: true,
     status: 'COMPLETED',
@@ -135,9 +141,11 @@ const LEARNING_PATH = [
     dueDate: '2026-01-31',
     duration: '3h',
     certificate: 'CERT-SP-002',
+    instructor: 'Legal & Compliance Team',
+    completedAt: '2026-01-28',
   },
   {
-    id: '3',
+    id: 'a2',
     title: 'Safety Induction',
     platform: 'Articulate 360',
     mandatory: true,
@@ -146,9 +154,11 @@ const LEARNING_PATH = [
     dueDate: '2026-02-15',
     duration: '1.5h',
     certificate: 'CERT-SP-003',
+    instructor: 'EHS Team',
+    completedAt: '2026-02-10',
   },
   {
-    id: '4',
+    id: 'l1',
     title: 'Leadership Foundations',
     platform: 'LinkedIn Learning',
     mandatory: true,
@@ -157,9 +167,11 @@ const LEARNING_PATH = [
     dueDate: '2026-03-15',
     duration: '6h',
     certificate: null,
+    instructor: 'Lisa Earle McLeod',
+    completedAt: null,
   },
   {
-    id: '5',
+    id: 'c1',
     title: 'Machine Learning Specialization',
     platform: 'Coursera',
     mandatory: false,
@@ -168,9 +180,11 @@ const LEARNING_PATH = [
     dueDate: '2026-04-30',
     duration: '12h',
     certificate: null,
+    instructor: 'Andrew Ng',
+    completedAt: null,
   },
   {
-    id: '6',
+    id: 'u1',
     title: 'React Complete Guide',
     platform: 'Udemy',
     mandatory: false,
@@ -179,10 +193,12 @@ const LEARNING_PATH = [
     dueDate: '2026-05-31',
     duration: '16h',
     certificate: null,
+    instructor: 'Maximilian Schwarzmüller',
+    completedAt: null,
   },
   {
-    id: '7',
-    title: 'Anti-Harassment Policy',
+    id: 'a3',
+    title: 'Prevention of Sexual Harassment (POSH)',
     platform: 'Articulate 360',
     mandatory: true,
     status: 'NOT_STARTED',
@@ -190,13 +206,15 @@ const LEARNING_PATH = [
     dueDate: '2026-03-01',
     duration: '1h',
     certificate: null,
+    instructor: 'HR & Legal Team',
+    completedAt: null,
   },
 ];
 
 // ─── Recent Course Activity ────────────────────────────────
 const RECENT_COURSES = [
   {
-    id: '1',
+    id: 'c1',
     title: 'Machine Learning Specialization',
     platform: 'Coursera',
     category: 'Technical',
@@ -207,7 +225,7 @@ const RECENT_COURSES = [
     hasCertificate: true,
   },
   {
-    id: '2',
+    id: 'l1',
     title: 'Leadership Foundations',
     platform: 'LinkedIn Learning',
     category: 'Leadership',
@@ -218,15 +236,16 @@ const RECENT_COURSES = [
     hasCertificate: true,
   },
   {
-    id: '3',
-    title: 'Compliance Training',
+    id: 'a1',
+    title: 'Annual Compliance Training',
     platform: 'Articulate 360',
     category: 'Compliance',
-    instructor: 'Internal',
+    instructor: 'Legal & Compliance Team',
     progress: 100,
     status: 'COMPLETED',
     duration: '3h',
     hasCertificate: true,
+    completedAt: '2026-01-28',
   },
 ];
 
@@ -248,7 +267,15 @@ function isOverdue(dueDate: string, status: string) {
   return status !== 'COMPLETED' && new Date(dueDate) < new Date('2026-03-10');
 }
 
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
+function CustomTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; color: string }>;
+  label?: string;
+}) {
   if (!active || !payload) return null;
   return (
     <div className="bg-white border rounded-lg shadow-lg p-3 text-xs">
@@ -262,8 +289,20 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
   );
 }
 
-function PieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }: {
-  cx: number; cy: number; midAngle: number; innerRadius: number; outerRadius: number; percent: number;
+function PieLabel({
+  cx,
+  cy,
+  midAngle,
+  innerRadius,
+  outerRadius,
+  percent,
+}: {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  percent: number;
 }) {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -271,22 +310,57 @@ function PieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }: {
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   if (percent < 0.05) return null;
   return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="bold">
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize={12}
+      fontWeight="bold"
+    >
       {(percent * 100).toFixed(0)}%
     </text>
   );
 }
 
 export default function LearningPage() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const employeeName = session?.user?.name || 'Employee User';
+
+  const handleCertificate = (course: {
+    id: string;
+    title: string;
+    platform: string;
+    instructor: string;
+    duration: string;
+    certificate: string | null;
+    completedAt: string | null;
+  }) => {
+    const certId = course.certificate || `CERT-${course.id.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+    generateCertificate({
+      employeeName,
+      courseName: course.title,
+      platform: course.platform,
+      instructor: course.instructor,
+      completionDate: course.completedAt || '2026-02-28',
+      certId,
+      duration: course.duration,
+    });
+  };
+
+  const navigateToCourse = (courseId: string) => {
+    router.push(`/learning/course/${courseId}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Learning</h1>
-          <p className="text-sm text-gray-500">
-            Courses, certifications, and skill development
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900">Learning &amp; Training</h1>
+          <p className="text-sm text-gray-500">Courses, certifications, and skill development</p>
         </div>
         <div className="flex gap-2">
           <Link href="/learning/my-courses">
@@ -322,7 +396,7 @@ export default function LearningPage() {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Donut Chart - Completion Rate */}
+        {/* Donut Chart */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
@@ -446,7 +520,9 @@ export default function LearningPage() {
               <div key={cat.category}>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm text-gray-700">{cat.category}</span>
-                  <span className="text-xs text-gray-500">{cat.completed}/{cat.total} ({cat.rate}%)</span>
+                  <span className="text-xs text-gray-500">
+                    {cat.completed}/{cat.total} ({cat.rate}%)
+                  </span>
                 </div>
                 <Progress value={cat.rate} className="h-1.5" />
               </div>
@@ -466,12 +542,17 @@ export default function LearningPage() {
             {TOP_LEARNERS.map((learner) => (
               <div key={learner.rank} className="flex items-center justify-between py-1.5">
                 <div className="flex items-center gap-2.5">
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    learner.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
-                    learner.rank === 2 ? 'bg-gray-100 text-gray-600' :
-                    learner.rank === 3 ? 'bg-orange-100 text-orange-700' :
-                    'bg-gray-50 text-gray-500'
-                  }`}>
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      learner.rank === 1
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : learner.rank === 2
+                        ? 'bg-gray-100 text-gray-600'
+                        : learner.rank === 3
+                        ? 'bg-orange-100 text-orange-700'
+                        : 'bg-gray-50 text-gray-500'
+                    }`}
+                  >
                     {learner.rank}
                   </span>
                   <div>
@@ -494,13 +575,21 @@ export default function LearningPage() {
             My Learning Path
           </CardTitle>
           <Link href="/learning/my-courses">
-            <Button variant="ghost" size="sm">View All <ChevronRight size={14} className="ml-1" /></Button>
+            <Button variant="ghost" size="sm">
+              View All <ChevronRight size={14} className="ml-1" />
+            </Button>
           </Link>
         </CardHeader>
         <CardContent className="space-y-2">
           {LEARNING_PATH.map((course, idx) => {
             const overdue = isOverdue(course.dueDate, course.status);
             const platformStyle = PLATFORM_COLORS[course.platform] || PLATFORM_COLORS.Internal;
+            // Get live progress from localStorage (falls back to default)
+            const liveProgress =
+              course.status !== 'COMPLETED'
+                ? getProgressPercent(course.id, course.progress)
+                : course.progress;
+
             return (
               <div
                 key={course.id}
@@ -510,16 +599,18 @@ export default function LearningPage() {
               >
                 <div className="flex items-center gap-3 flex-1">
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                      course.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                      course.status === 'IN_PROGRESS' ? 'bg-purple-100 text-purple-700' :
-                      'bg-gray-100 text-gray-500'
-                    }`}>
+                    <span
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                        course.status === 'COMPLETED'
+                          ? 'bg-green-100 text-green-700'
+                          : course.status === 'IN_PROGRESS'
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-gray-100 text-gray-500'
+                      }`}
+                    >
                       {idx + 1}
                     </span>
-                    {idx < LEARNING_PATH.length - 1 && (
-                      <div className="w-px h-3 bg-gray-200" />
-                    )}
+                    {idx < LEARNING_PATH.length - 1 && <div className="w-px h-3 bg-gray-200" />}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -540,27 +631,44 @@ export default function LearningPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                      <span><Clock size={10} className="inline mr-0.5" />{course.duration}</span>
+                      <span>
+                        <Clock size={10} className="inline mr-0.5" />
+                        {course.duration}
+                      </span>
                       <span>Due: {course.dueDate}</span>
                     </div>
                     {course.status === 'IN_PROGRESS' && (
-                      <Progress value={course.progress} className="h-1.5 mt-1.5 max-w-xs" />
+                      <Progress value={liveProgress} className="h-1.5 mt-1.5 max-w-xs" />
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 ml-3">
-                  {course.certificate && (
-                    <Button size="sm" variant="outline" className="text-xs">
+                  {course.certificate && course.status === 'COMPLETED' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs"
+                      onClick={() => handleCertificate(course)}
+                    >
                       <Download size={12} className="mr-1" /> Certificate
                     </Button>
                   )}
                   {course.status === 'IN_PROGRESS' && (
-                    <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-xs">
+                    <Button
+                      size="sm"
+                      className="bg-teal-600 hover:bg-teal-700 text-xs"
+                      onClick={() => navigateToCourse(course.id)}
+                    >
                       <Play size={12} className="mr-1" /> Resume
                     </Button>
                   )}
                   {course.status === 'NOT_STARTED' && (
-                    <Button size="sm" variant="outline" className="text-xs">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs"
+                      onClick={() => navigateToCourse(course.id)}
+                    >
                       Start
                     </Button>
                   )}
@@ -576,13 +684,20 @@ export default function LearningPage() {
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <CardTitle className="text-base">Recent Courses</CardTitle>
           <Link href="/learning/courses">
-            <Button variant="ghost" size="sm">Browse All <ChevronRight size={14} className="ml-1" /></Button>
+            <Button variant="ghost" size="sm">
+              Browse All <ChevronRight size={14} className="ml-1" />
+            </Button>
           </Link>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {RECENT_COURSES.map((course) => {
               const platformStyle = PLATFORM_COLORS[course.platform] || PLATFORM_COLORS.Internal;
+              const liveProgress =
+                course.status !== 'COMPLETED'
+                  ? getProgressPercent(course.id, course.progress)
+                  : course.progress;
+
               return (
                 <Card key={course.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="pt-4 space-y-2.5">
@@ -597,9 +712,13 @@ export default function LearningPage() {
                       )}
                     </div>
                     <p className="text-sm font-semibold text-gray-900">{course.title}</p>
-                    <Badge variant="outline" className="text-xs">{course.category}</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {course.category}
+                    </Badge>
                     <div className="flex items-center gap-3 text-xs text-gray-500">
-                      <span className="flex items-center gap-0.5"><Clock size={12} /> {course.duration}</span>
+                      <span className="flex items-center gap-0.5">
+                        <Clock size={12} /> {course.duration}
+                      </span>
                       <span>By {course.instructor}</span>
                     </div>
                     {course.status !== 'NOT_STARTED' && (
@@ -608,22 +727,49 @@ export default function LearningPage() {
                           <Badge className={STATUS_STYLES[course.status] + ' text-[10px]'}>
                             {course.status.replace(/_/g, ' ')}
                           </Badge>
-                          <span className="text-xs font-medium">{course.progress}%</span>
+                          <span className="text-xs font-medium">{liveProgress}%</span>
                         </div>
-                        <Progress value={course.progress} className="h-1.5" />
+                        <Progress value={liveProgress} className="h-1.5" />
                       </div>
                     )}
-                    <Button
-                      size="sm"
-                      className={`w-full mt-1 ${
-                        course.status === 'COMPLETED'
-                          ? 'bg-green-600 hover:bg-green-700'
-                          : 'bg-teal-600 hover:bg-teal-700'
-                      }`}
-                    >
-                      {course.status === 'COMPLETED' ? 'Review' :
-                       course.status === 'IN_PROGRESS' ? 'Resume' : 'Start'}
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 mt-1">
+                      {course.status === 'COMPLETED' && course.hasCertificate && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 text-xs border-yellow-300 text-yellow-700 hover:bg-yellow-50"
+                          onClick={() =>
+                            handleCertificate({
+                              id: course.id,
+                              title: course.title,
+                              platform: course.platform,
+                              instructor: course.instructor,
+                              duration: course.duration,
+                              certificate: null,
+                              completedAt: (course as { completedAt?: string }).completedAt || null,
+                            })
+                          }
+                        >
+                          <Download size={12} className="mr-1" /> Certificate
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        className={`flex-1 ${
+                          course.status === 'COMPLETED'
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : 'bg-teal-600 hover:bg-teal-700'
+                        }`}
+                        onClick={() => navigateToCourse(course.id)}
+                      >
+                        {course.status === 'COMPLETED'
+                          ? 'Review'
+                          : course.status === 'IN_PROGRESS'
+                          ? 'Resume'
+                          : 'Start'}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               );
