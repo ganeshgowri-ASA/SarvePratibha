@@ -67,6 +67,7 @@ export default function RecruitmentDashboard() {
     { label: 'View Pipeline', href: '/recruitment/requisitions', icon: Briefcase, description: 'View recruitment pipeline' },
     { label: 'Import Candidates', href: '/recruitment/sources', icon: Globe, description: 'Import from job boards' },
     { label: 'Talent Pool', href: '/recruitment/talent-pool', icon: Database, description: 'Browse talent pool' },
+    { label: 'Document Review', href: '/recruitment/document-review', icon: CheckCircle, description: 'Review candidate documents' },
   ];
 
   return (

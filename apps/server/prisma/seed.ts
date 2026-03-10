@@ -423,12 +423,213 @@ async function main() {
     }
   }
 
+  // ─── CANDIDATE PORTAL SEED DATA ──────────────────────────────
+
+  const REQUIRED_DOCUMENTS = [
+    { key: 'aadhar_front', name: 'Aadhar Card (Front)', category: 'PERSONAL', required: true },
+    { key: 'aadhar_back', name: 'Aadhar Card (Back)', category: 'PERSONAL', required: true },
+    { key: 'pan_card', name: 'PAN Card', category: 'PERSONAL', required: true },
+    { key: 'passport', name: 'Passport', category: 'PERSONAL', required: false },
+    { key: 'driving_license', name: 'Driving License', category: 'PERSONAL', required: false },
+    { key: 'marksheet_10th', name: '10th Marksheet', category: 'ACADEMIC', required: true },
+    { key: 'marksheet_12th', name: '12th Marksheet', category: 'ACADEMIC', required: true },
+    { key: 'graduation_degree', name: 'Graduation Degree', category: 'ACADEMIC', required: true },
+    { key: 'post_graduation', name: 'Post-Graduation Degree', category: 'ACADEMIC', required: false },
+    { key: 'other_certifications', name: 'Other Certifications', category: 'ACADEMIC', required: false },
+    { key: 'prev_employment_letters', name: 'Previous Employment Letters', category: 'PROFESSIONAL', required: true },
+    { key: 'relieving_letters', name: 'Relieving Letters', category: 'PROFESSIONAL', required: true },
+    { key: 'last_3_payslips', name: 'Last 3 Months Payslips', category: 'PROFESSIONAL', required: true },
+    { key: 'experience_certificates', name: 'Experience Certificates', category: 'PROFESSIONAL', required: true },
+    { key: 'appointment_letters', name: 'Appointment Letters', category: 'PROFESSIONAL', required: false },
+    { key: 'epf_uan', name: 'EPF UAN Number Document', category: 'FINANCIAL', required: true },
+    { key: 'cancelled_cheque', name: 'Cancelled Cheque / Bank Details', category: 'FINANCIAL', required: true },
+    { key: 'form_16', name: 'Form 16 (Last Employer)', category: 'FINANCIAL', required: false },
+    { key: 'medical_fitness', name: 'Medical Fitness Certificate', category: 'HEALTH', required: true },
+    { key: 'blood_group_cert', name: 'Blood Group Certificate', category: 'HEALTH', required: false },
+    { key: 'covid_vaccination', name: 'Covid Vaccination Certificate', category: 'HEALTH', required: false },
+    { key: 'passport_photo', name: 'Passport Size Photo', category: 'PHOTOS', required: true },
+    { key: 'full_size_photo', name: 'Full Size Photo', category: 'PHOTOS', required: false },
+  ] as const;
+
+  // Create 3 demo candidates with portal access
+  const candidateSeedData = [
+    {
+      id: 'seed-candidate-001',
+      firstName: 'Priya',
+      lastName: 'Sharma',
+      email: 'priya.sharma@gmail.com',
+      phone: '+91 98765 43210',
+      currentCompany: 'TCS',
+      currentTitle: 'Senior Software Engineer',
+      totalExp: 6,
+      skills: ['Java', 'Spring Boot', 'React', 'PostgreSQL'],
+      location: 'Pune',
+      portalToken: 'demo-token-priya-001',
+      status: 'UNDER_REVIEW' as const,
+      uploadedDocs: 18,
+      verifiedDocs: 10,
+    },
+    {
+      id: 'seed-candidate-002',
+      firstName: 'Arjun',
+      lastName: 'Mehta',
+      email: 'arjun.mehta@outlook.com',
+      phone: '+91 87654 32109',
+      currentCompany: 'Infosys',
+      currentTitle: 'Product Manager',
+      totalExp: 8,
+      skills: ['Product Management', 'Agile', 'Jira', 'Data Analysis'],
+      location: 'Bangalore',
+      portalToken: 'demo-token-arjun-002',
+      status: 'INCOMPLETE' as const,
+      uploadedDocs: 8,
+      verifiedDocs: 0,
+    },
+    {
+      id: 'seed-candidate-003',
+      firstName: 'Neha',
+      lastName: 'Patel',
+      email: 'neha.patel@yahoo.com',
+      phone: '+91 76543 21098',
+      currentCompany: 'Wipro',
+      currentTitle: 'UI/UX Designer',
+      totalExp: 4,
+      skills: ['Figma', 'Adobe XD', 'HTML/CSS', 'React'],
+      location: 'Mumbai',
+      portalToken: 'demo-token-neha-003',
+      status: 'VERIFIED' as const,
+      uploadedDocs: 23,
+      verifiedDocs: 23,
+    },
+  ];
+
+  for (const cData of candidateSeedData) {
+    const candidate = await prisma.candidate.upsert({
+      where: { email: cData.email },
+      update: {},
+      create: {
+        id: cData.id,
+        firstName: cData.firstName,
+        lastName: cData.lastName,
+        email: cData.email,
+        phone: cData.phone,
+        currentCompany: cData.currentCompany,
+        currentTitle: cData.currentTitle,
+        totalExp: cData.totalExp,
+        skills: cData.skills,
+        location: cData.location,
+        source: 'CAREER_PAGE',
+      },
+    });
+
+    // Check if portal already exists
+    const existingPortal = await prisma.candidatePortalAccess.findUnique({
+      where: { accessToken: cData.portalToken },
+    });
+
+    if (!existingPortal) {
+      const portal = await prisma.candidatePortalAccess.create({
+        data: {
+          candidateId: candidate.id,
+          email: cData.email,
+          accessToken: cData.portalToken,
+          fullName: `${cData.firstName} ${cData.lastName}`,
+          phone: cData.phone,
+          isActive: true,
+          expiresAt: new Date('2026-06-30'),
+          overallStatus: cData.status,
+          lastAccessedAt: new Date(),
+        },
+      });
+
+      // Create document slots with varying upload states
+      for (let i = 0; i < REQUIRED_DOCUMENTS.length; i++) {
+        const doc = REQUIRED_DOCUMENTS[i];
+        const isUploaded = i < cData.uploadedDocs;
+        const isVerified = i < cData.verifiedDocs;
+
+        let status: 'PENDING' | 'UPLOADED' | 'VERIFIED' | 'REJECTED' = 'PENDING';
+        if (isVerified) status = 'VERIFIED';
+        else if (isUploaded) status = 'UPLOADED';
+
+        // Make one doc rejected for Priya (the UNDER_REVIEW candidate)
+        if (cData.id === 'seed-candidate-001' && i === 12) {
+          status = 'REJECTED';
+        }
+
+        await prisma.candidateDocument.create({
+          data: {
+            portalAccessId: portal.id,
+            documentName: doc.name,
+            documentKey: doc.key,
+            category: doc.category,
+            isRequired: doc.required,
+            status,
+            fileName: isUploaded ? `${doc.key}_${cData.firstName.toLowerCase()}.pdf` : null,
+            fileUrl: isUploaded ? `/uploads/candidate/${doc.key}_${cData.firstName.toLowerCase()}.pdf` : null,
+            fileSize: isUploaded ? Math.floor(Math.random() * 500000) + 50000 : null,
+            mimeType: isUploaded ? 'application/pdf' : null,
+            uploadedAt: isUploaded ? new Date() : null,
+            reviewerComment: status === 'REJECTED' ? 'Document is not clearly legible. Please re-upload a clearer copy.' : null,
+            reviewedAt: (isVerified || status === 'REJECTED') ? new Date() : null,
+          },
+        });
+      }
+
+      // Create self-service data for Priya and Neha
+      if (cData.id !== 'seed-candidate-002') {
+        await prisma.candidateSelfService.create({
+          data: {
+            portalAccessId: portal.id,
+            fullName: `${cData.firstName} ${cData.lastName}`,
+            dateOfBirth: new Date('1996-05-15'),
+            gender: cData.id === 'seed-candidate-001' ? 'FEMALE' : 'FEMALE',
+            maritalStatus: 'SINGLE',
+            bloodGroup: 'B+',
+            emergencyName: 'Rajesh Sharma',
+            emergencyPhone: '+91 98765 00000',
+            emergencyRelation: 'Father',
+            currentAddress: '42, Green Valley Apartments',
+            currentCity: cData.location,
+            currentState: 'Maharashtra',
+            currentPincode: '411001',
+            currentCountry: 'India',
+            sameAsCurrent: true,
+            permanentAddress: '42, Green Valley Apartments',
+            permanentCity: cData.location,
+            permanentState: 'Maharashtra',
+            permanentPincode: '411001',
+            permanentCountry: 'India',
+            bankAccountNo: '1234567890123',
+            bankIfsc: 'SBIN0001234',
+            bankName: 'State Bank of India',
+            bankBranch: `${cData.location} Main Branch`,
+            uanNumber: '100123456789',
+            nomineeName: 'Rajesh Sharma',
+            nomineeRelation: 'Father',
+            nomineePercentage: 100,
+            isSubmitted: true,
+            submittedAt: new Date(),
+          },
+        });
+      }
+    }
+  }
+
   console.log('Seed completed successfully!');
   console.log('Default login credentials:');
   console.log('  IT Admin:      admin@sarvepratibha.com / Password@123');
   console.log('  Section Head:  section.head@sarvepratibha.com / Password@123');
   console.log('  Manager:       manager@sarvepratibha.com / Password@123');
   console.log('  Employee:      employee@sarvepratibha.com / Password@123');
+  console.log('');
+  console.log('Candidate Portal Demo Access:');
+  console.log('  Priya Sharma (Under Review):');
+  console.log('    Email: priya.sharma@gmail.com | Token: demo-token-priya-001');
+  console.log('  Arjun Mehta (Incomplete):');
+  console.log('    Email: arjun.mehta@outlook.com | Token: demo-token-arjun-002');
+  console.log('  Neha Patel (Verified):');
+  console.log('    Email: neha.patel@yahoo.com | Token: demo-token-neha-003');
 }
 
 main()

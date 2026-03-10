@@ -1059,3 +1059,71 @@ export type SuccessionPlanCreateInput = z.infer<typeof successionPlanCreateSchem
 export type LearningEnrollInput = z.infer<typeof learningEnrollSchema>;
 export type OnboardingChecklistCreateInput = z.infer<typeof onboardingChecklistCreateSchema>;
 export type OffboardingInitiateInput = z.infer<typeof offboardingInitiateSchema>;
+
+// ─── Candidate Portal Validations ───────────────────────────────────
+
+export const candidatePortalAccessSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  accessToken: z.string().min(1, 'Access token is required'),
+});
+
+export const candidateDocumentUploadSchema = z.object({
+  documentKey: z.string().min(1, 'Document key is required'),
+  fileName: z.string().min(1, 'File name is required'),
+  fileUrl: z.string().min(1, 'File URL is required'),
+  fileSize: z.number().optional(),
+  mimeType: z.string().optional(),
+});
+
+export const candidateSelfServiceSchema = z.object({
+  fullName: z.string().min(2, 'Full name is required'),
+  dateOfBirth: z.string().or(z.date()),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
+  maritalStatus: z.enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED']),
+  bloodGroup: z.string().optional(),
+  emergencyName: z.string().min(1, 'Emergency contact name is required'),
+  emergencyPhone: z.string().min(10, 'Valid phone number required'),
+  emergencyRelation: z.string().min(1, 'Relationship is required'),
+  currentAddress: z.string().min(1, 'Current address is required'),
+  currentCity: z.string().min(1, 'City is required'),
+  currentState: z.string().min(1, 'State is required'),
+  currentPincode: z.string().min(6, 'Valid pincode required'),
+  currentCountry: z.string().default('India'),
+  permanentAddress: z.string().optional(),
+  permanentCity: z.string().optional(),
+  permanentState: z.string().optional(),
+  permanentPincode: z.string().optional(),
+  permanentCountry: z.string().optional(),
+  sameAsCurrent: z.boolean().default(false),
+  bankAccountNo: z.string().min(1, 'Bank account number is required'),
+  bankIfsc: z.string().min(1, 'IFSC code is required'),
+  bankName: z.string().min(1, 'Bank name is required'),
+  bankBranch: z.string().optional(),
+  uanNumber: z.string().optional(),
+  previousPfNumber: z.string().optional(),
+  nomineeName: z.string().min(1, 'Nominee name is required'),
+  nomineeRelation: z.string().min(1, 'Nominee relationship is required'),
+  nomineePercentage: z.number().min(1).max(100),
+  nominee2Name: z.string().optional(),
+  nominee2Relation: z.string().optional(),
+  nominee2Percentage: z.number().min(0).max(100).optional(),
+});
+
+export const candidateDocumentReviewSchema = z.object({
+  action: z.enum(['VERIFY', 'REJECT']),
+  comment: z.string().optional(),
+});
+
+export const candidatePortalCreateSchema = z.object({
+  candidateId: z.string().min(1, 'Candidate ID is required'),
+  email: z.string().email('Invalid email address'),
+  fullName: z.string().min(2, 'Full name is required'),
+  phone: z.string().optional(),
+  expiresInDays: z.number().default(30),
+});
+
+export type CandidatePortalAccessInput = z.infer<typeof candidatePortalAccessSchema>;
+export type CandidateDocumentUploadInput = z.infer<typeof candidateDocumentUploadSchema>;
+export type CandidateSelfServiceInput = z.infer<typeof candidateSelfServiceSchema>;
+export type CandidateDocumentReviewInput = z.infer<typeof candidateDocumentReviewSchema>;
+export type CandidatePortalCreateInput = z.infer<typeof candidatePortalCreateSchema>;

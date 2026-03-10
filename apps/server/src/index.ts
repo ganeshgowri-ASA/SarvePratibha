@@ -35,6 +35,7 @@ import { talentRouter } from './routes/talent';
 import { learningRouter } from './routes/learning';
 import { onboardingRouter } from './routes/onboarding';
 import { offboardingRouter } from './routes/offboarding';
+import { candidatePortalRouter } from './routes/candidate-portal';
 import { errorHandler } from './middleware/error-handler';
 
 dotenv.config();
@@ -88,6 +89,7 @@ app.use('/api/talent', talentRouter);
 app.use('/api/learning', learningRouter);
 app.use('/api/onboarding', onboardingRouter);
 app.use('/api/offboarding', offboardingRouter);
+app.use('/api/candidate-portal', candidatePortalRouter);
 
 // Error handler
 app.use(errorHandler);

@@ -468,6 +468,29 @@ enum DocumentType {
   VOTER_ID
 }
 
+enum CandidateDocumentCategory {
+  PERSONAL
+  ACADEMIC
+  PROFESSIONAL
+  FINANCIAL
+  HEALTH
+  PHOTOS
+}
+
+enum CandidateDocumentStatus {
+  PENDING
+  UPLOADED
+  VERIFIED
+  REJECTED
+}
+
+enum CandidatePortalStatus {
+  INCOMPLETE
+  UNDER_REVIEW
+  VERIFIED
+  ISSUES_FOUND
+}
+
 // ─── USER & AUTHENTICATION ─────────────────────────────────────────
 
 model User {
@@ -1870,6 +1893,7 @@ model Candidate {
   applications Application[]
   tags         CandidateTag[]
   talentPools  TalentPoolCandidate[]
+  portalAccess CandidatePortalAccess[]
 
   @@index([email])
   @@index([source])
@@ -4077,4 +4101,107 @@ model OffboardingTask {
 
   @@index([checklistId])
   @@map("offboarding_tasks")
+}
+
+// ─── CANDIDATE PORTAL ──────────────────────────────────────────────
+
+model CandidatePortalAccess {
+  id              String              @id @default(cuid())
+  candidateId     String
+  email           String              @unique
+  accessToken     String              @unique
+  fullName        String
+  phone           String?
+  isActive        Boolean             @default(true)
+  expiresAt       DateTime
+  lastAccessedAt  DateTime?
+  overallStatus   CandidatePortalStatus @default(INCOMPLETE)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  candidate       Candidate           @relation(fields: [candidateId], references: [id])
+  documents       CandidateDocument[]
+  selfServiceData CandidateSelfService?
+
+  @@index([accessToken])
+  @@index([email])
+  @@index([candidateId])
+  @@map("candidate_portal_access")
+}
+
+model CandidateDocument {
+  id              String                  @id @default(cuid())
+  portalAccessId  String
+  documentName    String
+  documentKey     String
+  category        CandidateDocumentCategory
+  isRequired      Boolean                 @default(true)
+  status          CandidateDocumentStatus  @default(PENDING)
+  fileName        String?
+  fileUrl         String?
+  fileSize        Int?
+  mimeType        String?
+  reviewerComment String?
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  uploadedAt      DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  portalAccess    CandidatePortalAccess   @relation(fields: [portalAccessId], references: [id], onDelete: Cascade)
+
+  @@unique([portalAccessId, documentKey])
+  @@index([portalAccessId])
+  @@index([status])
+  @@map("candidate_documents")
+}
+
+model CandidateSelfService {
+  id              String              @id @default(cuid())
+  portalAccessId  String              @unique
+  // Personal Details
+  fullName        String?
+  dateOfBirth     DateTime?
+  gender          String?
+  maritalStatus   String?
+  bloodGroup      String?
+  emergencyName   String?
+  emergencyPhone  String?
+  emergencyRelation String?
+  // Current Address
+  currentAddress  String?
+  currentCity     String?
+  currentState    String?
+  currentPincode  String?
+  currentCountry  String?
+  // Permanent Address
+  permanentAddress  String?
+  permanentCity     String?
+  permanentState    String?
+  permanentPincode  String?
+  permanentCountry  String?
+  sameAsCurrent     Boolean           @default(false)
+  // Bank Details
+  bankAccountNo   String?
+  bankIfsc        String?
+  bankName        String?
+  bankBranch      String?
+  // EPF Details
+  uanNumber       String?
+  previousPfNumber String?
+  // Nominee Details
+  nomineeName     String?
+  nomineeRelation String?
+  nomineePercentage Float?
+  nominee2Name     String?
+  nominee2Relation String?
+  nominee2Percentage Float?
+  isSubmitted     Boolean             @default(false)
+  submittedAt     DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  portalAccess    CandidatePortalAccess @relation(fields: [portalAccessId], references: [id], onDelete: Cascade)
+
+  @@map("candidate_self_service")
 }
