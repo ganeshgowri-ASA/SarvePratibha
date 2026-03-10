@@ -1944,6 +1944,143 @@ export interface ResumeHighlights {
   jdMatchedKeywords: string[];
 }
 
+// ─── Travel Booking Integration ────────────────────────────────────
+
+export type TransportMode = 'TRAIN' | 'FLIGHT' | 'BUS' | 'HOTEL';
+export type TrainClass = '1AC' | '2AC' | '3AC' | 'SL' | 'CC' | '2S';
+export type FlightClass = 'ECONOMY' | 'PREMIUM_ECONOMY' | 'BUSINESS' | 'FIRST';
+export type BusType = 'AC_SLEEPER' | 'NON_AC_SLEEPER' | 'AC_SEATER' | 'NON_AC_SEATER' | 'VOLVO';
+export type VehicleType = 'MINI' | 'SEDAN' | 'SUV' | 'AUTO' | 'BIKE';
+export type CabProvider = 'OLA' | 'UBER' | 'RAPIDO' | 'MERU' | 'OHMCABS';
+export type TravelApprovalStatus = 'PENDING' | 'MANAGER_APPROVED' | 'SH_APPROVED' | 'FINANCE_APPROVED' | 'REJECTED' | 'CANCELLED';
+
+export interface TrainSearchResult {
+  id: string;
+  trainNumber: string;
+  trainName: string;
+  departure: string;
+  arrival: string;
+  duration: string;
+  fromStation: string;
+  toStation: string;
+  classes: { class: TrainClass; fare: number; available: number }[];
+  isTatkal: boolean;
+  runsOn: string[];
+}
+
+export interface FlightSearchResult {
+  id: string;
+  flightNumber: string;
+  airline: string;
+  departure: string;
+  arrival: string;
+  duration: string;
+  fromAirport: string;
+  toAirport: string;
+  stops: number;
+  classes: { class: FlightClass; fare: number; seatsLeft: number }[];
+  baggage: string;
+  refundable: boolean;
+}
+
+export interface BusSearchResult {
+  id: string;
+  operatorName: string;
+  busType: BusType;
+  departure: string;
+  arrival: string;
+  duration: string;
+  fromCity: string;
+  toCity: string;
+  fare: number;
+  seatsAvailable: number;
+  rating: number;
+  amenities: string[];
+}
+
+export interface HotelSearchResult {
+  id: string;
+  name: string;
+  city: string;
+  address: string;
+  starRating: number;
+  pricePerNight: number;
+  amenities: string[];
+  roomTypes: { type: string; price: number; available: number }[];
+  userRating: number;
+  reviewCount: number;
+  images: string[];
+}
+
+export interface CabFareEstimate {
+  provider: CabProvider;
+  vehicleType: VehicleType;
+  estimatedFare: number;
+  surgeMultiplier: number;
+  eta: number;
+  distance: string;
+}
+
+export interface CabBookingStatus {
+  id: string;
+  provider: CabProvider;
+  status: 'SEARCHING' | 'DRIVER_ASSIGNED' | 'EN_ROUTE' | 'ARRIVED' | 'IN_TRIP' | 'COMPLETED' | 'CANCELLED';
+  driverName?: string;
+  driverPhone?: string;
+  driverRating?: number;
+  vehicleNumber?: string;
+  vehicleModel?: string;
+  otp?: string;
+  estimatedArrival?: string;
+  pickupLocation: string;
+  dropLocation: string;
+}
+
+export interface TravelApiConfig {
+  id: string;
+  provider: string;
+  apiKey: string;
+  secretKey?: string;
+  webhookUrl?: string;
+  sdkVersion: string;
+  isActive: boolean;
+  lastTestedAt?: string;
+  testStatus?: 'SUCCESS' | 'FAILED' | 'PENDING';
+  callsToday: number;
+  callsThisMonth: number;
+  rateLimit: number;
+}
+
+export interface CorporateTravelPolicy {
+  id: string;
+  grade: string;
+  maxDomesticFlight: number;
+  maxInternationalFlight: number;
+  maxHotelPerNight: number;
+  maxCabPerDay: number;
+  trainClass: TrainClass;
+  flightClass: FlightClass;
+  requiresPreApproval: boolean;
+  advanceBookingDays: number;
+  approvalLevels: number;
+}
+
+export interface TravelApprovalRequest {
+  id: string;
+  requesterId: string;
+  requesterName: string;
+  department: string;
+  destination: string;
+  fromCity: string;
+  travelDates: string;
+  purpose: string;
+  estimatedCost: number;
+  breakdown: { category: string; amount: number }[];
+  status: TravelApprovalStatus;
+  approvals: { level: number; approverName: string; approverRole: string; status: string; date?: string; remarks?: string }[];
+  createdAt: string;
+}
+
 export interface InterviewVsJDComparison {
   jdSkill: string;
   interviewScore: number | null;
