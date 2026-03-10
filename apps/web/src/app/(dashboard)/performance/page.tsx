@@ -28,7 +28,11 @@ import {
   CheckCircle2,
   Clock,
   Circle,
+  Layers,
 } from 'lucide-react';
+import DailyDiaryTab from './_components/daily-diary-tab';
+import GanttChartTab from './_components/gantt-chart-tab';
+import GoalBucketsTab from './_components/goal-buckets-tab';
 import type { UserRole } from '@sarve-pratibha/shared';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -255,6 +259,28 @@ export default function PerformancePage() {
         <h1 className="text-2xl font-bold text-gray-900">Performance Management</h1>
         <p className="text-sm text-gray-500">Track your goals, reviews, and career development</p>
       </div>
+
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="overview" className="gap-1.5"><Target size={14} />Overview</TabsTrigger>
+          <TabsTrigger value="daily-diary" className="gap-1.5"><BookOpen size={14} />Daily Diary</TabsTrigger>
+          <TabsTrigger value="gantt-chart" className="gap-1.5"><BarChart3 size={14} />Gantt Chart</TabsTrigger>
+          <TabsTrigger value="goal-buckets" className="gap-1.5"><Layers size={14} />Goal Buckets</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="daily-diary">
+          <DailyDiaryTab />
+        </TabsContent>
+
+        <TabsContent value="gantt-chart">
+          <GanttChartTab />
+        </TabsContent>
+
+        <TabsContent value="goal-buckets">
+          <GoalBucketsTab />
+        </TabsContent>
+
+        <TabsContent value="overview">
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
@@ -624,6 +650,9 @@ export default function PerformancePage() {
           </CardContent>
         </Card>
       </div>
+
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
