@@ -35,6 +35,8 @@ import {
   CheckCircle,
   AlertCircle,
   Package,
+  CreditCard,
+  Plane,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -154,6 +156,8 @@ export default function ServicesPage() {
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="transport">Transport</TabsTrigger>
+          <TabsTrigger value="visiting-cards">Visiting Cards</TabsTrigger>
+          <TabsTrigger value="trips">Corporate Trips</TabsTrigger>
         </TabsList>
 
         {/* Cafeteria Tab */}
@@ -514,6 +518,90 @@ export default function ServicesPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Visiting Cards Tab */}
+        <TabsContent value="visiting-cards">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <CreditCard size={18} className="text-teal-600" />
+                  Visiting Card Management
+                </CardTitle>
+                <Link href="/corporate-services">
+                  <Button className="bg-teal-600 hover:bg-teal-700">
+                    <Plus size={16} className="mr-2" /> Full Management
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Request business cards, choose from design templates, and track your orders.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { label: 'Active Orders', value: '2', desc: '1 printing, 1 pending approval' },
+                  { label: 'Templates Available', value: '4', desc: 'Classic, Modern, Executive, Minimal' },
+                  { label: 'Last Delivered', value: '2 Mar', desc: '200 cards - Classic Teal template' },
+                ].map((item) => (
+                  <div key={item.label} className="border rounded-lg p-4">
+                    <p className="text-xs text-gray-500">{item.label}</p>
+                    <p className="text-xl font-bold text-gray-900">{item.value}</p>
+                    <p className="text-xs text-gray-400 mt-1">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4">
+                <Link href="/corporate-services">
+                  <Button variant="outline" className="w-full">View Details, Templates & Order History</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Corporate Trips Tab */}
+        <TabsContent value="trips">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Plane size={18} className="text-teal-600" />
+                  Corporate Trips & Offsites
+                </CardTitle>
+                <Link href="/corporate-services">
+                  <Button className="bg-teal-600 hover:bg-teal-700">
+                    <Plus size={16} className="mr-2" /> Trip Planner
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Plan team outings, manage budgets, and track post-trip expenses.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { label: 'Upcoming Trips', value: '3', desc: 'Goa, Mumbai, Udaipur' },
+                  { label: 'Total Participants', value: '77', desc: 'Across all planned trips' },
+                  { label: 'FY Budget', value: '₹65L', desc: '₹34L utilized so far' },
+                ].map((item) => (
+                  <div key={item.label} className="border rounded-lg p-4">
+                    <p className="text-xs text-gray-500">{item.label}</p>
+                    <p className="text-xl font-bold text-gray-900">{item.value}</p>
+                    <p className="text-xs text-gray-400 mt-1">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4">
+                <Link href="/corporate-services">
+                  <Button variant="outline" className="w-full">View Trip Planner, Budgets & Reconciliation</Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
