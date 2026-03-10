@@ -70,6 +70,9 @@ async function main() {
       { name: 'Maternity Leave', code: 'ML', defaultDays: 182, isPaidLeave: true },
       { name: 'Paternity Leave', code: 'PL', defaultDays: 15, isPaidLeave: true },
       { name: 'Loss of Pay', code: 'LOP', defaultDays: 0, isPaidLeave: false },
+      { name: 'Marriage Leave', code: 'MRL', defaultDays: 15, isPaidLeave: true },
+      { name: 'Bereavement Leave', code: 'BL', defaultDays: 5, isPaidLeave: true },
+      { name: 'Work From Home', code: 'WFH', defaultDays: 24, isPaidLeave: true },
     ].map((lt) =>
       prisma.leaveType.upsert({
         where: { code: lt.code },
@@ -304,22 +307,59 @@ async function main() {
     });
   }
 
+  // Create holiday calendar for 2025
+  const holidays2025 = [
+    { name: 'Republic Day', date: new Date('2025-01-26'), type: 'NATIONAL', year: 2025 },
+    { name: 'Maha Shivaratri', date: new Date('2025-02-26'), type: 'RESTRICTED', year: 2025, isOptional: true },
+    { name: 'Holi', date: new Date('2025-03-14'), type: 'NATIONAL', year: 2025 },
+    { name: 'Id-ul-Fitr (Eid)', date: new Date('2025-03-31'), type: 'NATIONAL', year: 2025 },
+    { name: 'Ram Navami', date: new Date('2025-04-06'), type: 'RESTRICTED', year: 2025, isOptional: true },
+    { name: 'Mahavir Jayanti', date: new Date('2025-04-10'), type: 'RESTRICTED', year: 2025, isOptional: true },
+    { name: 'Good Friday', date: new Date('2025-04-18'), type: 'OPTIONAL', year: 2025, isOptional: true },
+    { name: 'Dr. Ambedkar Jayanti', date: new Date('2025-04-14'), type: 'NATIONAL', year: 2025 },
+    { name: 'May Day', date: new Date('2025-05-01'), type: 'NATIONAL', year: 2025 },
+    { name: 'Buddha Purnima', date: new Date('2025-05-12'), type: 'RESTRICTED', year: 2025, isOptional: true },
+    { name: 'Id-ul-Zuha (Bakrid)', date: new Date('2025-06-07'), type: 'OPTIONAL', year: 2025, isOptional: true },
+    { name: 'Muharram', date: new Date('2025-07-06'), type: 'RESTRICTED', year: 2025, isOptional: true },
+    { name: 'Independence Day', date: new Date('2025-08-15'), type: 'NATIONAL', year: 2025 },
+    { name: 'Janmashtami', date: new Date('2025-08-16'), type: 'RESTRICTED', year: 2025, isOptional: true },
+    { name: 'Milad-un-Nabi', date: new Date('2025-09-05'), type: 'RESTRICTED', year: 2025, isOptional: true },
+    { name: 'Mahatma Gandhi Jayanti', date: new Date('2025-10-02'), type: 'NATIONAL', year: 2025 },
+    { name: 'Dussehra', date: new Date('2025-10-02'), type: 'NATIONAL', year: 2025, location: 'North India' },
+    { name: 'Diwali', date: new Date('2025-10-20'), type: 'NATIONAL', year: 2025 },
+    { name: 'Diwali (Day 2)', date: new Date('2025-10-21'), type: 'OPTIONAL', year: 2025, isOptional: true },
+    { name: 'Guru Nanak Jayanti', date: new Date('2025-11-05'), type: 'RESTRICTED', year: 2025, isOptional: true },
+    { name: 'Christmas', date: new Date('2025-12-25'), type: 'NATIONAL', year: 2025 },
+  ];
+
   // Create holiday calendar for 2026
   const holidays2026 = [
     { name: 'Republic Day', date: new Date('2026-01-26'), type: 'NATIONAL', year: 2026 },
+    { name: 'Maha Shivaratri', date: new Date('2026-02-15'), type: 'RESTRICTED', year: 2026, isOptional: true },
     { name: 'Holi', date: new Date('2026-03-14'), type: 'NATIONAL', year: 2026 },
+    { name: 'Id-ul-Fitr (Eid)', date: new Date('2026-03-20'), type: 'NATIONAL', year: 2026 },
+    { name: 'Ram Navami', date: new Date('2026-03-26'), type: 'RESTRICTED', year: 2026, isOptional: true },
     { name: 'Good Friday', date: new Date('2026-04-03'), type: 'OPTIONAL', year: 2026, isOptional: true },
+    { name: 'Mahavir Jayanti', date: new Date('2026-04-05'), type: 'RESTRICTED', year: 2026, isOptional: true },
     { name: 'Dr. Ambedkar Jayanti', date: new Date('2026-04-14'), type: 'NATIONAL', year: 2026 },
     { name: 'May Day', date: new Date('2026-05-01'), type: 'NATIONAL', year: 2026 },
+    { name: 'Buddha Purnima', date: new Date('2026-05-31'), type: 'RESTRICTED', year: 2026, isOptional: true },
+    { name: 'Id-ul-Zuha (Bakrid)', date: new Date('2026-05-27'), type: 'OPTIONAL', year: 2026, isOptional: true },
+    { name: 'Muharram', date: new Date('2026-06-25'), type: 'RESTRICTED', year: 2026, isOptional: true },
     { name: 'Independence Day', date: new Date('2026-08-15'), type: 'NATIONAL', year: 2026 },
+    { name: 'Janmashtami', date: new Date('2026-08-25'), type: 'RESTRICTED', year: 2026, isOptional: true },
     { name: 'Ganesh Chaturthi', date: new Date('2026-08-27'), type: 'RESTRICTED', year: 2026, isOptional: true },
+    { name: 'Milad-un-Nabi', date: new Date('2026-08-26'), type: 'RESTRICTED', year: 2026, isOptional: true },
     { name: 'Mahatma Gandhi Jayanti', date: new Date('2026-10-02'), type: 'NATIONAL', year: 2026 },
-    { name: 'Dussehra', date: new Date('2026-10-02'), type: 'NATIONAL', year: 2026, location: 'North India' },
-    { name: 'Diwali', date: new Date('2026-10-21'), type: 'NATIONAL', year: 2026 },
+    { name: 'Dussehra', date: new Date('2026-10-19'), type: 'NATIONAL', year: 2026 },
+    { name: 'Diwali', date: new Date('2026-11-08'), type: 'NATIONAL', year: 2026 },
+    { name: 'Diwali (Day 2)', date: new Date('2026-11-09'), type: 'OPTIONAL', year: 2026, isOptional: true },
+    { name: 'Guru Nanak Jayanti', date: new Date('2026-11-24'), type: 'RESTRICTED', year: 2026, isOptional: true },
     { name: 'Christmas', date: new Date('2026-12-25'), type: 'NATIONAL', year: 2026 },
   ];
 
-  for (const h of holidays2026) {
+  const allHolidays = [...holidays2025, ...holidays2026];
+  for (const h of allHolidays) {
     await prisma.holidayCalendar.upsert({
       where: { date_location: { date: h.date, location: h.location || null } },
       update: {},
