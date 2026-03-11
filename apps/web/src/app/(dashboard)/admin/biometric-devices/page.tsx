@@ -53,7 +53,6 @@ import {
   type DeviceProtocol,
   type ConnectionStatus,
   type SyncInterval,
-  type ConnectionResult,
   BRAND_DEFAULT_PORTS,
   BRAND_DEFAULT_PROTOCOLS,
   BRAND_MODELS,
@@ -79,30 +78,11 @@ const BRANDS: DeviceBrand[] = [
 const PROTOCOLS: DeviceProtocol[] = ['TCP/IP', 'UDP', 'HTTP/REST API', 'PUSH SDK', 'ZK Protocol'];
 const SYNC_INTERVALS: SyncInterval[] = [15, 30, 60];
 
-const STATUS_CONFIG: Record<
-  ConnectionStatus,
-  { label: string; color: string; icon: React.ReactNode }
-> = {
-  Online: {
-    label: 'Online',
-    color: 'bg-green-100 text-green-700 border-green-200',
-    icon: <Wifi size={12} />,
-  },
-  Offline: {
-    label: 'Offline',
-    color: 'bg-gray-100 text-gray-600 border-gray-200',
-    icon: <WifiOff size={12} />,
-  },
-  Error: {
-    label: 'Error',
-    color: 'bg-red-100 text-red-700 border-red-200',
-    icon: <AlertCircle size={12} />,
-  },
-  Connecting: {
-    label: 'Connecting',
-    color: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    icon: <Loader2 size={12} className="animate-spin" />,
-  },
+const STATUS_CONFIG: Record<ConnectionStatus, { label: string; color: string; icon: React.ReactNode }> = {
+  Online: { label: 'Online', color: 'bg-green-100 text-green-700 border-green-200', icon: <Wifi size={12} /> },
+  Offline: { label: 'Offline', color: 'bg-gray-100 text-gray-600 border-gray-200', icon: <WifiOff size={12} /> },
+  Error: { label: 'Error', color: 'bg-red-100 text-red-700 border-red-200', icon: <AlertCircle size={12} /> },
+  Connecting: { label: 'Connecting', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', icon: <Loader2 size={12} className="animate-spin" /> },
 };
 
 const SAMPLE_DEVICES: Omit<BiometricDevice, 'createdAt' | 'updatedAt'>[] = [
@@ -181,7 +161,7 @@ const EMPTY_DEVICE: Partial<BiometricDevice> = {
   name: '',
   serialNumber: '',
   brand: 'ZKTeco',
-  modelNumber: 'ZKTeco K40',
+  modelNumber: '',
   location: '',
   floor: '',
   ipAddress: '',
@@ -221,7 +201,7 @@ export default function BiometricDevicesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
-  const [connectionResult, setConnectionResult] = useState<ConnectionResult | null>(null);
+  const [connectionResult, setConnectionResult] = useState<{ success: boolean; message: string; latency?: number } | null>(null);
   const [csvData, setCsvData] = useState('');
   const [activeTab, setActiveTab] = useState('basic');
 
@@ -270,7 +250,7 @@ export default function BiometricDevicesPage() {
       connectionStatus: editingDevice.connectionStatus || 'Offline',
       lastSync: editingDevice.lastSync,
       lastPing: editingDevice.lastPing,
-      syncInterval: (editingDevice.syncInterval as SyncInterval) || 30,
+      syncInterval: editingDevice.syncInterval as SyncInterval || 30,
       isActive: editingDevice.isActive ?? true,
       enrolledUsers: editingDevice.enrolledUsers || 0,
       createdAt: editingDevice.createdAt || new Date().toISOString(),
@@ -320,19 +300,19 @@ export default function BiometricDevicesPage() {
   };
 
   const handleCsvImport = () => {
-    const lines = csvData.trim().split('\n').slice(1);
+    const lines = csvData.trim().split('\n').slice(1); // skip header
     const now = new Date().toISOString();
     lines.forEach((line) => {
       const parts = line.split(',').map((p) => p.trim());
-      if (parts.length >= 4) {
-        const brand = (parts[2] as DeviceBrand) || 'ZKTeco';
+      if (parts.length >= 6) {
+        const brand = parts[2] as DeviceBrand;
         const device: BiometricDevice = {
           id: generateDeviceId(),
-          name: parts[0] || 'Device',
-          serialNumber: parts[1] || '',
+          name: parts[0],
+          serialNumber: parts[1],
           brand,
-          modelNumber: parts[3] || BRAND_MODELS[brand][0],
-          location: parts[4] || '',
+          modelNumber: parts[3],
+          location: parts[4],
           floor: parts[5] || 'Ground Floor',
           ipAddress: parts[6] || '192.168.1.100',
           port: parseInt(parts[7]) || BRAND_DEFAULT_PORTS[brand] || 4370,
@@ -371,9 +351,7 @@ export default function BiometricDevicesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Biometric Devices</h1>
-          <p className="text-sm text-gray-500">
-            Manage biometric attendance machines across all locations
-          </p>
+          <p className="text-sm text-gray-500">Manage biometric attendance machines across all locations</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setCsvDialogOpen(true)}>
@@ -514,9 +492,7 @@ export default function BiometricDevicesPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs text-gray-500">
-                            {formatTime(device.lastSync)}
-                          </span>
+                          <span className="text-xs text-gray-500">{formatTime(device.lastSync)}</span>
                         </TableCell>
                         <TableCell>
                           <span className="text-sm font-medium">{device.enrolledUsers}</span>
@@ -614,9 +590,7 @@ export default function BiometricDevicesPage() {
                   <Input
                     id="serial"
                     value={editingDevice.serialNumber || ''}
-                    onChange={(e) =>
-                      setEditingDevice((p) => ({ ...p, serialNumber: e.target.value }))
-                    }
+                    onChange={(e) => setEditingDevice((p) => ({ ...p, serialNumber: e.target.value }))}
                     placeholder="e.g., ZK-2024-001"
                   />
                 </div>
@@ -634,9 +608,7 @@ export default function BiometricDevicesPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {BRANDS.map((b) => (
-                        <SelectItem key={b} value={b}>
-                          {b}
-                        </SelectItem>
+                        <SelectItem key={b} value={b}>{b}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -652,9 +624,7 @@ export default function BiometricDevicesPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {(BRAND_MODELS[editingDevice.brand as DeviceBrand] || []).map((m) => (
-                        <SelectItem key={m} value={m}>
-                          {m}
-                        </SelectItem>
+                        <SelectItem key={m} value={m}>{m}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -687,18 +657,14 @@ export default function BiometricDevicesPage() {
                   <Label>Communication Protocol</Label>
                   <Select
                     value={editingDevice.protocol}
-                    onValueChange={(v) =>
-                      setEditingDevice((p) => ({ ...p, protocol: v as DeviceProtocol }))
-                    }
+                    onValueChange={(v) => setEditingDevice((p) => ({ ...p, protocol: v as DeviceProtocol }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {PROTOCOLS.map((p) => (
-                        <SelectItem key={p} value={p}>
-                          {p}
-                        </SelectItem>
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -707,21 +673,14 @@ export default function BiometricDevicesPage() {
                   <Label>Auto Sync Interval</Label>
                   <Select
                     value={String(editingDevice.syncInterval)}
-                    onValueChange={(v) =>
-                      setEditingDevice((p) => ({
-                        ...p,
-                        syncInterval: parseInt(v) as SyncInterval,
-                      }))
-                    }
+                    onValueChange={(v) => setEditingDevice((p) => ({ ...p, syncInterval: parseInt(v) as SyncInterval }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {SYNC_INTERVALS.map((i) => (
-                        <SelectItem key={i} value={String(i)}>
-                          {i} minutes
-                        </SelectItem>
+                        <SelectItem key={i} value={String(i)}>{i} minutes</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -770,9 +729,7 @@ export default function BiometricDevicesPage() {
                     id="port"
                     type="number"
                     value={editingDevice.port || 4370}
-                    onChange={(e) =>
-                      setEditingDevice((p) => ({ ...p, port: parseInt(e.target.value) }))
-                    }
+                    onChange={(e) => setEditingDevice((p) => ({ ...p, port: parseInt(e.target.value) }))}
                     placeholder="4370"
                   />
                 </div>
@@ -784,9 +741,7 @@ export default function BiometricDevicesPage() {
                   <Input
                     id="subnet"
                     value={editingDevice.subnetMask || ''}
-                    onChange={(e) =>
-                      setEditingDevice((p) => ({ ...p, subnetMask: e.target.value }))
-                    }
+                    onChange={(e) => setEditingDevice((p) => ({ ...p, subnetMask: e.target.value }))}
                     placeholder="255.255.255.0"
                     disabled={editingDevice.dhcpEnabled}
                   />
@@ -818,9 +773,7 @@ export default function BiometricDevicesPage() {
                   <Input
                     id="mac"
                     value={editingDevice.macAddress || ''}
-                    onChange={(e) =>
-                      setEditingDevice((p) => ({ ...p, macAddress: e.target.value }))
-                    }
+                    onChange={(e) => setEditingDevice((p) => ({ ...p, macAddress: e.target.value }))}
                     placeholder="AA:BB:CC:DD:EE:FF"
                   />
                 </div>
@@ -829,9 +782,7 @@ export default function BiometricDevicesPage() {
           </Tabs>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleSave}>
               {editingDevice.id ? 'Save Changes' : 'Add Device'}
             </Button>
@@ -846,16 +797,11 @@ export default function BiometricDevicesPage() {
             <DialogTitle>Delete Device</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600">
-            Are you sure you want to remove this device? All synced logs from this device will also
-            be cleared.
+            Are you sure you want to remove this device? This will also clear all synced logs from this device.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete
-            </Button>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -867,50 +813,20 @@ export default function BiometricDevicesPage() {
             <DialogTitle>Connection Test Result</DialogTitle>
           </DialogHeader>
           {connectionResult && (
-            <div
-              className={`p-4 rounded-lg ${
-                connectionResult.success
-                  ? 'bg-green-50 border border-green-200'
-                  : 'bg-red-50 border border-red-200'
-              }`}
-            >
+            <div className={`p-4 rounded-lg ${connectionResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
               <div className="flex items-center gap-2 mb-2">
                 {connectionResult.success ? (
                   <CheckCircle size={18} className="text-green-600" />
                 ) : (
                   <AlertCircle size={18} className="text-red-600" />
                 )}
-                <span
-                  className={`font-medium text-sm ${
-                    connectionResult.success ? 'text-green-700' : 'text-red-700'
-                  }`}
-                >
+                <span className={`font-medium text-sm ${connectionResult.success ? 'text-green-700' : 'text-red-700'}`}>
                   {connectionResult.success ? 'Connected Successfully' : 'Connection Failed'}
                 </span>
               </div>
               <p className="text-sm text-gray-600">{connectionResult.message}</p>
               {connectionResult.latency && (
                 <p className="text-xs text-gray-500 mt-1">Latency: {connectionResult.latency}ms</p>
-              )}
-              {connectionResult.deviceInfo && (
-                <div className="mt-3 space-y-1 text-xs text-gray-600 border-t pt-2">
-                  <p>
-                    <span className="font-medium">Firmware:</span>{' '}
-                    {connectionResult.deviceInfo.firmwareVersion}
-                  </p>
-                  <p>
-                    <span className="font-medium">Total Users:</span>{' '}
-                    {connectionResult.deviceInfo.totalUsers}
-                  </p>
-                  <p>
-                    <span className="font-medium">Total Logs:</span>{' '}
-                    {connectionResult.deviceInfo.totalLogs.toLocaleString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Platform:</span>{' '}
-                    {connectionResult.deviceInfo.platform}
-                  </p>
-                </div>
               )}
             </div>
           )}
@@ -930,11 +846,10 @@ export default function BiometricDevicesPage() {
             <p className="text-xs text-gray-500">
               CSV format: Name, SerialNumber, Brand, Model, Location, Floor, IPAddress, Port
             </p>
-            <div className="font-mono text-xs bg-gray-100 p-2 rounded text-gray-600 leading-relaxed">
-              Name,SerialNumber,Brand,Model,Location,Floor,IPAddress,Port
-              <br />
+            <p className="text-xs font-mono bg-gray-100 p-2 rounded text-gray-600">
+              Name,SerialNumber,Brand,Model,Location,Floor,IPAddress,Port<br />
               Main Gate,ZK-001,ZKTeco,ZKTeco K40,Lobby,Ground,192.168.1.201,4370
-            </div>
+            </p>
             <textarea
               className="w-full h-40 text-sm font-mono border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="Paste CSV data here..."
@@ -943,14 +858,8 @@ export default function BiometricDevicesPage() {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCsvDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              className="bg-teal-600 hover:bg-teal-700"
-              onClick={handleCsvImport}
-              disabled={!csvData.trim()}
-            >
+            <Button variant="outline" onClick={() => setCsvDialogOpen(false)}>Cancel</Button>
+            <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleCsvImport} disabled={!csvData.trim()}>
               Import
             </Button>
           </DialogFooter>
