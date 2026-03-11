@@ -1,26 +1,19 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageCircle, X, Send, Headphones, Bot, User } from 'lucide-react';
+import { MessageCircle, X, Send, Headphones, Bot, User, Sparkles, WifiOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  QUICK_ACTIONS,
-  findBestMatch,
-  getGreetingResponse,
-  getThanksResponse,
-  getFallbackResponse,
-  isGreeting,
-  isThanks,
-} from './hr-knowledge-base';
+import { QUICK_ACTIONS } from './hr-knowledge-base';
 
 interface ChatMessage {
   id: string;
   content: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  streaming?: boolean;
 }
 
 function formatTime(date: Date): string {
@@ -48,6 +41,21 @@ function TypingIndicator() {
   );
 }
 
+function ModeBadge({ isAiMode }: { isAiMode: boolean | null }) {
+  if (isAiMode === null) return null;
+  return isAiMode ? (
+    <span className="flex items-center gap-1 text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full">
+      <Sparkles className="h-2.5 w-2.5" />
+      AI Powered
+    </span>
+  ) : (
+    <span className="flex items-center gap-1 text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full">
+      <WifiOff className="h-2.5 w-2.5" />
+      Offline Mode
+    </span>
+  );
+}
+
 export function HrBuddy() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -62,6 +70,7 @@ export function HrBuddy() {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [hasUnread, setHasUnread] = useState(true);
+  const [isAiMode, setIsAiMode] = useState<boolean | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -85,19 +94,17 @@ export function HrBuddy() {
     }
   }, [isOpen]);
 
-  const generateResponse = useCallback((query: string): string => {
-    if (isGreeting(query)) return getGreetingResponse();
-    if (isThanks(query)) return getThanksResponse();
-
-    const match = findBestMatch(query);
-    if (match) return match.answer;
-
-    return getFallbackResponse();
+  // Check AI availability on mount
+  useEffect(() => {
+    fetch('/api/chat')
+      .then((r) => r.json())
+      .then((data) => setIsAiMode(!!data.aiEnabled))
+      .catch(() => setIsAiMode(false));
   }, []);
 
   const sendMessage = useCallback(
-    (text: string) => {
-      if (!text.trim()) return;
+    async (text: string) => {
+      if (!text.trim() || isTyping) return;
 
       const userMessage: ChatMessage = {
         id: `user-${Date.now()}`,
@@ -110,20 +117,88 @@ export function HrBuddy() {
       setInputValue('');
       setIsTyping(true);
 
-      // Simulate a brief typing delay
-      setTimeout(() => {
-        const response = generateResponse(text);
-        const botMessage: ChatMessage = {
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text.trim() }),
+        });
+
+        const contentType = response.headers.get('content-type') ?? '';
+
+        if (contentType.includes('text/event-stream') && response.body) {
+          // Streaming AI response
+          const botMsgId = `bot-${Date.now()}`;
+          setMessages((prev) => [
+            ...prev,
+            { id: botMsgId, content: '', sender: 'bot', timestamp: new Date(), streaming: true },
+          ]);
+          setIsTyping(false);
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let accumulated = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              const data = line.slice(6).trim();
+              if (data === '[DONE]') break;
+
+              try {
+                const parsed = JSON.parse(data);
+                const delta = parsed.choices?.[0]?.delta?.content ?? '';
+                if (delta) {
+                  accumulated += delta;
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === botMsgId ? { ...m, content: accumulated, streaming: true } : m
+                    )
+                  );
+                  scrollToBottom();
+                }
+              } catch {
+                // skip malformed SSE lines
+              }
+            }
+          }
+
+          // Mark streaming complete
+          setMessages((prev) =>
+            prev.map((m) => (m.id === botMsgId ? { ...m, streaming: false } : m))
+          );
+        } else {
+          // Offline / fallback JSON response
+          const data = await response.json();
+          const botMessage: ChatMessage = {
+            id: `bot-${Date.now()}`,
+            content: data.content ?? "I'm sorry, I couldn't process that request. Please try again.",
+            sender: 'bot',
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, botMessage]);
+          setIsTyping(false);
+        }
+      } catch {
+        const errorMessage: ChatMessage = {
           id: `bot-${Date.now()}`,
-          content: response,
+          content:
+            "I'm having trouble connecting right now. Please try again or contact HR directly via the Help Desk.",
           sender: 'bot',
           timestamp: new Date(),
         };
-        setMessages((prev) => [...prev, botMessage]);
+        setMessages((prev) => [...prev, errorMessage]);
         setIsTyping(false);
-      }, 800 + Math.random() * 600);
+        setIsAiMode(false);
+      }
     },
-    [generateResponse]
+    [isTyping, scrollToBottom]
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -146,8 +221,12 @@ export function HrBuddy() {
     setMessages((prev) => [...prev, botMessage]);
   };
 
-  const showFallback = messages.length > 1 && messages[messages.length - 1]?.sender === 'bot' &&
-    messages[messages.length - 1]?.content.includes("I'm not sure");
+  const lastBotMessage = [...messages].reverse().find((m) => m.sender === 'bot');
+  const showFallback =
+    messages.length > 1 &&
+    lastBotMessage &&
+    !lastBotMessage.streaming &&
+    lastBotMessage.content.includes("I'm not sure");
 
   return (
     <>
@@ -172,7 +251,10 @@ export function HrBuddy() {
               </div>
               <div>
                 <h3 className="text-white font-semibold text-sm">HR Buddy</h3>
-                <p className="text-teal-100 text-xs">Online | Ready to help</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <p className="text-teal-100 text-xs">Online | Ready to help</p>
+                  <ModeBadge isAiMode={isAiMode} />
+                </div>
               </div>
             </div>
             <button
@@ -201,13 +283,16 @@ export function HrBuddy() {
                 <div className="max-w-[80%]">
                   <div
                     className={cn(
-                      'rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed',
+                      'rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap',
                       msg.sender === 'user'
                         ? 'bg-teal-600 text-white rounded-tr-sm'
                         : 'bg-gray-100 text-gray-800 rounded-tl-sm'
                     )}
                   >
                     {msg.content}
+                    {msg.streaming && (
+                      <span className="inline-block w-1.5 h-3.5 bg-gray-500 ml-0.5 animate-pulse rounded-sm align-middle" />
+                    )}
                   </div>
                   <p
                     className={cn(
@@ -250,7 +335,8 @@ export function HrBuddy() {
                 <button
                   key={action.label}
                   onClick={() => handleQuickAction(action.query)}
-                  className="flex-shrink-0 text-xs px-2.5 py-1.5 rounded-full border border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300 transition-colors whitespace-nowrap"
+                  disabled={isTyping}
+                  className="flex-shrink-0 text-xs px-2.5 py-1.5 rounded-full border border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {action.label}
                 </button>
