@@ -147,6 +147,18 @@ export default function OvertimePage() {
   const pendingTeam = Object.values(teamApprovalMap).filter((r) => r.status === 'PENDING');
   const myApprovals = otApprovals.filter((r) => r.requestedByName === userName);
 
+  const otHistoryItems: Partial<ApprovalRequest>[] = [
+    ...myApprovals,
+    ...MY_OT_HISTORY.map((h) => ({
+      id: h.id,
+      title: `OT — ${h.date} (${h.hours}h, ${h.type.replace('_', ' ')})`,
+      description: h.reason,
+      status: h.status as ApprovalStatus,
+      metadata: { compensation: h.compensation },
+      steps: buildOvertimeChain().map((s) => ({ ...s, status: (h.status === 'APPROVED' ? 'APPROVED' : 'PENDING') as ApprovalStatus })),
+    })),
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -296,14 +308,7 @@ export default function OvertimePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[...myApprovals, ...MY_OT_HISTORY.map((h) => ({
-                  id: h.id,
-                  title: `OT — ${h.date} (${h.hours}h, ${h.type.replace('_', ' ')})`,
-                  description: h.reason,
-                  status: h.status as ApprovalStatus,
-                  metadata: { compensation: h.compensation },
-                  steps: buildOvertimeChain().map((s) => ({ ...s, status: (h.status === 'APPROVED' ? 'APPROVED' : 'PENDING') as ApprovalStatus })),
-                } as Partial<ApprovalRequest>)].slice(0, 10).map((req) => (
+                {otHistoryItems.slice(0, 10).map((req) => (
                   <div key={req.id} className="border rounded-lg p-3">
                     <div className="flex items-center justify-between">
                       <div>

@@ -147,6 +147,21 @@ export default function WFHPage() {
   const myWfhApprovals = wfhApprovals.filter((r) => r.requestedByName === userName);
   const pendingTeam = wfhApprovals.filter((r) => r.status === 'PENDING' && r.metadata?.employee);
 
+  const wfhHistoryItems: Partial<ApprovalRequest>[] = [
+    ...myWfhApprovals,
+    ...MY_WFH_HISTORY.map((h) => ({
+      id: h.id,
+      title: `WFH — ${h.date} (${h.type.replace('_', ' ')})`,
+      description: h.reason,
+      status: h.status as ApprovalStatus,
+      requestedAt: new Date(h.date).toISOString(),
+      steps: buildWFHChain().map((s) => ({
+        ...s,
+        status: (h.status === 'APPROVED' ? 'APPROVED' : h.status === 'REJECTED' ? 'REJECTED' : 'PENDING') as ApprovalStatus,
+      })),
+    })),
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -307,14 +322,7 @@ export default function WFHPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[...myWfhApprovals, ...MY_WFH_HISTORY.map((h) => ({
-                  id: h.id,
-                  title: `WFH — ${h.date} (${h.type.replace('_', ' ')})`,
-                  description: h.reason,
-                  status: h.status as ApprovalStatus,
-                  requestedAt: new Date(h.date).toISOString(),
-                  steps: buildWFHChain().map((s) => ({ ...s, status: h.status === 'APPROVED' ? 'APPROVED' as ApprovalStatus : h.status === 'REJECTED' ? 'REJECTED' as ApprovalStatus : 'PENDING' as ApprovalStatus })),
-                } as Partial<ApprovalRequest>)].slice(0, 10).map((req, index) => (
+                {wfhHistoryItems.slice(0, 10).map((req, index) => (
                   <div key={req.id} className="border rounded-lg p-3">
                     <div className="flex items-center justify-between">
                       <div>

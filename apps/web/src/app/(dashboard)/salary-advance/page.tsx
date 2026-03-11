@@ -108,6 +108,22 @@ export default function SalaryAdvancePage() {
   const myApprovals = advanceApprovals.filter((r) => r.requestedByName === userName);
   const pendingApprovals = advanceApprovals.filter((r) => r.status === 'PENDING');
 
+  const advanceHistoryItems: Partial<ApprovalRequest>[] = [
+    ...myApprovals,
+    ...MY_ADVANCE_HISTORY.map((h) => ({
+      id: h.id,
+      title: `Salary Advance — ${formatCurrency(h.amount)} (${h.repayMonths} months)`,
+      description: h.reason,
+      status: h.status as ApprovalStatus,
+      requestedAt: h.requestedAt,
+      metadata: { amount: h.amount, repayMonths: h.repayMonths },
+      steps: buildSalaryAdvanceChain().map((s, i) => ({
+        ...s,
+        status: (h.status === 'APPROVED' ? 'APPROVED' : i === 0 ? 'REJECTED' : 'PENDING') as ApprovalStatus,
+      })),
+    })),
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -286,18 +302,7 @@ export default function SalaryAdvancePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {[...myApprovals, ...MY_ADVANCE_HISTORY.map((h) => ({
-                  id: h.id,
-                  title: `Salary Advance — ${formatCurrency(h.amount)} (${h.repayMonths} months)`,
-                  description: h.reason,
-                  status: h.status as ApprovalStatus,
-                  requestedAt: h.requestedAt,
-                  metadata: { amount: h.amount, repayMonths: h.repayMonths },
-                  steps: buildSalaryAdvanceChain().map((s, i) => ({
-                    ...s,
-                    status: (h.status === 'APPROVED' ? 'APPROVED' : i === 0 ? 'REJECTED' : 'PENDING') as ApprovalStatus,
-                  })),
-                } as Partial<ApprovalRequest>)].map((req) => (
+                {advanceHistoryItems.map((req) => (
                   <div key={req.id} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
