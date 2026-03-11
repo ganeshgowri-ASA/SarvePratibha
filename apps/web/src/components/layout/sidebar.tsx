@@ -43,8 +43,11 @@ import {
   Train,
   Briefcase,
   MapPin,
+  GitBranch,
+  Clock,
   type LucideIcon,
 } from 'lucide-react';
+import { loadApprovals } from '@/lib/approval-store';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { UserRole } from '@sarve-pratibha/shared';
@@ -85,6 +88,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Train,
   Briefcase,
   MapPin,
+  GitBranch,
+  Clock,
 };
 
 interface ProviderBadge {
@@ -263,6 +268,17 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
     ],
   },
   {
+    id: 'my-approvals',
+    label: 'My Approvals',
+    icon: 'GitBranch',
+    items: [
+      { id: 'approvals', label: 'All Approvals', icon: 'GitBranch', href: '/approvals' },
+      { id: 'wfh', label: 'Work From Home', icon: 'Briefcase', href: '/wfh' },
+      { id: 'overtime', label: 'Overtime', icon: 'Clock', href: '/overtime' },
+      { id: 'salary-advance', label: 'Salary Advance', icon: 'IndianRupee', href: '/salary-advance' },
+    ],
+  },
+  {
     id: 'admin',
     label: 'Admin',
     icon: 'ShieldCheck',
@@ -298,6 +314,7 @@ function saveGroupState(state: Record<string, boolean>) {
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [groupOpen, setGroupOpen] = useState<Record<string, boolean>>({});
+  const [pendingCount, setPendingCount] = useState(0);
   const pathname = usePathname();
   const { data: session } = useSession();
   const userRole = (session?.user as any)?.role as UserRole | undefined;
@@ -307,6 +324,23 @@ export function Sidebar() {
   useEffect(() => {
     const saved = loadGroupState();
     setGroupOpen(saved);
+  }, []);
+
+  // Load pending approvals count from localStorage
+  useEffect(() => {
+    function refreshCount() {
+      const all = loadApprovals();
+      const count = all.filter((r) => r.status === 'PENDING' || r.status === 'ESCALATED').length;
+      setPendingCount(count);
+    }
+    refreshCount();
+    // Refresh on storage events (cross-tab) and on focus
+    window.addEventListener('storage', refreshCount);
+    window.addEventListener('focus', refreshCount);
+    return () => {
+      window.removeEventListener('storage', refreshCount);
+      window.removeEventListener('focus', refreshCount);
+    };
   }, []);
 
   const toggleGroup = (groupId: string) => {
@@ -419,6 +453,11 @@ export function Sidebar() {
                   {!collapsed && (
                     <>
                       <span className="truncate flex-1 text-left">{group.label}</span>
+                      {group.id === 'my-approvals' && pendingCount > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none shrink-0">
+                          {pendingCount > 99 ? '99+' : pendingCount}
+                        </span>
+                      )}
                       {open ? (
                         <ChevronUp size={14} className="shrink-0 text-teal-300" />
                       ) : (
