@@ -45,6 +45,8 @@ import {
   MapPin,
   GitBranch,
   Clock,
+  Fingerprint,
+  Cpu,
   type LucideIcon,
 } from 'lucide-react';
 import { loadApprovals } from '@/lib/approval-store';
@@ -90,6 +92,8 @@ const ICON_MAP: Record<string, LucideIcon> = {
   MapPin,
   GitBranch,
   Clock,
+  Fingerprint,
+  Cpu,
 };
 
 interface ProviderBadge {
@@ -139,6 +143,7 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
     icon: 'CalendarDays',
     items: [
       { id: 'leave-attendance', label: 'Leave & Attendance', icon: 'CalendarDays', href: '/leave-attendance' },
+      { id: 'biometric-logs', label: 'Biometric Logs', icon: 'Fingerprint', href: '/attendance/biometric-logs' },
     ],
   },
   {
@@ -289,6 +294,8 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
       { id: 'approval-matrix', label: 'Approval Matrix', icon: 'GitBranch', href: '/admin/approval-matrix', roles: ['IT_ADMIN'] },
       { id: 'reporting-hierarchy', label: 'Reporting Hierarchy', icon: 'Users', href: '/admin/reporting-hierarchy', roles: ['IT_ADMIN'] },
       { id: 'delegation', label: 'Delegation & Proxy', icon: 'UserCheck', href: '/admin/delegation', roles: ['IT_ADMIN'] },
+      { id: 'biometric-devices', label: 'Biometric Devices', icon: 'Cpu', href: '/admin/biometric-devices', roles: ['IT_ADMIN'] },
+      { id: 'biometric-mapping', label: 'Device Mapping', icon: 'Fingerprint', href: '/admin/biometric-mapping', roles: ['IT_ADMIN'] },
       { id: 'api-integration-settings', label: 'API Integration Settings', icon: 'Settings', href: '/admin/api-integration-settings', roles: ['IT_ADMIN'] },
     ],
   },
