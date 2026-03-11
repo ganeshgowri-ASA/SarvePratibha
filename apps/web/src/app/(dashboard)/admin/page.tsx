@@ -14,6 +14,9 @@ import type { SystemHealthData } from '@sarve-pratibha/shared';
 const ADMIN_LINKS = [
   { href: '/admin/users', label: 'User Management', icon: Users, desc: 'Manage user accounts and roles' },
   { href: '/admin/roles', label: 'Role & Permissions', icon: Shield, desc: 'Configure role-permission matrix' },
+  { href: '/admin/approval-matrix', label: 'Approval Matrix', icon: Settings, desc: 'Configure approval chains by grade & type' },
+  { href: '/admin/reporting-hierarchy', label: 'Reporting Hierarchy', icon: Users, desc: 'Manage employee org reporting structure' },
+  { href: '/admin/delegation', label: 'Delegation & Proxy', icon: Users, desc: 'Delegate approval rights temporarily' },
   { href: '/admin/security', label: 'Security Settings', icon: Shield, desc: 'Password policies and 2FA' },
   { href: '/admin/audit-logs', label: 'Audit Logs', icon: FileText, desc: 'View system audit trail' },
   { href: '/admin/system-health', label: 'System Health', icon: Activity, desc: 'Monitor system metrics' },

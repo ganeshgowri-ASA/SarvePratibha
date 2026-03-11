@@ -286,6 +286,9 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
     items: [
       { id: 'notifications', label: 'Notifications', icon: 'Bell', href: '/notifications' },
       { id: 'admin-panel', label: 'Admin Panel', icon: 'ShieldCheck', href: '/admin', roles: ['IT_ADMIN'] },
+      { id: 'approval-matrix', label: 'Approval Matrix', icon: 'GitBranch', href: '/admin/approval-matrix', roles: ['IT_ADMIN'] },
+      { id: 'reporting-hierarchy', label: 'Reporting Hierarchy', icon: 'Users', href: '/admin/reporting-hierarchy', roles: ['IT_ADMIN'] },
+      { id: 'delegation', label: 'Delegation & Proxy', icon: 'UserCheck', href: '/admin/delegation', roles: ['IT_ADMIN'] },
       { id: 'api-integration-settings', label: 'API Integration Settings', icon: 'Settings', href: '/admin/api-integration-settings', roles: ['IT_ADMIN'] },
     ],
   },
