@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   ArrowLeft,
   Clock,
@@ -14,8 +15,11 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Fingerprint,
+  AlertTriangle,
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { getAllLogs, pairPunches, type PairedPunch } from '@/lib/biometric-service';
 
 interface AttendanceRecord {
   id: string;
@@ -71,6 +75,7 @@ export default function AttendancePage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
   const [punchLoading, setPunchLoading] = useState(false);
+  const [biometricPaired, setBiometricPaired] = useState<PairedPunch[]>([]);
 
   const token = (session?.user as any)?.accessToken;
   const employeeId = (session?.user as any)?.employeeId;
@@ -113,6 +118,15 @@ export default function AttendancePage() {
     loadPunchStatus();
     loadAttendance();
   }, [loadPunchStatus, loadAttendance]);
+
+  // Load biometric data from localStorage
+  useEffect(() => {
+    const logs = getAllLogs();
+    if (logs.length > 0) {
+      const paired = pairPunches(logs);
+      setBiometricPaired(paired);
+    }
+  }, []);
 
   // Punch in/out
   async function handlePunch() {
@@ -277,84 +291,244 @@ export default function AttendancePage() {
         </Card>
       </div>
 
-      {/* Calendar View */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Attendance Calendar</CardTitle>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => changeMonth(-1)}>
-                <ChevronLeft size={16} />
-              </Button>
-              <span className="text-sm font-medium min-w-[140px] text-center">
-                {MONTHS[month - 1]} {year}
-              </span>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => changeMonth(1)}>
-                <ChevronRight size={16} />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="py-8 text-center text-sm text-gray-500">Loading...</div>
-          ) : (
-            <div className="grid grid-cols-7 gap-1">
-              {/* Day headers */}
-              {DAYS.map((day) => (
-                <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
-                  {day}
+      <Tabs defaultValue="calendar">
+        <TabsList>
+          <TabsTrigger value="calendar">Attendance Calendar</TabsTrigger>
+          <TabsTrigger value="biometric" className="flex items-center gap-1.5">
+            <Fingerprint size={14} />
+            Biometric
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Calendar Tab */}
+        <TabsContent value="calendar">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base">Attendance Calendar</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => changeMonth(-1)}>
+                    <ChevronLeft size={16} />
+                  </Button>
+                  <span className="text-sm font-medium min-w-[140px] text-center">
+                    {MONTHS[month - 1]} {year}
+                  </span>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => changeMonth(1)}>
+                    <ChevronRight size={16} />
+                  </Button>
                 </div>
-              ))}
-
-              {/* Empty cells before first day */}
-              {Array.from({ length: firstDayOfMonth }, (_, i) => (
-                <div key={`empty-${i}`} className="h-16" />
-              ))}
-
-              {/* Day cells */}
-              {Array.from({ length: daysInMonth }, (_, i) => {
-                const day = i + 1;
-                const record = attendanceMap[day];
-                const date = new Date(year, month - 1, day);
-                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-                const isToday =
-                  date.getDate() === today.getDate() &&
-                  date.getMonth() === today.getMonth() &&
-                  date.getFullYear() === today.getFullYear();
-                const isFuture = date > today;
-                const status = record?.status || (isWeekend ? 'WEEKEND' : isFuture ? '' : '');
-
-                return (
-                  <div
-                    key={day}
-                    className={`h-16 rounded-md border p-1 text-center ${
-                      isToday ? 'border-teal-500 border-2' : 'border-gray-100'
-                    } ${isFuture && !isWeekend ? 'opacity-40' : ''}`}
-                  >
-                    <p className={`text-xs font-medium ${isToday ? 'text-teal-600' : 'text-gray-700'}`}>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="py-8 text-center text-sm text-gray-500">Loading...</div>
+              ) : (
+                <div className="grid grid-cols-7 gap-1">
+                  {DAYS.map((day) => (
+                    <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
                       {day}
-                    </p>
-                    {status && (
-                      <div className="mt-1">
-                        <div
-                          className={`w-6 h-6 rounded-full mx-auto ${STATUS_COLORS[status] || 'bg-gray-200'}`}
-                          title={STATUS_LABELS[status] || status}
-                        />
-                        {record?.totalHours && (
-                          <p className="text-[9px] text-gray-500 mt-0.5">
-                            {record.totalHours.toFixed(1)}h
-                          </p>
+                    </div>
+                  ))}
+                  {Array.from({ length: firstDayOfMonth }, (_, i) => (
+                    <div key={`empty-${i}`} className="h-16" />
+                  ))}
+                  {Array.from({ length: daysInMonth }, (_, i) => {
+                    const day = i + 1;
+                    const record = attendanceMap[day];
+                    const date = new Date(year, month - 1, day);
+                    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                    const isToday =
+                      date.getDate() === today.getDate() &&
+                      date.getMonth() === today.getMonth() &&
+                      date.getFullYear() === today.getFullYear();
+                    const isFuture = date > today;
+                    const status = record?.status || (isWeekend ? 'WEEKEND' : isFuture ? '' : '');
+                    return (
+                      <div
+                        key={day}
+                        className={`h-16 rounded-md border p-1 text-center ${
+                          isToday ? 'border-teal-500 border-2' : 'border-gray-100'
+                        } ${isFuture && !isWeekend ? 'opacity-40' : ''}`}
+                      >
+                        <p className={`text-xs font-medium ${isToday ? 'text-teal-600' : 'text-gray-700'}`}>
+                          {day}
+                        </p>
+                        {status && (
+                          <div className="mt-1">
+                            <div
+                              className={`w-6 h-6 rounded-full mx-auto ${STATUS_COLORS[status] || 'bg-gray-200'}`}
+                              title={STATUS_LABELS[status] || status}
+                            />
+                            {record?.totalHours && (
+                              <p className="text-[9px] text-gray-500 mt-0.5">
+                                {record.totalHours.toFixed(1)}h
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Biometric Tab */}
+        <TabsContent value="biometric">
+          <div className="space-y-4">
+            {/* Today's biometric punch */}
+            {(() => {
+              const todayKey = new Date().toISOString().split('T')[0];
+              const todayBio = biometricPaired.filter((p) => p.date === todayKey);
+              const myBio = todayBio[0];
+              return (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Fingerprint size={18} className="text-teal-600" />
+                      Today&apos;s Biometric Punches
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {myBio ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="text-center p-3 bg-green-50 rounded-lg">
+                            <p className="text-lg font-bold text-green-700">
+                              {myBio.firstIn
+                                ? new Date(myBio.firstIn).toLocaleTimeString('en-IN', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
+                                : '—'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">First In</p>
+                          </div>
+                          <div className="text-center p-3 bg-red-50 rounded-lg">
+                            <p className="text-lg font-bold text-red-700">
+                              {myBio.lastOut
+                                ? new Date(myBio.lastOut).toLocaleTimeString('en-IN', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
+                                : '—'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">Last Out</p>
+                          </div>
+                          <div className="text-center p-3 bg-teal-50 rounded-lg">
+                            <p className="text-lg font-bold text-teal-700">
+                              {myBio.totalHours !== undefined
+                                ? `${myBio.totalHours.toFixed(1)}h`
+                                : '—'}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">Total Hours</p>
+                          </div>
+                        </div>
+                        {myBio.status !== 'complete' && (
+                          <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <AlertTriangle size={16} className="text-yellow-600 shrink-0" />
+                            <p className="text-sm text-yellow-700">
+                              {myBio.status === 'missing_out' && 'Missing punch-out — please regularize.'}
+                              {myBio.status === 'missing_in' && 'Missing punch-in — please regularize.'}
+                              {myBio.status === 'late' && 'Late arrival detected from biometric.'}
+                              {myBio.status === 'early_departure' && 'Early departure detected from biometric.'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="py-6 text-center text-gray-400 space-y-2">
+                        <Fingerprint size={32} className="mx-auto text-gray-300" />
+                        <p className="text-sm">No biometric data for today.</p>
+                        <p className="text-xs">Sync devices to load punch data.</p>
+                        <Link href="/attendance/biometric-logs">
+                          <Button size="sm" variant="outline" className="mt-2">
+                            View Biometric Logs
+                          </Button>
+                        </Link>
+                      </div>
                     )}
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
+            {/* Recent biometric records */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">Recent Biometric Records</CardTitle>
+                  <Link href="/attendance/biometric-logs">
+                    <Button variant="outline" size="sm">
+                      View All Logs
+                    </Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {biometricPaired.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-4">
+                    No biometric records. Sync devices from Admin &gt; Biometric Devices.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {biometricPaired.slice(0, 7).map((p, idx) => {
+                      const hasMismatch = p.status === 'missing_in' || p.status === 'missing_out';
+                      return (
+                        <div
+                          key={`${p.date}-${p.employeeId}-${idx}`}
+                          className={`flex items-center justify-between p-3 rounded-lg border text-sm ${
+                            hasMismatch ? 'border-orange-200 bg-orange-50' : 'border-gray-100 bg-gray-50'
+                          }`}
+                        >
+                          <div>
+                            <p className="font-medium text-gray-900">{p.employeeName}</p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(p.date).toLocaleDateString('en-IN', {
+                                day: 'numeric',
+                                month: 'short',
+                              })}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs">
+                            <span className="text-green-700 font-mono">
+                              {p.firstIn
+                                ? new Date(p.firstIn).toLocaleTimeString('en-IN', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
+                                : '—'}
+                            </span>
+                            <span className="text-gray-400">→</span>
+                            <span className="text-red-700 font-mono">
+                              {p.lastOut
+                                ? new Date(p.lastOut).toLocaleTimeString('en-IN', {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
+                                : '—'}
+                            </span>
+                            {p.totalHours !== undefined && (
+                              <Badge variant="outline" className="text-[10px] bg-teal-50 text-teal-700 border-teal-200">
+                                {p.totalHours.toFixed(1)}h
+                              </Badge>
+                            )}
+                            {hasMismatch && (
+                              <AlertTriangle size={14} className="text-orange-500" />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
