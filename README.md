@@ -184,6 +184,35 @@ Higher roles inherit all lower role permissions. IT_ADMIN always has full access
 - Data Import/Export
 - Notification Templates
 
+## HR Buddy AI Chatbot
+
+HR Buddy is a virtual HR assistant embedded in the bottom-right corner of every dashboard page. It answers employee questions about payroll, leave, attendance, HRA, claims, and company policies.
+
+### Modes
+
+| Mode | Description |
+|------|-------------|
+| **AI Powered** | Uses OpenAI GPT-4o-mini for intelligent, conversational responses. Requires `OPENAI_API_KEY`. |
+| **Offline Mode** | Falls back to built-in pattern-matching knowledge base. Works without any API key. |
+
+### Setup
+
+1. Obtain an OpenAI API key from [platform.openai.com](https://platform.openai.com)
+2. Add it to your `.env` file:
+   ```
+   OPENAI_API_KEY=sk-your-key-here
+   ```
+3. Restart the dev server — HR Buddy will automatically switch to **AI Powered** mode.
+
+If `OPENAI_API_KEY` is not set or the API call fails, HR Buddy silently falls back to **Offline Mode** with no user-facing errors.
+
+### API Route
+
+- `GET /api/chat` — returns `{ aiEnabled: boolean }` (used by the UI badge)
+- `POST /api/chat` — accepts `{ message: string }`, returns:
+  - Streaming `text/event-stream` (SSE) when AI is enabled
+  - JSON `{ content, mode: "offline" }` when falling back
+
 ## API Overview
 
 All API endpoints are under `/api/` prefix. Standard response format:
@@ -255,6 +284,7 @@ All API endpoints are under `/api/` prefix. Standard response format:
    - `NEXTAUTH_URL` - Production URL
    - `NEXTAUTH_SECRET` - Random secret
    - `API_URL` - Backend API URL (server-side)
+   - `OPENAI_API_KEY` - (optional) enables GPT-4o-mini for HR Buddy chatbot
    - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (optional)
 
 ### Backend (Railway)
@@ -293,6 +323,8 @@ See `.env.example` for the complete list. Key variables:
 | `NEXTAUTH_SECRET` | Yes | NextAuth session encryption |
 | `NEXTAUTH_URL` | Yes | Frontend URL |
 | `JWT_SECRET` | Yes | JWT token signing |
+| `NEXT_PUBLIC_API_URL` | Yes | Backend API URL (client-side) |
+| `OPENAI_API_KEY` | No | Enables GPT-4o-mini for HR Buddy chatbot (falls back to offline mode if not set) |
 | `SMTP_HOST/USER/PASS` | No | Email sending |
 | `TWILIO_SID/AUTH_TOKEN` | No | SMS sending |
 | `VAPI_API_KEY` | No | AI voice screening |
